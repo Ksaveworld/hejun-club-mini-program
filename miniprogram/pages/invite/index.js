@@ -3,6 +3,7 @@ const { drawInvite } = require('../../utils/invite-art');
 
 Page({
   data: { loading: false, saving: false, ready: false, code: '', cardPath: '', posterPath: '', error: '', message: '', albumDenied: false },
+  openAmbassador(){wx.navigateTo({url:'/pages/ambassador/index'});},
   onLoad() { this._generation = 0; },
   onShow() { this._shown = true; if (this._canvasReady) return this.refresh(); },
   onReady() { this._canvasReady = true; if (this._shown) return this.refresh(); },

@@ -40,7 +40,7 @@ export function WebJoin({ plan, session, refresh }: { plan: Plan; session: Sessi
     } catch (err) { setError(errorText(err)); } finally { setBusy(false); }
   }
   return <><a className="back-link" href="#/members"><ArrowLeft size={17}/>返回会员权益</a>
-    <div className="page-heading"><span className="eyebrow">加入俱乐部</span><h1 id="page-title" tabIndex={-1}>填写入会信息</h1><p>{plan.id==='organization'?'资质审核通过后再付款，付款成功后开通。':'基础与星级会员付款成功后开通，无需资质预审。'}</p></div>
+    <div className="page-heading"><span className="eyebrow">加入俱乐部</span><h1 id="page-title" tabIndex={-1}>填写入会信息</h1><p>{plan.id==='organization'?'本期仅接受预报名，提交后待审核，暂不收费或开通会籍。':'基础与星级会员付款成功后开通，无需资质预审。'}</p></div>
     <aside className={`join-summary ${plan.id}`}><span className="eyebrow">已选方案</span><h2>{plan.name}</h2><div className="price"><small>¥</small>{money(plan.price)}<span>/ 年</span></div><p>有效期从核验付款成功时起算一年。</p></aside>
     {draftNote&&<p role="status">{draftNote}</p>}{loading&&<p>正在读取原申请…</p>}
     <form className="form-panel business-join" onSubmit={submit}>
@@ -53,6 +53,6 @@ export function WebJoin({ plan, session, refresh }: { plan: Plan; session: Sessi
       <p className="small muted">{session.user.sourceCode ? `已保存推荐来源 ${session.user.sourceCode}，已有有效来源不会被覆盖。` : session.defaultReferralConfigured ? '不填写推荐码时使用后台默认来源。' : '推荐码可留空；后台默认值尚待提供，不会自动指定推荐人。'} 手机号码尚未验证。</p>
       <label className="consent"><input type="checkbox" required checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>我同意将本次虚构联系资料及订单保存在{isWebTrial?'当前服务器':'当前电脑'}，用于体验。正式协议与权益资料待提供；本次提交不会收款。</span></label>
       {error && <p className="field-error" role="alert">{error} <a href="#/account?tab=orders">查看我的订单</a></p>}
-      <div className="form-bottom"><span><strong>下一步</strong>{plan.id==='organization'?'等待资质审核':'查看待付款订单'}</span><button className="button primary" disabled={busy||loading}>{busy?'保存中…':plan.id==='organization'?'提交资质申请':'保存订单'}<ArrowRight size={17}/></button></div>
+      <div className="form-bottom"><span><strong>下一步</strong>{plan.id==='organization'?'等待资质审核':'查看待付款订单'}</span><button className="button primary" disabled={busy||loading}>{busy?'保存中…':plan.id==='organization'?'提交预报名':'保存订单'}<ArrowRight size={17}/></button></div>
     </form></>;
 }

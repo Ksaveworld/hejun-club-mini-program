@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 
-const tables = { activities:'id', report_previews:'article_id', article_documents: 'article_id', schema_version: 'version', users: 'id', sessions: 'token_hash', native_sessions: 'token_hash',
+const tables = { survey_submissions:'seq', ambassador_applications:'seq', activities:'id', report_previews:'article_id', article_documents: 'article_id', schema_version: 'version', users: 'id', sessions: 'token_hash', native_sessions: 'token_hash',
   wechat_identities: 'app_id,open_id', settings: 'key', orders: 'id', memberships: 'user_id',
   payment_receipts: 'transaction_id', posts: 'id', audit_log: 'id', articles: 'id', service_resources: 'id', feedback_tickets: 'seq', feedback_events: 'seq' };
 function existingFile(path) {
@@ -20,6 +20,11 @@ export function inspectDatabase(path) {
     if (db.prepare('PRAGMA foreign_key_check').all().length) throw new Error('数据库关联关系检查失败');
     const counts = {}, digest = createHash('sha256');
     for (const [table, order] of Object.entries(tables)) {
+      const introduced = { survey_submissions: 9, ambassador_applications: 10 }[table];
+      if (introduced && !db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(table)) {
+        if (db.prepare('SELECT MAX(version) version FROM schema_version').get().version >= introduced) throw new Error('新增业务数据表缺失：' + table);
+        continue;
+      }
       if(table==='activities'&&!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='activities'").get()){if(db.prepare('SELECT MAX(version) version FROM schema_version').get().version>=8)throw new Error('活动表缺失');continue;}
       if(table==='report_previews'&&!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='report_previews'").get()){if(db.prepare('SELECT MAX(version) version FROM schema_version').get().version>=7)throw new Error('报告试看表缺失');continue;}
       if(table==='article_documents'&&!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='article_documents'").get()){if(db.prepare('SELECT MAX(version) version FROM schema_version').get().version>=6)throw new Error('报告附件表缺失');continue;}

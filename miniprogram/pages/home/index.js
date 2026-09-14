@@ -1,13 +1,13 @@
 const { api, captureReferral, hasSession, sessionStamp, isCurrentSession } = require('../../utils/api');
 const { memberJourney } = require('../../utils/member-journey');
 Page({
-  data: { loading: false, contentError: '', articles: [], journey: null,
+  data: { campaign: null, campaignOpen: false, loading: false, contentError: '', articles: [], journey: null,
     shortcuts: [{ id: 'knowledge', label: '知识资料', mark: '知' }, { id: 'activities', label: '俱乐部活动', mark: '聚' },
       { id: 'orders', label: '申请进度', mark: '会' }, { id: 'feedback', label: '帮助反馈', mark: '问' }] },
   onLoad(options) { captureReferral(options); this._generation = 0; },
-  onShow() { this._visible = true; return this.refresh(); },
-  onHide() { this._visible = false; this._generation++; this.setData({articles: [], journey: null, loading: false}); },
-  onUnload() { this._visible = false; this._generation++; },
+  onShow() { this._visible = true; this.loadCampaign(); return this.refresh(); },
+  onHide() { if(this._campaignTimer)clearTimeout(this._campaignTimer); this._visible = false; this._generation++; this.setData({articles: [], journey: null, loading: false}); },
+  onUnload() { if(this._campaignTimer)clearTimeout(this._campaignTimer); this._visible = false; this._generation++; },
   async onPullDownRefresh() { try { await this.refresh(); } finally { wx.stopPullDownRefresh(); } },
   async refresh() {
     const loggedIn = hasSession(), stamp = sessionStamp(), generation = ++this._generation;
@@ -35,10 +35,21 @@ Page({
     const id=event.currentTarget.dataset.id;
     if(this.data.articles.some(article=>article.id===id)) wx.navigateTo({url:'/pages/articles/index?id='+encodeURIComponent(id)});
   },
+  async loadCampaign() {
+    try {const result=await api('/campaign'); if(!this._visible || !result.campaign?.active)return;
+      const campaign=result.campaign;this.setData({campaign,campaignOpen:!wx.getStorageSync(campaign.id)});
+      this._campaignTimer=setTimeout(()=>this.setData({campaign:null,campaignOpen:false}),Math.max(0,Date.parse(campaign.endsAt)-Date.now()));
+    }catch(error) { /* Campaign failure must not interrupt home navigation. */ }
+  },
+  closeCampaign(){if(this.data.campaign)wx.setStorageSync(this.data.campaign.id,'dismissed');this.setData({campaignOpen:false});},
+  chooseSurvey(e){this.closeCampaign();wx.navigateTo({url:'/pages/surveys/index?side='+e.currentTarget.dataset.side});},
+  stopCampaignTap(){},
+  openSurveys() { wx.navigateTo({url: "/pages/surveys/index"}); },
   openMembers() { wx.navigateTo({url:'/pages/members/index'}); },
   openServices(event) {
     const id=event.currentTarget.dataset.serviceId;
-    if(id==='knowledge'||id==='insights') wx.navigateTo({url:'/pages/articles/index?category='+(id==='knowledge'?'knowledge':'news')});
+    if(id==='directory') wx.navigateTo({url:'/pages/directory/index'});
+    else if(id==='knowledge'||id==='insights') wx.navigateTo({url:'/pages/articles/index?category='+(id==='knowledge'?'knowledge':'news')});
     else if(id==='orders'||id==='feedback'||id==='activities') wx.navigateTo({url:'/pages/'+id+'/index'});
     else wx.switchTab({url:'/pages/services/index'});
   },

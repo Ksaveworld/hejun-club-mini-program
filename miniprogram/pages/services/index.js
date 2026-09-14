@@ -31,6 +31,7 @@ Page({
     else if(id==='posts'||id==='feedback'||id==='activities') wx.navigateTo({url:'/pages/'+id+'/index'});
     else {hasSession();if(this._stamp&&isCurrentSession(this._stamp)&&this.data.resources.some(item=>item.id===id)) wx.navigateTo({url:'/pages/service-detail/index?id='+encodeURIComponent(id)});else this.refresh();}
   },
+  openDirectory(){wx.navigateTo({url:"/pages/directory/index"});},
   openMembers(){wx.navigateTo({url:'/pages/members/index'});},
   openArticles(){wx.navigateTo({url:'/pages/articles/index'});}
 });

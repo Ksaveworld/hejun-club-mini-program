@@ -1,0 +1,13 @@
+<view class="page directory-page">
+ <view wx:if="{{selected}}">
+  <button class="dir-back" bindtap="back">‹ 返回专业服务</button>
+  <view class="dir-hero"><view class="dir-eyebrow">专业服务 / 0{{selected.id}}</view><view class="dir-title serif">{{selected.title}}</view><view class="dir-intro">{{selected.summary}}</view><view class="dir-eyebrow">{{selected.details.length}} 项服务模块</view></view>
+  <view wx:for="{{selected.details}}" wx:key="id" class="dir-module"><view class="dir-eyebrow">模块 0{{item.id}}</view><view class="dir-module-title">{{item.title}}</view><view class="dir-label">服务说明</view><text class="dir-body" selectable>{{item.description}}</text><view class="dir-value"><view class="dir-label">解决问题与价值</view><text class="dir-body" selectable>{{item.value}}</text></view></view>
+  <view class="subtitle">具体服务范围、承接方式及费用，以实际对接约定为准。</view>
+ </view>
+ <view wx:else><view class="dir-eyebrow">连接企业 · 发现专业能力</view><view class="page-title serif">企业与服务名录</view><view class="subtitle">从业务需求出发，找到跨境经营所需的支持。</view>
+  <view class="dir-tabs"><button data-tab="services" class="{{tab==='services'?'active':''}}" bindtap="changeTab">专业服务</button><button data-tab="companies" class="{{tab==='companies'?'active':''}}" bindtap="changeTab">会员企业</button></view>
+  <view wx:if="{{tab==='services'}}"><view class="section-title">六大服务体系</view><button wx:for="{{categories}}" wx:key="id" data-id="{{item.id}}" bindtap="openCategory" class="dir-card"><view class="dir-eyebrow">专业服务 <text>0{{item.id}}</text></view><view class="dir-module-title">{{item.title}}</view><view class="dir-summary">{{item.summary}}</view><view class="dir-card-bottom">{{item.modules.length}}项服务 · 查看介绍 <text>↗</text></view></button></view>
+  <view wx:else class="dir-empty"><view class="section-title">会员企业资料整理中</view><view class="subtitle">后续将在这里展示会员企业介绍与专业能力。</view><button data-tab="services" bindtap="changeTab">浏览专业服务</button></view>
+ </view>
+</view>

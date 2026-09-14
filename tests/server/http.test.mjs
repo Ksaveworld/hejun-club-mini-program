@@ -87,7 +87,7 @@ test('HTTP rejects invalid data, malformed JSON, missing consent and excessive l
   for(let i=0;i<26;i++) response=await request('/auth/login',{body:{username:'alice',password:'wrongpassword'}});
   assert.equal(response.status,429);
 });
-test('HTTP content is member gated, owner isolated and cannot be public before review',async t=>{
+test('HTTP content is member gated, owner isolated and is immediately visible to registered readers after publication',async t=>{
   const {db,request,register}=await setup(t);
   const user=await register('alice'),other=await register('bobby');
   const headers={'Idempotency-Key':randomUUID()},body={title:'测试文字',body:'仅用于独立测试数据库'};
@@ -96,7 +96,8 @@ test('HTTP content is member gated, owner isolated and cannot be public before r
   applyVerifiedPayment(db,{transactionId:randomUUID(),orderId:order.id,currency:'CNY',amountCents:order.amountCents,status:'SUCCESS',paidAt:new Date().toISOString(),merchantId:'TEST',appId:'TEST'}, {merchantId:'TEST',appId:'TEST'});
   const post=await request('/posts',{body,cookie:user.cookie,headers});assert.equal(post.status,201);
   assert.equal((await request('/posts',{body,cookie:user.cookie,headers})).body.post.id,post.body.post.id);
-  assert.equal((await request('/content')).body.posts.length,0);
+  assert.equal((await request('/content')).status,401);
+  assert.equal((await request('/content',{cookie:other.cookie})).body.posts.length,1);
   assert.equal((await request('/posts',{cookie:other.cookie})).body.posts.length,0);
   insertUser(db,'admin',await hashPassword(password),'admin');
   const admin=await request('/auth/login',{body:{username:'admin',password}});
@@ -104,7 +105,14 @@ test('HTTP content is member gated, owner isolated and cannot be public before r
   assert.equal((await request(path,{body:{status:'published'},cookie:user.cookie})).status,403);
   assert.equal((await request(path,{body:{status:'rejected'},cookie:admin.cookie})).status,400);
   assert.equal((await request(path,{body:{status:'published'},cookie:admin.cookie})).status,200);
-  assert.equal((await request('/content')).body.posts[0].title,body.title);
+  const anonymous = await request('/content');
+  assert.equal(anonymous.status,401);
+  assert.equal(anonymous.body.posts,undefined);
+  assert.equal((await request('/content',{cookie:other.cookie})).body.posts[0].title,body.title);
+  assert.equal((await request('/content',{cookie:user.cookie})).body.posts[0].title,body.title);
   db.prepare("UPDATE memberships SET expires_at='2000-01-01T00:00:00.000Z'").run();
+  assert.equal((await request('/content',{cookie:user.cookie})).body.posts[0].title,body.title);
+  db.prepare("UPDATE sessions SET expires_at='2000-01-01T00:00:00.000Z' WHERE user_id=?").run(other.body.user.id);
+  assert.equal((await request('/content',{cookie:other.cookie})).status,401);
   assert.equal((await request('/posts',{body,cookie:user.cookie,headers:{'Idempotency-Key':randomUUID()}})).status,403);
 });

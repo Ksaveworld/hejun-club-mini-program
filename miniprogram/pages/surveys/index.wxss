@@ -1,0 +1,4 @@
+.survey-field { margin: 32rpx 0; padding: 24rpx; background: white; border-radius: 16rpx; line-height: 1.7; }
+.survey-field label { display: block; margin: 18rpx 0; }
+.survey-field textarea { width: 100%; min-height: 90rpx; box-sizing: border-box; padding: 16rpx; margin-top: 16rpx; background: #f6f7f3; }
+.survey-error { color: #a32d2d; padding: 24rpx 0; }

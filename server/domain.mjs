@@ -6,7 +6,7 @@ const derive = promisify(scrypt);
 export const plans = {
   basic: { id: 'basic', name: '基础会员', amountCents: 36500, review: false },
   star: { id: 'star', name: '星级会员', amountCents: 365000, review: false },
-  organization: { id: 'organization', name: '机构及专业会员', amountCents: 3650000, review: true },
+  organization: { id: 'organization', name: '机构及专业会员', amountCents: 3650000, review: true, registrationOnly: true },
 };
 export class BusinessError extends Error {
   constructor(message, status = 400) { super(message); this.status = status; }
@@ -93,7 +93,7 @@ export function orderView(db, row) {
     actualPaidCents: row.actual_paid_cents, currency: row.currency, status: row.status,
     form: JSON.parse(row.profile_json), createdAt: row.created_at, paidAt: row.paid_at,
     expiresAt: row.expires_at, reviewNote: row.review_note, reviewedAt: row.reviewed_at,
-    sourceCode, referralSource: row.referral_source };
+    sourceCode, referralSource: row.referral_source, registrationOnly: plans[row.plan_id]?.registrationOnly === true };
 }
 export function ownedOrder(db, userId, id) {
   const row = db.prepare('SELECT * FROM orders WHERE id=? AND user_id=?').get(id, userId);
@@ -125,7 +125,7 @@ export function createOrder(db, userId, body, key) {
       requireRule(previous.request_hash === requestHash, '提交编号已用于其他内容，请刷新后重试', 409);
       return orderView(db, previous);
     }
-    requireRule(!db.prepare('SELECT 1 FROM memberships WHERE user_id=?').get(userId), '已有会员记录，续费和升级入口将在规则核对及开发完成后开放', 409);
+    requireRule(plan.registrationOnly || !db.prepare('SELECT 1 FROM memberships WHERE user_id=?').get(userId), '已有会员记录，续费和升级入口将在规则核对及开发完成后开放', 409);
     requireRule(!db.prepare("SELECT 1 FROM orders WHERE user_id=? AND status IN ('pending','review')").get(userId), '你已有待处理订单，请在“我的订单”继续或取消后重选', 409);
     captureReferral(db, userId, referral);
     const user = db.prepare('SELECT * FROM users WHERE id=?').get(userId);
@@ -157,7 +157,7 @@ export function reviewOrder(db, adminId, id, body) {
     requireRule(row, '申请不存在', 404);
     requireRule(row.plan_id === 'organization' && row.status === 'review', '申请已处理，请刷新查看', 409);
     db.prepare('UPDATE orders SET status=?,reviewed_by=?,reviewed_at=?,review_note=? WHERE id=?')
-      .run(body.decision === 'approve' ? 'pending' : 'rejected', adminId, nowISO(), note, id);
+      .run(body.decision === 'approve' ? (plans[row.plan_id].registrationOnly ? 'review' : 'pending') : 'rejected', adminId, nowISO(), note, id);
     audit(db, adminId, `application.${body.decision}`, id, { note });
     return orderView(db, db.prepare('SELECT * FROM orders WHERE id=?').get(id));
   });
@@ -198,7 +198,7 @@ export function applyVerifiedPayment(db, receipt, expected, now = nowISO()) {
     let outcome = 'not_paid';
     if (receipt.status === 'SUCCESS') {
       requireRule(parsed >= Date.parse(order.created_at), '支付时间早于订单');
-      outcome = order.status === 'pending' && !db.prepare('SELECT 1 FROM memberships WHERE user_id=?').get(order.user_id)
+      outcome = !plans[order.plan_id]?.registrationOnly && order.status === 'pending' && !db.prepare('SELECT 1 FROM memberships WHERE user_id=?').get(order.user_id)
         ? 'activated' : 'needs_reconciliation';
       if (outcome === 'activated') {
         const expiresAt = yearAfter(canonical.paidAt);

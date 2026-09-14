@@ -12,7 +12,7 @@
       <view class="benefits">
         <view wx:for="{{item.benefits}}" wx:for-item="benefit" wx:key="*this" class="benefit"><text class="benefit-dot">·</text>{{benefit}}</view>
       </view>
-      <button class="plan-action" hover-class="tap-feedback" data-plan-id="{{item.id}}" bindtap="openPlan"><text>{{item.id === 'organization' ? '选择此会籍，申请资质审核' : '选择此会籍'}}</text><text class="arrow">›</text></button>
+      <button class="plan-action" hover-class="tap-feedback" data-plan-id="{{item.id}}" bindtap="openPlan"><text>{{item.id === 'organization' ? '预报名，暂不收费' : '选择此会籍'}}</text><text class="arrow">›</text></button>
     </view>
   </view>
   <view class="footnote">当前可提交申请；支付接通前不收款，提交申请或审核通过不会开通会籍。</view>

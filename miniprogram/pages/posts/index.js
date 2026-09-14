@@ -2,7 +2,7 @@ const { returnToPrevious } = require('../../utils/navigation');
 const { api, hasSession, clearSession, sessionStamp, isCurrentSession, newKey } = require('../../utils/api');
 const drafts = require('../../utils/drafts');
 
-const labels = { pending: '待审核', published: '已发表', rejected: '未通过' };
+const labels = { pending: '待审核', published: '已发表', rejected: '已下架' };
 function formatPost(post) {
   return Object.assign({}, post, { statusLabel: labels[post.status] || post.status,
     createdLabel: post.createdAt ? new Date(post.createdAt).toLocaleString() : '',
@@ -15,11 +15,11 @@ Page({
   restoreListPosition() { if(this.data.mode==='list' && wx.nextTick && this._scrollTop) { this._restoringScroll=true;wx.nextTick(()=>{ if(!this._unloaded)wx.pageScrollTo({scrollTop:this._scrollTop,duration:0});this._restoringScroll=false; }); } },
   data: { mode: 'list', loggedIn: false, ready: false, canSubmit: false, loading: false, busy: false,
     posts: [], selectedId: '', selectedPost: null, title: '', body: '', error: '', message: '', accessNote: '', draftNote: '' },
-  onLoad(options = {}) { this._draft = blankDraft(); this._detailId=options.id || '';this.setData({mode:['new','detail'].includes(options.mode)?options.mode:'list',selectedId:this._detailId}); },
+  onLoad(options = {}) { this._feed=options.mode==='feed'||options.feed==='1'; this._draft = blankDraft(); this._detailId=options.id || '';this.setData({mode:['new','detail','feed'].includes(options.mode)?options.mode:'list',selectedId:this._detailId}); },
   newPost() { wx.navigateTo({url:'/pages/posts/index?mode=new'}); },
   navigatePost(event) {
     if(this.data.busy || this.data.loading || !this._viewStamp || !isCurrentSession(this._viewStamp))return;
-    const id=event.currentTarget.dataset.postId;if(this.data.posts.some(p=>p.id===id))wx.navigateTo({url:'/pages/posts/index?mode=detail&id='+encodeURIComponent(id)});
+    const id=event.currentTarget.dataset.postId;if(this.data.posts.some(p=>p.id===id))wx.navigateTo({url:'/pages/posts/index?mode=detail&id='+encodeURIComponent(id)+(this._feed?'&feed=1':'')});
   },
   backToList() { returnToPrevious(this,'/pages/posts/index'); },
   async onPullDownRefresh() { try { await this.refreshPosts(); } finally { wx.stopPullDownRefresh(); } },
@@ -74,7 +74,7 @@ Page({
     this.setData({ loading: true });
     try {
       const sameOwner = this.acceptMember(await api('/me'), stamp);
-      const response = await api('/posts');
+      const response = await api(this._feed?'/content':'/posts');
       this.assertContext(stamp);
       const posts = response.posts.map(formatPost);
       const selectedPost = sameOwner ? posts.find(post => post.id === selectedId) || null : null;
@@ -133,7 +133,7 @@ Page({
       drafts.write(this._scope, this._owner, 'post:new', null);
       this._draft = blankDraft(); this._key = ''; this._payload = '';
       this.setData({ title: '', body: '', posts: [post].concat(this.data.posts.filter(item => item.id !== post.id)),
-        selectedId: post.id, selectedPost: post, message: '稿件已保存，可在下方查看审核状态。' });
+        selectedId: post.id, selectedPost: post, message: '稿件已发布，注册用户现在可以阅读。' });
       if(this.data.mode==='new')wx.redirectTo({url:'/pages/posts/index?mode=detail&id='+encodeURIComponent(post.id),fail:()=>{this._detailId=post.id;this.setData({mode:'detail'});}});
     } catch (error) { this.showFailure(error); }
     finally { if (!this._unloaded) this.setData({ busy: false }); }

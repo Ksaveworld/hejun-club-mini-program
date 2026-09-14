@@ -12,7 +12,10 @@
     "pages/activities/index",
     "pages/invite/index",
     "pages/feedback/index",
-    "pages/service-detail/index"
+    "pages/service-detail/index",
+    "pages/surveys/index",
+    "pages/directory/index",
+    "pages/ambassador/index"
   ],
   "window": {
     "navigationBarTitleText": "俱乐部",

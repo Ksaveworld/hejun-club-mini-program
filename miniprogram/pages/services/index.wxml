@@ -3,6 +3,7 @@
     <view class="page-title serif">跨境服务</view>
     <view class="subtitle">找到需要的资料与服务。</view>
   </view>
+  <button class="secondary-action" bindtap="openDirectory">企业名录 · 六大专业服务体系</button>
   <view class="search-row">
     <input class="search-input" value="{{query}}" bindinput="search" placeholder="搜索服务、内容" maxlength="50" confirm-type="search" />
     <button wx:if="{{query}}" class="clear-search" hover-class="tap-feedback" bindtap="clearSearch">清空</button>

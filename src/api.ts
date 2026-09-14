@@ -17,7 +17,7 @@ export interface Order {
 }
 export interface Post { id: string; userId: string; title: string; body: string; status: 'pending' | 'published' | 'rejected'; reason: string | null; createdAt: string }
 export const statusLabels = { review:'待资质审核', pending:'待付款', paid:'已付款', cancelled:'已取消', rejected:'审核未通过' };
-export const postLabels = { pending:'待审核', published:'已通过', rejected:'已驳回' };
+export const postLabels = { pending:'待审核', published:'已发布', rejected:'已下架' };
 let webActor: string | null = null;
 export function setWebActor(id: string | null) { webActor=id; }
 export async function api<T>(path: string, body?: unknown, key?: string): Promise<T> {

@@ -30,9 +30,14 @@ test('server owns prices, basic/star pending and organization review; approval n
   assert.equal(org.status,'review'); assert.equal(org.amountCents,3650000);
   assert.throws(()=>reviewOrder(db,member.id,org.id,{decision:'approve',note:'no'}),/管理员/);
   assert.throws(()=>reviewOrder(db,admin.id,org.id,{decision:'approve',note:''}),/审核说明/);
-  assert.equal(reviewOrder(db,admin.id,org.id,{decision:'approve',note:'测试资质已核对'}).status,'pending');
+  assert.equal(reviewOrder(db,admin.id,org.id,{decision:'approve',note:'测试资质已核对'}).status,'review');
   assert.equal(membership(db,member.id),null);
-  assert.throws(()=>reviewOrder(db,admin.id,org.id,{decision:'reject',note:'重复'}),/已处理/);
+  assert.equal(db.prepare('SELECT status FROM orders WHERE id=?').get(org.id).status,'review');
+  db.prepare("UPDATE orders SET status='pending' WHERE id=?").run(org.id);
+  const unexpected = receipt(org);
+  assert.equal(applyVerifiedPayment(db,unexpected,expected).outcome,'needs_reconciliation');
+  assert.equal(applyVerifiedPayment(db,unexpected,expected).duplicate,true);
+  assert.equal(membership(db,member.id),null);
   assert.equal(db.prepare("SELECT count(*) n FROM audit_log WHERE action='application.approve'").get().n,1);
 });
 test('orders are idempotent and only one pending application is allowed',t=>{
