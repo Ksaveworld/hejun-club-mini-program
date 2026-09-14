@@ -1,0 +1,20 @@
+<view class="page">
+  <view class="heading">
+    <view class="page-title serif">成为俱乐部会员</view>
+    <view class="subtitle">三档会籍，按你的业务需求选择。</view>
+  </view>
+  <view class="plans">
+    <view wx:for="{{plans}}" wx:key="id" class="plan plan-{{item.id}}">
+      <view class="plan-english">{{item.english}}</view>
+      <view class="plan-title serif">{{item.name}}</view>
+      <view class="plan-price"><text class="currency">¥</text><text class="serif">{{item.priceLabel}}</text><text class="period"> / 年</text></view>
+      <view class="plan-summary">{{item.audience}}</view><view class="plan-summary">{{item.rule}}</view>
+      <view class="benefits">
+        <view wx:for="{{item.benefits}}" wx:for-item="benefit" wx:key="*this" class="benefit"><text class="benefit-dot">·</text>{{benefit}}</view>
+      </view>
+      <button class="plan-action" hover-class="tap-feedback" data-plan-id="{{item.id}}" bindtap="openPlan"><text>{{item.id === 'organization' ? '选择此会籍，申请资质审核' : '选择此会籍'}}</text><text class="arrow">›</text></button>
+    </view>
+  </view>
+  <view class="footnote">当前可提交申请；支付接通前不收款，提交申请或审核通过不会开通会籍。</view>
+  <button class="primary-action services-action" hover-class="tap-feedback" bindtap="openServices">查看跨境服务</button>
+</view>

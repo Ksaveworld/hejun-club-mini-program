@@ -1,0 +1,25 @@
+.service-detail { margin-bottom: 28rpx; padding: 22rpx 28rpx 28rpx; border: 1rpx solid #d7b96c; border-radius: 16rpx; background: #fffae9; }
+.detail-heading { display: flex; align-items: center; justify-content: space-between; }
+.detail-category { color: #697970; font-size: 22rpx; }
+.close-detail { min-height: 76rpx; padding: 15rpx 0 15rpx 18rpx; color: #287963; font-size: 23rpx; }
+.detail-title { font-size: 37rpx; }
+.detail-copy { margin-top: 18rpx; font-size: 27rpx; line-height: 1.9; }
+.availability { margin-top: 24rpx; padding-left: 18rpx; border-left: 4rpx solid #c9a956; color: #164c3d; font-size: 25rpx; }
+.detail-note { margin-top: 18rpx; color: #697970; font-size: 23rpx; line-height: 1.9; }
+.search-row { display: flex; align-items: center; min-height: 96rpx; padding: 0 24rpx; border: 1rpx solid #dfe6e0; border-radius: 12rpx; background: #ffffff; }
+.search-input { flex: 1; min-width: 0; height: 96rpx; color: #203c32; font-size: 28rpx; }
+.clear-search { min-height: 80rpx; padding: 16rpx 0 16rpx 22rpx; color: #287963; font-size: 25rpx; }
+.result-count { margin-top: 18rpx; color: #697970; font-size: 24rpx; }
+.service-list { margin-top: 24rpx; padding: 0 28rpx; border-radius: 16rpx; background: #ffffff; }
+.service-item { display: flex; align-items: center; justify-content: space-between; padding: 28rpx 0; border-bottom: 1rpx solid #edf1eb; }
+.service-item:last-child { border-bottom: 0; }
+.service-copy { flex: 1; min-width: 0; }
+.service-category { color: #8a794c; font-size: 21rpx; }
+.service-title { margin-top: 4rpx; font-size: 33rpx; }
+.service-summary { margin-top: 10rpx; color: #697970; font-size: 25rpx; }
+.service-status { margin-top: 12rpx; color: #748276; font-size: 22rpx; }
+.empty-state { padding: 52rpx 30rpx; text-align: center; }
+.empty-title { font-size: 34rpx; }
+.empty-copy { margin-top: 14rpx; color: #697970; font-size: 26rpx; }
+.empty-state .secondary-action { margin: 30rpx auto 0; width: 260rpx; }
+.membership-action { margin-top: 28rpx; }

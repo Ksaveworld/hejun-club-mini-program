@@ -1,0 +1,46 @@
+<view class="page orders-page">
+  <view class="heading"><view class="page-title serif">{{detailMode ? '办理进度' : '申请与订单'}}</view><view class="subtitle">{{detailMode ? '申请已保存，你可以随时从“我的”找回进度。' : '选择一条记录，查看办理进度。'}}</view></view>
+  <view wx:if="{{error}}" class="orders-error">{{error}}</view>
+  <view wx:if="{{message}}" class="orders-message">{{message}}</view>
+  <view wx:if="{{!loggedIn}}" class="orders-guest card"><view>请先登录后查看自己的申请和订单。</view><button class="primary-action" bindtap="openLogin">登录后查看</button></view>
+  <view wx:else>
+    <view wx:if="{{loading || detailLoading}}" class="orders-loading">{{detailLoading ? '正在读取订单详情…' : '正在刷新订单…'}}</view>
+    <view wx:if="{{detailMode && selectedOrder}}" class="order-detail card">
+      <view class="detail-top"><view class="order-status status-{{selectedOrder.status}}">{{selectedOrder.statusLabel}}</view></view>
+      <view class="detail-plan serif">{{selectedOrder.planName}}</view><view class="detail-amount">¥{{selectedOrder.amountLabel}}</view>
+      <view class="detail-fields" wx:if="{{moreOpen}}">
+        <view class="detail-field"><text>订单编号</text><text class="detail-value order-id">{{selectedOrder.id}}</text></view>
+        <view class="detail-field"><text>姓名 / 称呼</text><text class="detail-value">{{selectedOrder.form.name}}</text></view>
+        <view class="detail-field"><text>联系手机</text><text class="detail-value">{{selectedOrder.form.phone}}（未验证）</text></view>
+        <view class="detail-field"><text>申请类型</text><text class="detail-value">{{selectedOrder.planId === 'organization' ? selectedOrder.form.organizationType : '个人会员'}}</text></view>
+        <view wx:if="{{selectedOrder.form.company}}" class="detail-field"><text>企业 / 机构</text><text class="detail-value">{{selectedOrder.form.company}}</text></view>
+        <view class="detail-field"><text>所在城市</text><text class="detail-value">{{selectedOrder.form.city}}</text></view>
+        <view wx:if="{{selectedOrder.form.industry}}" class="detail-field"><text>所在行业</text><text class="detail-value">{{selectedOrder.form.industry}}</text></view>
+        <view wx:if="{{selectedOrder.form.need}}" class="detail-field"><text>跨境需求</text><text class="detail-value">{{selectedOrder.form.need}}</text></view>
+        <view class="detail-field"><text>推荐来源</text><text class="detail-value">{{selectedOrder.sourceCode || '未指定，默认值待配置'}}</text></view>
+        <view class="detail-field"><text>保存时间</text><text class="detail-value">{{selectedOrder.createdLabel}}</text></view>
+        <view wx:if="{{selectedOrder.paidLabel}}" class="detail-field"><text>付款时间</text><text class="detail-value">{{selectedOrder.paidLabel}}</text></view>
+        <view wx:if="{{selectedOrder.actualPaidLabel}}" class="detail-field"><text>实际付款</text><text class="detail-value">¥{{selectedOrder.actualPaidLabel}}</text></view>
+        <view wx:if="{{selectedOrder.expiryLabel}}" class="detail-field"><text>有效期至</text><text class="detail-value">{{selectedOrder.expiryLabel}}</text></view>
+      </view>
+      <view wx:if="{{selectedOrder.reviewNote}}" class="review-note"><view class="review-title">审核说明</view><view>{{selectedOrder.reviewNote}}</view><view wx:if="{{selectedOrder.reviewedLabel}}" class="review-time">{{selectedOrder.reviewedLabel}}</view></view>
+      <view wx:if="{{selectedOrder.status === 'review'}}" class="order-state-note">请等待资质审核。审核通过后才允许付款，审核通过本身不会开通会籍。</view>
+      <view wx:if="{{selectedOrder.status === 'pending'}}" class="order-state-note"><view class="state-note-title">支付尚未开放</view><view>申请已保存，当前无法付款。你可以查看申请资料，或通过下方入口咨询进度。</view></view>
+      <view wx:if="{{selectedOrder.status === 'rejected'}}" class="order-state-note">本次资质申请未通过。请阅读审核说明，核对资料后可重新选择方案并申请。</view>
+      <view wx:if="{{selectedOrder.status === 'cancelled'}}" class="order-state-note">该订单已取消，申请与取消记录继续保留。</view>
+      <button wx:if="{{selectedOrder.status === 'rejected'}}" class="primary-action" bindtap="reapply">修改资料，重新申请</button>
+      <button class="secondary-action" bindtap="openHelp">对此申请有疑问</button>
+      <button class="text-action" bindtap="toggleMore">{{moreOpen ? '收起申请资料与更多操作' : '申请资料与更多操作'}} ›</button>
+      <button wx:if="{{selectedOrder.canCancel && moreOpen}}" class="secondary-action cancel-order" loading="{{busy}}" disabled="{{busy || loading || detailLoading}}" bindtap="cancelOrder">{{busy ? '正在处理…' : '取消这笔订单'}}</button>
+    </view>
+    <view wx:if="{{!detailMode}}">
+    <view class="orders-list-heading"><text class="section-title serif">我的全部订单</text><text class="orders-count">{{orders.length}} 笔</text></view>
+    <view wx:if="{{orders.length}}" class="orders-list">
+      <button wx:for="{{orders}}" wx:key="id" class="order-row {{selectedId === item.id ? 'order-row-selected' : ''}}" hover-class="tap-feedback" data-order-id="{{item.id}}" disabled="{{busy || loading || detailLoading}}" bindtap="openOrder"><view class="order-row-heading"><text class="order-name">{{item.planName}}</text><text class="order-row-amount">¥{{item.amountLabel}}</text></view><view class="order-row-meta"><text>{{item.createdLabel}}</text><text class="order-status status-{{item.status}}">{{item.statusLabel}}</text></view><view class="order-row-bottom"><text class="order-row-id">{{item.id}}</text><text>查看详情 ›</text></view></button>
+    </view>
+    <view wx:elif="{{!loading && !error}}" class="orders-empty card"><view class="serif">还没有申请或订单</view><view class="empty-copy">先了解会员权益，再选择适合自己的方案。</view><button class="secondary-action" bindtap="openMembers">查看会员权益</button></view>
+    </view>
+    <button wx:if="{{error}}" class="secondary-action refresh-orders" loading="{{loading}}" disabled="{{busy || loading || detailLoading}}" bindtap="refreshOrders">刷新订单状态</button>
+    <button wx:if="{{detailMode}}" class="orders-members" bindtap="backToRecords">返回上一页</button>
+  </view>
+</view>

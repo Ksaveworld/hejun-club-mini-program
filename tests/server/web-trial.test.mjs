@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {request as httpRequest} from 'node:http';
+import {randomUUID} from 'node:crypto';
+import {openDatabase} from '../../server/db.mjs';
+import {createApplication} from '../../server/app.mjs';
+async function setup(t){const db=openDatabase(':memory:');const server=createApplication(db,{webTrial:{mode:'web-trial',origin:'https://example.com'}});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(async()=>{server.closeAllConnections();await new Promise(r=>server.close(r));db.close();});
+ const request=(path,body,headers={})=>new Promise((resolve,reject)=>{const req=httpRequest({host:'127.0.0.1',port:server.address().port,path:'/api'+path,method:body===undefined?'GET':'POST',headers:{Host:'example.com','X-Forwarded-Proto':'https','X-Real-IP':'203.0.113.1',Origin:'https://example.com','Content-Type':'application/json','X-Club-Request':'1',...headers}},res=>{let text='';res.on('data',d=>text+=d);res.on('end',()=>resolve({status:res.statusCode,body:JSON.parse(text),cookie:res.headers['set-cookie']?.[0]}));});req.on('error',reject);req.end(body===undefined?undefined:JSON.stringify(body));});
+ const register=async name=>{const r=await request('/auth/register',{username:name,password:'IsolatedWebPassword1',consent:true});assert.equal(r.status,201);return {Cookie:r.cookie.split(';')[0],'X-Club-Actor':r.body.user.id};};return {db,request,register};}
+test('web trial enforces trusted HTTPS proxy, origin and separate secure path-scoped cookies',async t=>{const e=await setup(t);assert.equal((await e.request('/health')).body.mode,'web-trial');for(const h of [{'X-Forwarded-Proto':'http'},{'X-Real-IP':'invalid'},{Host:'evil.example'}])assert.equal((await e.request('/health',undefined,h)).status,403);
+ assert.equal((await e.request('/auth/register',{},{Origin:'https://evil.example'})).status,403);assert.equal((await e.request('/native/auth/login',{})).status,403);
+ const r=await e.request('/auth/register',{username:'web_cookie',password:'IsolatedWebPassword1',consent:true});assert.match(r.cookie,/club_web_session=/);assert.match(r.cookie,/Path=\/hejun-club\/api;/);assert.match(r.cookie,/HttpOnly/);assert.match(r.cookie,/Secure/);assert.match(r.cookie,/SameSite=Strict/);
+ const h={Cookie:r.cookie.split(';')[0],'X-Club-Actor':r.body.user.id};const logout=await e.request('/auth/logout',{},h);assert.match(logout.cookie,/Path=\/hejun-club\/api;/);assert.match(logout.cookie,/Max-Age=0/);
+});
+test('web accounts preserve ownership, reject stale account writes and cannot grant membership or admin',async t=>{const e=await setup(t),a=await e.register('web_first'),b=await e.register('web_second');const input={planId:'basic',consent:true,form:{name:'隔离用户',phone:'13800000000',city:'测试城市'}};
+ assert.equal((await e.request('/orders',input,{...a,'X-Club-Actor':b['X-Club-Actor'],'Idempotency-Key':randomUUID()})).status,409);
+ const order=await e.request('/orders',input,{...a,'Idempotency-Key':randomUUID()});assert.equal(order.status,201);assert.equal((await e.request('/orders/'+order.body.order.id,undefined,b)).status,404);assert.equal((await e.request('/admin/orders',undefined,a)).status,403);
+ assert.equal((await e.request('/orders/'+order.body.order.id+'/payment',{},a)).status,503);assert.equal(e.db.prepare('SELECT COUNT(*) n FROM memberships').get().n,0);
+ assert.equal((await e.request('/orders/'+order.body.order.id+'/cancel',{},a)).body.order.status,'cancelled');
+});

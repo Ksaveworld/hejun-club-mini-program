@@ -1,0 +1,23 @@
+.posts-error, .posts-message, .posts-loading { margin-bottom: 24rpx; padding: 20rpx 24rpx; border-radius: 12rpx; }
+.posts-error { color: #8b3f35; background: #fff0e9; }
+.posts-message { color: #164c3d; background: #e5f0e6; }
+.posts-loading { color: #697970; }
+.posts-guest button, .access-note button, .submit-post { margin-top: 24rpx; }
+.post-form { margin-top: 24rpx; }
+.field-label { display: block; margin-top: 26rpx; margin-bottom: 10rpx; font-weight: 600; }
+.post-input, .post-body { box-sizing: border-box; width: 100%; border: 1rpx solid #d7dfd8; border-radius: 10rpx; background: #fafbf8; padding: 18rpx; font-size: 28rpx; }
+.post-input { height: 88rpx; }
+.post-body { height: 360rpx; line-height: 1.8; }
+.field-count { text-align: right; color: #697970; font-size: 23rpx; margin-top: 8rpx; }
+.post-item { margin-bottom: 20rpx; }
+.post-row { width: 100%; }
+.post-title { font-size: 31rpx; font-weight: 600; overflow-wrap: break-word; }
+.post-meta { display: flex; flex-wrap: wrap; gap: 12rpx 24rpx; margin-top: 14rpx; color: #697970; font-size: 23rpx; }
+.status-pending { color: #8a691e; }
+.status-published { color: #164c3d; }
+.status-rejected { color: #8b3f35; }
+.post-expand { margin-top: 20rpx; color: #287963; font-size: 24rpx; }
+.post-detail { margin-top: 22rpx; padding-top: 22rpx; border-top: 1rpx solid #e5e9e3; }
+.post-text { display: block; white-space: pre-wrap; overflow-wrap: break-word; }
+.review-note { padding: 18rpx; margin-top: 24rpx; border-radius: 10rpx; background: #f6f7f3; font-size: 25rpx; white-space: pre-wrap; overflow-wrap: break-word; }
+.refresh-posts { margin-top: 28rpx; }

@@ -1,0 +1,19 @@
+<view class="page account-page">
+  <view class="heading"><view class="page-title serif">我的俱乐部</view><view class="subtitle">我的会籍、办理进度与服务记录</view></view>
+  <view wx:if="{{error}}" class="account-error">{{error}}<button class="text-action" bindtap="refreshAccount" disabled="{{loading}}">重试</button></view>
+  <view wx:if="{{loading}}" class="account-loading">正在更新我的状态…</view>
+  <view wx:if="{{loggedIn}}">
+    <view class="profile-card card"><view class="profile-avatar serif">会</view><view class="profile-copy"><view class="profile-name">{{user.username}}</view><view class="profile-note">{{membership && membership.active ? '俱乐部会员' : '已登录'}}</view></view></view>
+    <view wx:if="{{journey}}" class="membership-card journey-card"><view class="membership-title">当前状态</view><view class="membership-status serif">{{journey.title}}</view><view wx:if="{{expiryLabel}}" class="membership-expiry">会籍有效期至 {{expiryLabel}}</view><view class="journey-note">{{journey.note}}</view><button class="journey-action" bindtap="openJourney" disabled="{{loading || busy}}">{{journey.action}} ›</button></view>
+    <view wx:if="{{journeyError}}" class="account-error">{{journeyError}}</view>
+    <view class="account-menu">
+      <button class="account-menu-item" bindtap="openOrders"><text>申请与订单</text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openMembers"><text>会籍与权益说明</text><text class="arrow">›</text></button>
+      <button class="account-menu-item posts-entry" bindtap="openPosts"><text>我的投稿</text><text class="arrow">›</text></button>
+      <button class="account-menu-item invite-entry" bindtap="openInvite"><text>邀请与奖励</text><text class="arrow">›</text></button>
+      <button class="account-menu-item feedback-entry" bindtap="openFeedback"><text>帮助与反馈<text wx:if="{{unreadFeedback}}"> · {{unreadFeedback}} 条新回复</text></text><text class="arrow">›</text></button>
+    </view>
+    <button class="logout-action" loading="{{busy}}" disabled="{{loading || busy}}" bindtap="logout">退出当前账号</button>
+  </view>
+  <view wx:elif="{{!loading}}" class="guest-card card"><view class="guest-title serif">欢迎来到俱乐部</view><view class="guest-copy">先了解会员权益。登录后可办理入会，并找回自己的申请和服务记录。</view><button class="primary-action" bindtap="openMembers">了解会员权益</button><button class="guest-members" bindtap="openLogin">登录，查看我的记录 ›</button><button class="guest-members" bindtap="openFeedback">帮助与反馈</button></view>
+</view>

@@ -1,0 +1,16 @@
+{
+  "name": "cabc-wechat-automation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node check.mjs",
+    "check:business": "node check-business.mjs",
+    "check:posts": "node check-posts.mjs",
+    "check:articles": "node check-articles.mjs",
+    "check:invite": "node check-invite.mjs",
+    "check:lan": "node check-lan.mjs"
+  },
+  "dependencies": {
+    "miniprogram-automator": "0.12.1"
+  }
+}

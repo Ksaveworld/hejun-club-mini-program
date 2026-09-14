@@ -1,0 +1,18 @@
+<view class="page">
+  <view class="heading"><view class="page-title serif">{{selected ? selected.title : '俱乐部活动'}}</view><view class="subtitle">活动安排与参与说明</view></view>
+  <view wx:if="{{error}}" class="card"><view class="error">{{error}}</view><button class="secondary-action" bindtap="refresh">重新读取</button></view>
+  <view wx:if="{{loading}}" class="muted">正在读取活动…</view>
+  <view wx:if="{{selected}}" class="card">
+    <view class="muted">{{selected.mode === 'online' ? '线上活动' : '线下活动'}} · {{selected.phase}}</view>
+    <view class="subtitle">{{selected.summary}}</view>
+    <view class="section-title">活动时间（北京时间）</view><text selectable>{{selected.time}}</text>
+    <view class="section-title">{{selected.mode === 'online' ? '参与说明' : '活动地点'}}</view><text selectable>{{selected.location}}</text>
+    <view class="section-title">主办方</view><text selectable>{{selected.organizer}}</text>
+    <view class="section-title">活动详情</view><text class="activity-body" selectable>{{selected.body}}</text>
+  </view>
+  <view wx:if="{{!id}}"><input class="search-input" value="{{query}}" bindinput="search" placeholder="搜索活动名称、地点" maxlength="80"/>
+    <button wx:for="{{filtered}}" wx:key="id" class="card activity-card" data-id="{{item.id}}" bindtap="open"><view class="muted">{{item.mode === 'online' ? '线上活动' : '线下活动'}} · {{item.phase}}</view><view class="section-title serif">{{item.title}}</view><view class="subtitle">{{item.summary}}</view><view class="muted">{{item.time}}（北京时间）</view><view>{{item.location}}</view><view class="read-link">查看详情 ›</view></button>
+    <view wx:if="{{ready && !items.length}}" class="card muted">暂无已发布活动。</view><view wx:elif="{{ready && !filtered.length}}" class="card muted">没有匹配的活动，请更换关键词。</view>
+  </view>
+  <button wx:if="{{id}}" class="secondary-action" bindtap="back">返回活动列表</button>
+</view>

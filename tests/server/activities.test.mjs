@@ -1,0 +1,25 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {openDatabase} from '../../server/db.mjs';
+import {createApplication} from '../../server/app.mjs';
+import {insertUser,hashPassword} from '../../server/domain.mjs';
+import {saveActivity,transitionActivity,listActivities} from '../../server/activities.mjs';
+import {randomUUID} from 'node:crypto';
+import {request} from 'node:http';
+test('activity drafts, completeness, public visibility, revisions and operator permissions',async t=>{
+ const db=openDatabase(':memory:'),admin=insertUser(db,'activity_admin',await hashPassword('IsolatedActivities1'),'admin'),member=insertUser(db,'activity_member',await hashPassword('IsolatedActivities1'),'member');
+ const server=createApplication(db,{hosts:['127.0.0.1'],origins:['http://127.0.0.1']});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(async()=>{await new Promise(r=>{server.closeAllConnections();server.close(r);});db.close();});
+ const get=path=>new Promise((resolve,reject)=>{request({host:'127.0.0.1',port:server.address().port,path:'/api'+path,headers:{Host:'127.0.0.1'}},res=>{const chunks=[];res.on('data',c=>chunks.push(c));res.on('end',()=>resolve({status:res.statusCode,body:JSON.parse(Buffer.concat(chunks))}));}).on('error',reject).end();});
+ const input={title:'隔离活动',mode:'offline',summary:'隔离简介',body:'活动议程\n第二段',startAt:'2099-01-01T09:00:00+08:00',endAt:'2099-01-01T11:00:00+08:00',location:'隔离地点',organizer:'隔离主办方'},key=randomUUID();
+ assert.throws(()=>saveActivity(db,member,input,key));assert.throws(()=>listActivities(db,member,true));assert.equal((await get('/admin/activities')).status,401);
+ let item=saveActivity(db,admin,{title:input.title,mode:input.mode},key);assert.equal(saveActivity(db,admin,{title:input.title,mode:input.mode},key).id,item.id);assert.throws(()=>saveActivity(db,admin,{...input,title:'其他'},key));
+ assert.throws(()=>transitionActivity(db,admin,item.id,'publish',item.revision));assert.equal((await get('/activities/'+item.id)).status,404);
+ assert.throws(()=>saveActivity(db,admin,{...input,endAt:input.startAt,revision:1},undefined,item.id));
+ item=saveActivity(db,admin,{...input,revision:1},undefined,item.id);assert.equal(item.startAt,'2099-01-01T01:00:00.000Z');
+ assert.throws(()=>saveActivity(db,admin,{...input,revision:1},undefined,item.id));item=transitionActivity(db,admin,item.id,'publish',item.revision);
+ const result=await get('/activities/'+item.id);assert.equal(result.status,200);assert.equal(result.body.activity.location,input.location);assert.equal((await get('/activities')).body.activities.length,1);
+ assert.throws(()=>saveActivity(db,admin,{...input,revision:item.revision},undefined,item.id));assert.throws(()=>transitionActivity(db,member,item.id,'unpublish',item.revision));
+ transitionActivity(db,admin,item.id,'unpublish',item.revision);assert.equal((await get('/activities/'+item.id)).status,404);assert.equal((await get('/activities')).body.activities.length,0);
+ const expired=saveActivity(db,admin,{...input,startAt:'2000-01-01T01:00:00Z',endAt:'2000-01-01T02:00:00Z'},randomUUID());assert.throws(()=>transitionActivity(db,admin,expired.id,'publish',expired.revision));
+ assert.equal(db.prepare("SELECT count(*) n FROM audit_log WHERE action='activity.publish'").get().n,1);
+});

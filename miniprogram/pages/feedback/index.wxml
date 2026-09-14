@@ -1,0 +1,40 @@
+<view class="page">
+  <view class="heading"><view class="page-title serif">{{mode === 'new' ? '提交问题' : mode === 'detail' ? '问题与回复' : '帮助与反馈'}}</view><view class="subtitle">{{mode === 'list' ? '查看我的问题，或提交新的反馈。' : mode === 'new' ? '描述你遇到的具体问题。' : '所有说明与回复保留在同一条记录中。'}}</view></view>
+  <view wx:if="{{mode === 'new'}}" class="test-note">请勿填写密码、证件号码或完整付款凭据。回复可在“我的 → 帮助与反馈”查看。</view>
+  <view wx:if="{{error}}" class="feedback-error">{{error}}</view><view wx:if="{{message}}" class="feedback-message">{{message}}</view>
+  <button wx:if="{{error}}" class="secondary-action" bindtap="refresh" loading="{{loading}}" disabled="{{loading || busy}}">刷新反馈记录</button>
+  <button wx:if="{{!loggedIn}}" class="primary-action" bindtap="openLogin">登录后反馈</button>
+  <view wx:if="{{ready}}">
+    <button wx:if="{{mode === 'list'}}" class="primary-action new-feedback" bindtap="newFeedback">提交新问题</button>
+    <view wx:if="{{mode === 'new'}}" class="card feedback-form">
+      <view wx:if="{{relatedOrderId}}" class="footnote">已关联这次入会申请，无需重复填写申请资料。</view>
+      <view class="section-title serif">提交问题</view>
+      <picker range="{{categories}}" value="{{categoryIndex}}" bindchange="changeCategory" disabled="{{busy}}"><view class="feedback-input">问题分类：{{categories[categoryIndex]}} ▾</view></picker>
+      <input class="feedback-input" value="{{title}}" placeholder="问题标题（60字内）" maxlength="60" data-field="title" bindinput="changeField" disabled="{{busy}}" />
+      <textarea class="feedback-input feedback-body" value="{{body}}" placeholder="描述遇到的问题（2000字内）" maxlength="2000" data-field="body" bindinput="changeField" disabled="{{busy}}" />
+      <view wx:if="{{draftNote}}" class="footnote">{{draftNote}}</view>
+      <button class="primary-action" bindtap="submit" loading="{{busy}}" disabled="{{busy || loading}}">提交反馈</button>
+    </view>
+    <view wx:if="{{mode === 'detail' && selected}}" class="card feedback-detail">
+      <view class="muted">{{selected.statusLabel}}</view><view class="section-title serif">{{selected.title}}</view><text class="feedback-text" selectable>{{selected.body}}</text>
+      <view class="footnote">提交于 {{selected.createdLabel}}</view>
+      <view wx:for="{{selected.events}}" wx:key="id" class="feedback-event"><view class="muted">{{item.authorLabel}} · {{item.createdLabel}}</view><text class="feedback-text" selectable>{{item.body}}</text><view class="footnote">{{item.statusLabel}}</view></view>
+      <view wx:if="{{selected.relatedOrderId}}" class="footnote">此问题关联了一笔入会申请。</view>
+      <view wx:if="{{!selected.confirmedAt}}" class="feedback-followup">
+        <view wx:if="{{draftNote}}" class="footnote">{{draftNote}}</view>
+        <textarea class="feedback-input feedback-body" value="{{followup}}" bindinput="changeFollowup" disabled="{{busy}}" maxlength="2000" placeholder="补充情况，或告诉我们还有什么问题" />
+        <button class="primary-action" bindtap="sendFollowup" disabled="{{busy || loading}}" loading="{{busy}}">发送补充说明</button>
+        <button wx:if="{{selected.status === 'resolved'}}" class="secondary-action" bindtap="confirmResolved" disabled="{{busy}}">问题已解决</button>
+      </view>
+      <view wx:else class="footnote">你已确认解决，完整沟通记录已保留。</view>
+      <view wx:if="{{!selected.events.length}}" class="footnote">待后台受理，请稍后刷新查看。</view>
+    </view>
+    <view wx:if="{{mode === 'list'}}">
+    <view class="section-title serif">我的反馈</view>
+    <button wx:for="{{tickets}}" wx:key="id" class="card feedback-item" data-id="{{item.id}}" bindtap="navigateTicket" disabled="{{busy}}"><view>{{item.title}}<text wx:if="{{item.unread}}" class="feedback-unread"> · 有新回复</text></view><view class="muted">{{item.statusLabel}} · {{item.createdLabel}}</view><view class="footnote">查看问题与回复 ›</view></button>
+    <view wx:if="{{!tickets.length}}" class="footnote">暂无反馈记录。</view>
+    <button wx:if="{{nextCursor}}" class="secondary-action" bindtap="loadMore" disabled="{{busy}}">加载更早反馈</button>
+    </view>
+    <button wx:if="{{mode === 'detail'}}" class="secondary-action" bindtap="backToList">返回上一页</button>
+  </view>
+</view>

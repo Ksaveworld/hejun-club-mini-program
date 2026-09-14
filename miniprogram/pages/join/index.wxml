@@ -1,0 +1,34 @@
+<view class="page join-page">
+  <view wx:if="{{reapplyNote}}" class="footnote">{{reapplyNote}}</view>
+  <view wx:if="{{draftNote}}" class="footnote">{{draftNote}}</view>
+  <view class="test-note"><text class="test-label">开发内测</text>申请和订单会实际保存到测试服务。只填写虚构联系资料，当前不收款。</view>
+  <view class="heading"><view class="page-title serif">填写入会信息</view><view class="subtitle">{{planId === 'organization' ? '先审核资质，通过后付款，付款成功后开通。' : '付款成功后开通，无需资质预审。'}}</view></view>
+  <view wx:if="{{loadError}}" class="join-error">{{loadError}}</view>
+  <view wx:if="{{loading}}" class="join-loading">正在核对方案与账号…</view>
+  <view wx:if="{{plan}}">
+    <view class="join-plan"><view><view class="join-plan-label">已选会员方案</view><view class="join-plan-name serif">{{plan.name}}</view></view><view wx:if="{{planReady}}" class="join-plan-price">¥{{amountLabel}}<text> / 年</text></view></view>
+    <view wx:if="{{!loggedIn}}" class="join-login card"><view>登录后填写申请资料；如已填写，登录返回后继续办理。</view><button class="secondary-action" disabled="{{busy}}" bindtap="openLogin">登录后继续</button></view>
+    <view wx:if="{{user.role === 'admin'}}" class="join-error">当前为后台管理账号，请到“我的”退出后使用会员账号申请。</view>
+    <view wx:if="{{loggedIn}}">
+    <view class="join-form card">
+      <label class="join-field"><view class="field-label">姓名 / 称呼<text>必填</text></view><input class="join-input" data-field="name" value="{{form.name}}" bindinput="changeField" maxlength="60" disabled="{{busy}}" placeholder="填写姓名或称呼" /></label>
+      <label class="join-field"><view class="field-label">手机号码<text>必填，尚未验证</text></view><input class="join-input" type="number" data-field="phone" value="{{form.phone}}" bindinput="changeField" maxlength="11" disabled="{{busy}}" placeholder="填写 11 位手机号码" /></label>
+      <label class="join-field"><view class="field-label">所在城市<text>必填</text></view><input class="join-input" data-field="city" value="{{form.city}}" bindinput="changeField" maxlength="60" disabled="{{busy}}" placeholder="填写所在城市" /></label>
+      <view wx:if="{{planId === 'organization'}}" class="join-field"><view class="field-label">申请类型<text>必填</text></view><picker mode="selector" range="{{organizationTypes}}" value="{{organizationIndex}}" disabled="{{busy}}" bindchange="changeOrganization"><view class="join-picker">{{form.organizationType}}<text>⌄</text></view></picker><view class="field-note">机构会员与专业会员使用同档会籍，审核资料按所选类型记录。</view></view>
+      <label class="join-field"><view class="field-label">{{planId === 'organization' ? '机构名称' : '企业名称'}}<text>{{planId === 'organization' ? '必填' : '选填'}}</text></view><input class="join-input" data-field="company" value="{{form.company}}" bindinput="changeField" maxlength="100" disabled="{{busy}}" placeholder="填写企业或机构名称" /></label>
+      <label class="join-field"><view class="field-label">所在行业<text>选填</text></view><input class="join-input" data-field="industry" value="{{form.industry}}" bindinput="changeField" maxlength="60" disabled="{{busy}}" placeholder="说明所在行业" /></label>
+      <label class="join-field"><view class="field-label">你希望获得什么支持？<text>选填</text></view><textarea class="join-textarea" data-field="need" value="{{form.need}}" bindinput="changeField" maxlength="300" disabled="{{busy}}" placeholder="简要说明跨境需求，不填敏感资料" auto-height /></label>
+      <view class="referral-note">{{sourceCode ? '推荐来源：' + sourceCode + '。已为本次申请记录，无需重复填写。' : '无需填写推荐码，已有的邀请来源会随申请记录。'}}</view>
+      <view wx:if="{{referralNotice}}" class="referral-note">{{referralNotice}}</view>
+    </view>
+    <checkbox-group class="join-consent-group" bindchange="changeConsent"><label class="join-consent"><checkbox value="agree" checked="{{consent}}" disabled="{{busy}}" color="#164c3d" /><text>我同意将本次虚构联系资料、申请和订单保存到当前测试服务，用于内测。正式协议与权益资料待提供；本次提交不会收款或开通会员。</text></label></checkbox-group>
+    <view wx:if="{{error}}" class="join-error">{{error}}</view>
+    <button wx:if="{{loggedIn}}" class="primary-action" loading="{{busy}}" disabled="{{busy || loading || !planReady || user.role === 'admin'}}" bindtap="submit">{{busy ? '正在保存…' : planId === 'organization' ? '提交资质申请' : '保存入会订单'}}</button>
+    <button wx:else class="primary-action" disabled="{{busy}}" bindtap="openLogin">登录后保存申请</button>
+    <button wx:if="{{error || conflict}}" class="join-order-link" disabled="{{busy}}" bindtap="openOrders">前往我的订单，核对保存结果 ›</button>
+    <button wx:if="{{loadError}}" class="join-order-link" disabled="{{busy || loading}}" bindtap="loadContext">重新读取方案与账号</button>
+    </view>
+    <view class="footnote">{{planId === 'organization' ? '资质审核通过仅表示允许付款，付款成功后才开通会籍。' : '订单保存后保持待付款，当前微信支付尚未接通。'}}会籍有效期从核验付款成功时起算一年。</view>
+  </view>
+  <button class="back-members" hover-class="tap-feedback" bindtap="openMembers">返回上一页</button>
+</view>

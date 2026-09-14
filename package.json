@@ -1,0 +1,30 @@
+{
+  "name": "china-asean-club-prototype",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:api": "node server/index.mjs",
+    "backup": "node scripts/backup.mjs",
+    "referral:default": "node scripts/default-referral.mjs",
+    "test:server": "node --test tests/server/*.test.mjs",
+    "test:miniprogram": "node --test tests/miniprogram/*.test.mjs",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 5186 --strictPort",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "lucide-react": "^1.41.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
+  }
+}

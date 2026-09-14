@@ -1,0 +1,239 @@
+/* Brand adaptation: Hejun's restrained red accents, CABC's champagne gold,
+   and the club's existing ink-teal identity. Original styles remain intact. */
+:root {
+  --paper: #f6f7f5;
+  --paper-2: #eff2ef;
+  --surface: #ffffff;
+  --line: #dfe5e1;
+  --ink: #183330;
+  --ink-2: #3c504d;
+  --ink-3: #5b6d68;
+  --font-sans: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", Georgia, serif;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-xl: 16px;
+}
+
+.preview-bar { background: #edf1ef; color: #50645e; min-height: 36px; border-bottom: 1px solid var(--line); }
+.preview-bar button { color: #4b5f58; min-height: 30px; }
+.preview-dot { background: var(--seal); }
+.site-header { max-width: 1240px; height: 96px; border: 0; }
+.brand { gap: 13px; }
+.brand img { width: 46px; height: 46px; }
+.brand > span { font-size: 20px; letter-spacing: .06em; }
+.brand > span > span { font-size: 11px; margin-top: 5px; letter-spacing: .19em; }
+.brand.brand-cabc { flex-direction: column; align-items: flex-start; gap: 3px; flex-shrink: 0; }
+.brand.brand-cabc img { width: 214px; height: auto; border-radius: 0; }
+.brand.brand-cabc > span { padding-left: 54px; font-size: 11px; font-weight: 500; line-height: 1.5; letter-spacing: .16em; color: var(--ink-3); }
+.desktop-nav { gap: 38px; margin-right: 26px; }
+.desktop-nav a { font-size: 14px; }
+.desktop-nav a.active:after { bottom: 23px; width: 16px; left: calc(50% - 8px); }
+.admin-entry { min-height: 44px; border-color: var(--line); background: #fff; }
+.main-content { max-width: 1160px; }
+.main-content.home-main { max-width: 1240px; }
+.text-button, .inline-link { min-height: 44px; }
+.icon-button { width: 44px; height: 44px; }
+.button { border-radius: 6px; }
+.site-footer { max-width: 1240px; padding-top: 30px; padding-bottom: 28px; }
+.site-footer strong { letter-spacing: .05em; }
+.site-footer .text-button { min-height: 44px; }
+.page-heading { border-bottom: 1px solid var(--line); padding-bottom: 30px; }
+.page-heading h1 { font-family: var(--font-serif); font-weight: 600; }
+.page-heading .eyebrow { color: var(--gold-700); }
+.section-heading h2 { font-family: var(--font-serif); font-weight: 600; }
+.service-card { box-shadow: 0 3px 15px #17382e03; }
+.service-icon { border-radius: 50%; background: #eef3f0; }
+.member-pass { box-shadow: 0 16px 36px #163c3320; }
+
+/* A single photographic opening, with the type kept on calm water. */
+.club-hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  min-height: 550px; padding: 72px 66px 84px;
+  border-radius: 12px; background: #092f40; color: #fff;
+}
+.club-hero-image, .club-hero-shade { position: absolute; inset: 0; z-index: -1; }
+.club-hero-image img { width: 100%; height: 100%; object-fit: cover; object-position: center 53%; }
+.club-hero-shade { background: linear-gradient(90deg, #062c3dd9 0%, #062c3d9e 40%, #092c4010 75%), linear-gradient(0deg, #062b3dd4, transparent 40%); }
+.club-hero-copy { max-width: 630px; }
+.club-overline { display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 500; letter-spacing: .22em; color: #ead0a3; }
+.club-overline > span { width: 26px; height: 2px; background: #c5a065; }
+.club-hero h1 { font-family: var(--font-serif); font-weight: 600; font-size: clamp(40px, 4.1vw, 58px); letter-spacing: .06em; line-height: 1.4; margin: 24px 0 22px; }
+.club-hero h1 em { font-style: normal; color: #edd4aa; }
+.club-hero-copy > p { color: #e0e8e9; font-size: 14px; line-height: 2; margin-bottom: 28px; }
+.club-hero-actions { display: flex; gap: 25px; align-items: center; flex-wrap: wrap; }
+.button.club-gold { min-height: 52px; background: #e4c89b; color: #203c3c; padding: 14px 23px; border: 1px solid #edd5af; font-size: 15px; }
+.button.club-gold:hover { background: #f2dfbd; box-shadow: 0 5px 20px #001b2d30; }
+.club-quiet-link { min-height: 48px; display: inline-flex; align-items: center; gap: 10px; color: #fff; font-size: 14px; }
+.club-quiet-link:hover { text-decoration: underline; text-underline-offset: 6px; }
+.club-hero a:focus-visible { outline-color: #efd7b0; }
+.club-hero-bottom { position: absolute; bottom: 25px; left: 66px; right: 34px; display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+.club-hero-signature { font-family: Georgia, serif; font-size: 15px; letter-spacing: .18em; color: #edf2f0; }
+.club-hero-signature > span { font-family: var(--font-sans); font-size: 8px; letter-spacing: .22em; display: block; margin-top: 3px; color: #d5dfe1; }
+.club-image-note { color: #e0e8eb; font-size: 10px; letter-spacing: .04em; }
+
+/* Immediate services: each item opens the existing, honest service detail. */
+.club-service-dock { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); background: #fff; margin: 0 30px; padding: 30px 0 25px; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 10px 10px; box-shadow: 0 10px 25px #244d3e05; }
+.club-service-dock button { border: 0; border-right: 1px solid var(--line); background: none; min-width: 0; padding: 8px 9px; display: flex; align-items: center; flex-direction: column; transition: background .2s, color .2s; }
+.club-service-dock button:last-child { border-right: 0; }
+.club-service-dock button:hover { background: #f1f6f2; color: #8b652a; }
+.club-service-dock button > svg { color: #4d7268; margin-bottom: 13px; }
+.club-service-dock strong { font-size: 14px; font-weight: 600; }
+.club-service-dock button > span { display: flex; align-items: center; gap: 6px; color: #64766f; font-size: 11px; margin-top: 5px; }
+
+.club-introduction { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; padding: 74px 36px 62px; }
+.club-intro-heading .eyebrow { color: var(--gold-700); letter-spacing: .1em; }
+.club-intro-heading h2 { font-family: var(--font-serif); font-size: 30px; font-weight: 600; line-height: 1.65; margin: 16px 0 15px; letter-spacing: .015em; }
+.club-principles { padding-top: 3px; }
+.club-principles > div { display: flex; align-items: start; gap: 20px; padding: 0 0 17px; margin-bottom: 17px; border-bottom: 1px solid var(--line); }
+.club-principles > div:last-child { margin: 0; padding: 0; border-bottom: 0; }
+.club-principles > div > svg { color: #8c6a35; margin-top: 3px; }
+.club-principles h3 { font-size: 16px; font-weight: 600; margin: 0 0 5px; }
+.club-principles p { font-size: 13px; color: var(--ink-3); margin: 0; line-height: 1.8; }
+
+.club-memberships { padding: 50px 36px 24px; border-top: 1px solid var(--line); background: #eef2ee; border-radius: 12px; }
+.club-memberships .section-heading { margin-bottom: 10px; }
+.club-memberships .eyebrow { color: #786036; }
+.club-memberships .section-heading h2 { font-size: 32px; margin-top: 12px; letter-spacing: .02em; }
+.club-section-description { color: var(--ink-3); font-size: 14px; margin: 0 0 32px; }
+.plan-card { padding: 27px 27px 24px; border-color: #d9e1da; box-shadow: 0 6px 18px #173d3204; }
+.plan-card::before { height: 3px; }
+.plan-card.featured { border-color: #bba170; box-shadow: 0 9px 26px #7561400b; }
+.plan-card.organization { border-color: #bbcbd0; }
+.plan-card-top { justify-content: start; gap: 8px; margin-bottom: 20px; }
+.plan-symbol { margin-left: auto; order: 3; color: var(--teal-700); }
+.star .plan-symbol { color: var(--gold-700); }
+.organization .plan-symbol { color: var(--navy-700); }
+.plan-label { font-size: 10px; padding: 2px 6px; }
+.plan-card h3 { font-size: 23px; }
+.plan-card .price { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: 46px; color: #244840; }
+.plan-card.star .price { color: #80612c; }
+.plan-card.organization .price { color: #254a5a; }
+.plan-card .price small { font-size: 21px; }
+.plan-card .price > span { font-size: 12px; }
+.plan-card .benefit-list { gap: 10px; margin: 20px 0 23px; padding-top: 20px; font-size: 13px; }
+.plan-card .rule-note { font-size: 11px; border: 0; padding: 10px; line-height: 1.85; }
+.plan-card .button { font-size: 14px; min-height: 48px; }
+.plan-card.star .button.primary { background: #87652e; }
+.plan-card.star .button.primary:hover { background: #725224; }
+.club-membership-note { display: flex; gap: 8px; justify-content: center; align-items: start; font-size: 11px; color: #5b6c60; margin: 22px 0 0; line-height: 1.9; }
+.club-membership-note svg { margin-top: 3px; }
+
+.club-guide { display: grid; grid-template-columns: 340px 1fr; gap: 55px; padding: 66px 36px; }
+.club-guide-cover { background: #163c38; border-radius: 8px; color: #fff; padding: 34px 32px; overflow: hidden; position: relative; }
+.club-guide-cover .eyebrow { color: #d9bd8e; font-size: 10px; letter-spacing: .2em; }
+.club-guide-cover h2 { font-family: var(--font-serif); font-size: 29px; line-height: 1.6; font-weight: 500; margin: 17px 0 14px; }
+.club-guide-cover p { font-size: 12px; line-height: 1.9; color: #d0deda; margin-bottom: 25px; }
+.club-guide-mark { display: flex; align-items: center; justify-content: space-between; gap: 20px; color: #ceb486; border-top: 1px solid #ffffff25; padding-top: 23px; }
+.club-guide-mark > span { font-size: 10px; letter-spacing: .08em; color: #d0deda; line-height: 1.9; }
+.club-guide-list { display: flex; flex-direction: column; }
+.club-guide-list button { position: relative; display: flex; flex: 1; flex-direction: column; align-items: start; text-align: left; padding: 23px 38px 23px 0; border: 0; border-bottom: 1px solid var(--line); background: none; }
+.club-guide-list button:first-child { padding-top: 8px; }
+.club-guide-list button:last-child { border-bottom: 0; }
+.club-guide-list .eyebrow { color: #7c663e; font-size: 10px; letter-spacing: .06em; }
+.club-guide-list strong { font-size: 18px; font-weight: 600; margin: 9px 0 8px; }
+.club-guide-summary { color: var(--ink-3); font-size: 13px; line-height: 1.8; }
+.club-guide-list button > svg { position: absolute; right: 0; top: 44%; color: #467066; transition: transform .2s; }
+.club-guide-list button:hover > svg { transform: translate(3px,-3px); }
+.club-guide-list button:hover strong { color: #8b652a; }
+.club-invitation { border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: 35px 36px 4px; gap: 25px; }
+.club-invitation .eyebrow { color: var(--gold-700); }
+.club-invitation h2 { font-family: var(--font-serif); font-size: 25px; font-weight: 600; margin: 10px 0 0; }
+.club-invitation .button { flex-shrink: 0; }
+
+@media (max-width: 1320px) {
+  .site-header, .main-content, .site-footer { margin-left: 32px; margin-right: 32px; }
+  .club-hero { padding-left: 50px; }
+  .club-hero-bottom { left: 50px; }
+}
+@media (max-width: 1060px) and (min-width: 741px) {
+  .desktop-nav { gap: 23px; margin-right: 0; }
+  .brand > span { font-size: 17px; }
+  .club-service-dock strong { font-size: 12px; }
+  .club-introduction { gap: 40px; padding-right: 20px; padding-left: 20px; }
+  .club-intro-heading h2 { font-size: 26px; }
+  .club-memberships { padding-right: 24px; padding-left: 24px; }
+  .club-home .plan-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .club-home .plan-card { padding: 23px 16px 20px; }
+  .club-home .plan-card h3 { font-size: 20px; }
+  .club-home .plan-card .price { font-size: 37px; }
+  .club-home .plan-label { display: none; }
+  .club-guide { grid-template-columns: 270px 1fr; gap: 32px; padding-right: 24px; padding-left: 24px; }
+}
+@media (max-width: 740px) {
+  .site-header, .main-content, .site-footer { margin-left: 20px; margin-right: 20px; }
+  .preview-bar { min-height: 38px; gap: 6px; padding: 3px 15px; font-size: 10px; }
+  .preview-bar button { min-height: 36px; font-size: 10px; }
+  .site-header { height: 79px; gap: 10px; }
+  .brand img { width: 39px; height: 39px; }
+  .brand { gap: 10px; }
+  .brand > span { font-size: 17px; }
+  .brand > span > span { font-size: 9px; margin-top: 2px; letter-spacing: .12em; }
+  .brand.brand-cabc img { width: 176px; }
+  .brand.brand-cabc > span { padding-left: 44px; font-size: 10px; letter-spacing: .08em; }
+  .admin-entry { font-size: 11px; padding: 8px; gap: 5px; }
+  .main-content.home-main { margin-left: 0; margin-right: 0; }
+  .club-hero { min-height: 475px; border-radius: 0; padding: 38px 25px 94px; }
+  .club-hero-image img { object-position: 64% center; }
+  .club-hero-shade { background: linear-gradient(90deg,#092e42da,#092e4250),linear-gradient(0deg,#072c40bf,transparent 55%); }
+  .club-overline { font-size: 10px; letter-spacing: .16em; gap: 9px; }
+  .club-overline > span { width: 19px; }
+  .club-hero h1 { font-size: clamp(32px, 8.9vw, 42px); line-height: 1.5; margin: 23px 0 19px; letter-spacing: .045em; }
+  .club-hero-copy > p { font-size: 12px; line-height: 1.95; max-width: 28em; margin-bottom: 25px; }
+  .desktop-break { display: none; }
+  .club-hero-actions { gap: 17px; }
+  .button.club-gold { padding: 12px 16px; min-height: 48px; font-size: 13px; gap: 8px; }
+  .club-quiet-link { font-size: 12px; gap: 7px; }
+  .club-hero-bottom { left: 25px; right: 21px; bottom: 25px; gap: 10px; }
+  .club-hero-signature { font-size: 12px; letter-spacing: .13em; }
+  .club-hero-signature > span { font-size: 7px; letter-spacing: .15em; }
+  .club-image-note { font-size: 8px; }
+  .club-service-dock { margin: 0 17px; padding: 15px 5px; grid-template-columns: repeat(3,minmax(0,1fr)); border-radius: 0 0 10px 10px; row-gap: 8px; }
+  .club-service-dock button { padding: 12px 4px; }
+  .club-service-dock button:nth-child(3n) { border-right: 0; }
+  .club-service-dock button > svg { width: 23px; height: 23px; margin-bottom: 8px; }
+  .club-service-dock strong { font-size: 12px; }
+  .club-service-dock button > span { font-size: 10px; gap: 3px; }
+  .club-introduction { grid-template-columns: 1fr; gap: 25px; padding: 41px 25px 36px; }
+  .club-intro-heading h2 { font-size: 25px; margin: 13px 0 6px; line-height: 1.6; }
+  .club-intro-heading .eyebrow { font-size: 10px; }
+  .club-principles > div { gap: 15px; margin-bottom: 16px; padding-bottom: 16px; }
+  .club-principles h3 { font-size: 15px; }
+  .club-principles p { font-size: 12px; }
+  .club-memberships { padding: 34px 20px 23px; border-radius: 0; }
+  .club-memberships .section-heading { display: block; }
+  .club-memberships .section-heading h2 { font-size: 26px; line-height: 1.5; margin-top: 10px; }
+  .club-memberships .section-heading > .text-button { margin: 4px 0 0; font-size: 12px; }
+  .club-memberships .eyebrow { font-size: 10px; }
+  .club-section-description { font-size: 12px; line-height: 1.8; margin-bottom: 23px; }
+  .club-home .plan-grid { grid-template-columns: 1fr; gap: 20px; }
+  .plan-card { padding: 24px; }
+  .plan-card h3 { font-size: 25px; }
+  .plan-card-top { margin-bottom: 16px; }
+  .plan-card .price { font-size: 44px; }
+  .plan-card .benefit-list { font-size: 13px; gap: 10px; }
+  .club-membership-note { justify-content: start; font-size: 10px; }
+  .club-guide { grid-template-columns: 1fr; gap: 25px; padding: 38px 23px; }
+  .club-guide-cover { padding: 26px; }
+  .club-guide-cover h2 { font-size: 26px; margin: 13px 0 10px; }
+  .club-guide-cover p { margin: 0; }
+  .club-guide-mark { position: absolute; right: 23px; bottom: 29px; padding: 0; border: 0; }
+  .club-guide-mark > svg { width: 70px; height: 70px; }
+  .club-guide-mark > span { display: none; }
+  .club-guide-list button { padding: 20px 30px 20px 0; }
+  .club-guide-list strong { font-size: 16px; line-height: 1.7; }
+  .club-guide-summary { font-size: 12px; }
+  .club-invitation { margin: 0 23px; padding: 28px 0 4px; display: block; }
+  .club-invitation h2 { font-size: 23px; line-height: 1.6; }
+  .club-invitation .button { width: 100%; margin-top: 23px; }
+  .page-heading { padding-bottom: 23px; }
+  .page-heading h1 { font-size: 29px; line-height: 1.5; }
+  .form-bottom { bottom: calc(64px + env(safe-area-inset-bottom)); padding-bottom: 14px; }
+  .mobile-nav { display: grid; grid-template-columns: repeat(4,1fr); background: #fffffff5; backdrop-filter: blur(14px); }
+  .mobile-nav > a { min-height: 60px; }
+  .mobile-nav > a.active { color: #214c40; }
+  .site-footer { padding-top: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .club-service-dock button, .club-guide-list button > svg { transition: none; }
+}

@@ -1,0 +1,23 @@
+{
+  "description": "中国—东盟跨境企业家俱乐部原生小程序开发测试工程",
+  "projectname": "cabc-club-miniprogram-test",
+  "appid": "wx1111111111111111",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "postcss": true,
+    "minified": false,
+    "minifyWXML": true
+  },
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "file",
+        "value": "README.md"
+      }
+    ],
+    "include": []
+  }
+}

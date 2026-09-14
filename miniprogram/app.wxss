@@ -1,0 +1,63 @@
+page {
+  background: #f6f7f3;
+  color: #203c32;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+view, button, input { box-sizing: border-box; }
+button {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: inherit;
+  text-align: left;
+}
+button::after { border: 0; }
+.page { padding: 24rpx 36rpx 52rpx; }
+.test-note {
+  margin-bottom: 28rpx;
+  padding: 18rpx 22rpx;
+  border: 1rpx solid #e4d5a6;
+  border-radius: 12rpx;
+  background: #faf1d6;
+  color: #52604b;
+  font-size: 22rpx;
+  line-height: 1.85;
+}
+.test-label { margin-right: 10rpx; color: #164c3d; font-weight: 600; }
+.heading { margin-bottom: 28rpx; }
+.page-title { font-size: 44rpx; font-weight: 600; line-height: 1.5; }
+.subtitle { margin-top: 12rpx; color: #697970; font-size: 26rpx; }
+.serif { font-family: "Songti SC", "STSong", "SimSun", serif; }
+.section { margin-top: 32rpx; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18rpx; }
+.section-title { font-size: 34rpx; font-weight: 600; }
+.text-action { min-height: 80rpx; padding: 16rpx 0 16rpx 18rpx; color: #287963; font-size: 25rpx; }
+.muted { color: #697970; }
+.card { padding: 30rpx; border-radius: 16rpx; background: #ffffff; }
+.footnote { margin-top: 26rpx; color: #697970; font-size: 23rpx; line-height: 1.9; }
+.primary-action {
+  min-height: 90rpx;
+  padding: 22rpx 28rpx;
+  border-radius: 12rpx;
+  background: #164c3d;
+  color: #f8efce;
+  font-size: 28rpx;
+  text-align: center;
+}
+.secondary-action {
+  min-height: 82rpx;
+  padding: 18rpx 24rpx;
+  border: 1rpx solid #d7b96c;
+  border-radius: 12rpx;
+  background: #fffaf0;
+  color: #164c3d;
+  text-align: center;
+}
+.tap-feedback { opacity: 0.72; }
+.arrow { padding-left: 16rpx; font-size: 34rpx; }

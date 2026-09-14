@@ -1,0 +1,34 @@
+<view class="page">
+  <view class="heading"><view class="page-title serif">{{detailId ? '阅读内容' : category === 'knowledge' ? '跨境知识库' : category === 'news' ? '行业资讯' : '资讯与知识'}}</view><view class="subtitle">{{detailId ? '' : '查找和阅读已开放的内容'}}</view></view>
+  <view class="toolbar"><button wx:if="{{error}}" class="text-action" bindtap="refresh" loading="{{loading}}">重新读取</button><button wx:if="{{!loggedIn}}" class="text-action" bindtap="openLogin">登录查看会员内容</button></view>
+  <view wx:if="{{error}}" class="error" role="alert">{{error}}</view>
+  <view wx:if="{{detailId && selected}}" class="card article-detail">
+
+    <view class="muted">{{selected.category === 'news' ? '资讯' : '知识'}}</view>
+    <view class="section-title serif">{{selected.title}}</view>
+    <text class="article-body" selectable>{{selected.body}}</text>
+    <view wx:if="{{selected.document}}">
+      <view class="muted">共 {{selected.document.pages}} 页 · {{selected.fullAccess ? '全文阅读' : '可试看前 '+selected.document.previewPages+' 页'}}</view>
+      <button class="primary-action" bindtap="readPdf" loading="{{downloading}}" disabled="{{downloading}}">{{selected.fullAccess ? '阅读 PDF 全文' : '阅读试看版'}}</button>
+      <view wx:if="{{!selected.fullAccess}}"><view class="footnote">有效的基础会员、星级会员及机构会员可阅读全文。</view><button class="secondary-action" bindtap="{{loggedIn ? 'openMembers' : 'openLogin'}}">{{loggedIn ? '了解会员权益' : '会员登录阅读全文'}}</button></view>
+    </view>
+  </view>
+  <view wx:if="{{!detailId}}">
+  <input class="search-input" value="{{query}}" bindinput="search" placeholder="搜索标题、摘要" maxlength="50" confirm-type="search" />
+  <view class="categories">
+    <button class="category {{category === 'all' ? 'active' : ''}}" data-category="all" bindtap="chooseCategory">全部</button>
+    <button class="category {{category === 'news' ? 'active' : ''}}" data-category="news" bindtap="chooseCategory">资讯</button>
+    <button class="category {{category === 'knowledge' ? 'active' : ''}}" data-category="knowledge" bindtap="chooseCategory">知识</button>
+  </view>
+  <view wx:if="{{loading}}" class="muted">正在读取内容…</view>
+  <view wx:if="{{ready}}">
+    <button wx:for="{{filtered}}" wx:key="id" class="card article-item" data-id="{{item.id}}" bindtap="navigateArticle" hover-class="tap-feedback">
+      <view class="muted">{{item.category === 'news' ? '资讯' : '知识'}}</view><view class="section-title serif">{{item.title}}</view><view class="subtitle">{{item.summary}}</view><view class="read-link">{{item.document && !item.fullAccess ? '试看前10页' : '阅读全文'}} ›</view>
+    </button>
+    <view wx:if="{{!articles.length}}" class="card muted">暂无可阅读内容。你可以切换分类；会员登录后可查看对应资料。</view>
+    <view wx:elif="{{!filtered.length}}" class="card"><view class="muted">没有找到匹配内容。</view><button class="text-action" bindtap="resetFilters">清空筛选</button></view>
+    <view wx:if="{{hasMore}}" class="footnote">当前展示最近 100 篇可读内容，搜索范围为本次列表。</view>
+  </view>
+  </view>
+  <button wx:if="{{detailId}}" class="secondary-action" bindtap="backToList">返回上一页</button>
+</view>

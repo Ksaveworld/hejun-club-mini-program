@@ -1,0 +1,6 @@
+{
+  "desc": "开发测试工程，暂不开放搜索收录。",
+  "rules": [
+    { "action": "disallow", "page": "*" }
+  ]
+}

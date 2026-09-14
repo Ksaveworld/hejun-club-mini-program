@@ -1,0 +1,12 @@
+{
+  "mode": "remote-trial",
+  "apiOrigin": "https://example.com",
+  "adminOrigin": null,
+  "adminIps": [],
+  "dataDirectory": "/var/lib/hejun-club",
+  "wechat": {
+    "appId": "wx1111111111111111",
+    "appSecret": "",
+    "openIds": []
+  }
+}

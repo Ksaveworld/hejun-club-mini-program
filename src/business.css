@@ -1,0 +1,32 @@
+/* Additive business-page styles; preserve the existing visual design and edited CSS. */
+.business-auth { max-width: 440px; margin: 0 auto; }
+.business-auth .form-panel, .business-join { display: grid; gap: 18px; }
+.business-auth .text-button { margin-top: 14px; }
+.business-join { margin-top: 20px; }
+.business-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; align-items: center; }
+.business-actions p { width: 100%; }
+.business-row { display:flex; align-items:center; gap:12px; justify-content:space-between; flex-wrap:wrap; }
+.business-row h2 { margin:0; font-size:20px; }
+.business-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin:24px 0; }
+.business-stats section { padding:22px; background:#fffdf9; border:1px solid #dddcd3; border-radius:14px; display:grid; gap:12px; }
+.business-stats strong { font-size:32px; color:#164f49; }
+.business-filters { display:flex; gap:16px; align-items:end; margin:20px 0; }
+.business-filters label:first-child { flex:1; }
+.business-admin-list { display:grid; gap:16px; }
+.business-review { margin-top:20px; border-top:1px solid #dddcd3; padding-top:20px; }
+.business-admin-list p, .order-details dd, .account-order .mono { overflow-wrap:anywhere; white-space:normal; }
+.business-admin-list details summary { cursor:pointer; padding:12px 0; }
+.business-admin-list .form-panel { min-width:0; }
+.business-auth input, .business-join input, .business-join select { width:100%; min-width:0; }
+button:disabled { cursor:not-allowed; opacity:.55; }
+.status-pill.rejected { background:#f6e9e6; color:#8c3629; }
+.admin-shell .tab-row { display:flex; flex-wrap:wrap; }
+.admin-shell .tab-row button { min-width:120px; }
+.member-shell .tab-row button { min-width:0; }
+@media(max-width:600px) {
+  .business-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .business-stats section { padding:16px; }
+  .business-filters { flex-direction:column; align-items:stretch; }
+  .business-actions .button { width:100%; }
+  .business-row h2 { font-size:18px; }
+}

@@ -1,0 +1,137 @@
+/* Typography and linework derived from the approved embossed forest-green card.
+   Member scope only: business flow and admin layout retain their existing rules. */
+.club-shell {
+  --club-gold: #c9a956;
+  --club-gold-line: #d7b96c;
+  --club-gold-soft: #f8efce;
+  --gold: var(--club-gold);
+  --font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-serif: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --club-serif: var(--font-serif);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-synthesis: none;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  letter-spacing: .012em;
+}
+.club-shell :is(button, input, textarea, select) { font-family: var(--font-sans); font-weight: 400; }
+.club-shell :is(.club-heading h1, .page-heading h1) {
+  font-family: var(--font-serif);
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: .035em;
+}
+.club-shell .club-brand-hero h1 {
+  font-family: var(--font-serif);
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: .035em;
+}
+.club-shell .club-brand-hero p { font-size: 11px; font-weight: 400; letter-spacing: .025em; }
+.club-shell .club-topbar > span { font-family: var(--font-sans); font-weight: 500; font-size: 15px; letter-spacing: .06em; }
+.club-shell .club-section-title h2 { font-family: var(--font-serif); font-size: 18px; line-height: 1.5; font-weight: 600; letter-spacing: .05em; }
+.club-shell :is(.club-editorial h3, .club-guide-feature h3) { font-family: var(--font-serif); font-size: 16px; font-weight: 500; line-height: 1.7; letter-spacing: .025em; }
+.club-shell :is(.club-plan-title h2, .club-directory-note h2, .club-prose h2, .club-feedback h2, .club-translation-intro h2, .club-empty h2) {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.65;
+  font-weight: 500;
+  letter-spacing: .025em;
+}
+.club-shell :is(.club-heading p, .page-heading p) { font-size: 13px; line-height: 1.9; font-weight: 400; }
+.club-shell .club-profile h1 { font-family: var(--font-serif); font-size: 20px; font-weight: 500; line-height: 1.6; letter-spacing: .02em; }
+.club-shell .club-pass h2 { font-family: var(--font-serif); font-size: 24px; font-weight: 500; letter-spacing: .05em; }
+.club-shell .club-pass > strong { font-family: var(--font-sans); font-size: 13px; font-weight: 400; }
+.club-shell .club-plan-price { font-family: var(--font-serif); font-size: 22px; font-weight: 500; font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.01em; }
+.club-shell .club-plan-price small { font-family: var(--font-sans); font-size: 12px; font-weight: 400; letter-spacing: 0; }
+.club-shell .club-plan-action { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: .01em; }
+.club-shell .club-plan p { line-height: 1.95; font-weight: 400; }
+.club-shell .club-plan-star { background: var(--club-gold-soft); border-color: var(--club-gold-line); }
+.club-shell .club-list-label { font-size: 12px; line-height: 1.8; font-weight: 400; letter-spacing: .08em; }
+.club-shell .club-menu > a { font-size: 14px; font-weight: 400; letter-spacing: .025em; }
+.club-shell .club-banner { font-size: 14px; font-weight: 400; letter-spacing: .025em; }
+.club-shell .club-banner-gold { background: #f8edc9; }
+.club-shell .club-search input { font-family: var(--font-sans); font-size: 16px; font-weight: 400; }
+.club-shell .club-search input::placeholder { font-family: var(--font-sans); font-size: 13px; letter-spacing: .02em; }
+.club-shell .club-article > p { font-size: 15px; line-height: 2; letter-spacing: .015em; }
+.club-shell .club-kicker { font-size: 11px; letter-spacing: .04em; }
+.club-shell :is(.club-footnote, .section-note) { line-height: 1.95; font-weight: 400; }
+
+/* Champagne gold carries the logo's accent through the member interface. */
+.club-shell .club-editorial { border-color: var(--club-gold-line); border-left-color: #c6a147; }
+.club-shell .club-banner-gold { border: 1px solid #e4c979; }
+.club-shell .club-inline-state,
+.club-shell .club-article > p.club-article-lead { border-left-color: var(--club-gold); }
+.club-shell .club-brand-hero :focus-visible,
+.club-shell .club-banner-green:focus-visible { outline-color: var(--club-gold-line); }
+.club-shell .club-feedback { background: #faf1d6; }
+.club-shell .club-plan-organization { border-color: #c9a95688; }
+.club-shell .club-plan-organization .club-plan-price { color: #edcf87; }
+.club-shell .club-pass { background: #123f33; outline: 1px solid #d7b96c44; outline-offset: -1px; }
+.club-shell .club-pass-art { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; object-fit: cover; object-position: right center; pointer-events: none; }
+.club-shell .club-pass h2 { color: #f3d998; }
+.club-shell .club-pass:hover { background: #123f33; }
+.club-shell .club-pass:focus-visible { outline: 2px solid #d7b96c; outline-offset: 3px; }
+.club-shell .club-quick .club-icon-tile,
+.club-shell .service-link-compact .club-icon-tile { box-shadow: inset 0 1px 0 #fffdf4; }
+/* Fine-rim icon settings replace the previous filled green/yellow tiles. */
+.club-shell .club-icon-tile {
+  border-radius: 50%;
+  background: #fffae9;
+  border: 1px solid #d9bb72;
+}
+.club-shell .club-quick { padding: 6px 0; }
+.club-shell .club-quick a { font-family: var(--font-sans); font-size: 11.5px; font-weight: 400; gap: 6px; line-height: 1.5; letter-spacing: 0; }
+.club-shell .club-quick .club-icon-tile { width: 44px; height: 44px; }
+.club-shell .club-quick .club-icon { width: 29px; height: 29px; }
+.club-shell .service-link > span:nth-child(2) { font-family: var(--font-serif); font-weight: 500; font-size: 16px; letter-spacing: .02em; }
+.club-shell .club-service-group .club-icon-tile { border-color: transparent; background: transparent; }
+.club-shell .club-service-group .club-icon-tile .club-icon { width: 29px; height: 29px; }
+.club-shell .club-service-grid { background: var(--club-gold-soft); border: 1px solid #e3ca8e; }
+.club-shell .service-link-compact > span:nth-child(2) { font-family: var(--font-sans); font-weight: 400; font-size: 12px; letter-spacing: 0; }
+.club-shell .service-link-compact .club-icon-tile { background: #fffcf1; border-color: #d9bb72; }
+.club-shell .service-link-compact .club-icon { width: 29px; height: 29px; }
+.club-shell .club-avatar { background: #f8edc9; border-color: #d1ae60; }
+.club-shell .club-empty-icon { border: 1px solid #dfc584; background: #fffaea; border-radius: 50%; }
+.club-shell .club-translation-intro { background: var(--club-gold-soft); }
+.club-shell .club-translation-intro .club-icon-tile { background: #fffcf1; border: 1px solid #d9bb72; }
+.club-shell .mobile-nav > a { font-family: var(--font-sans); font-size: 11px; font-weight: 400; letter-spacing: .03em; }
+.club-shell .mobile-nav > a.active { color: var(--club-green); font-weight: 500; }
+.club-shell .mobile-nav .club-icon { width: 23px; height: 23px; }
+.club-shell .club-icon[data-icon="Right"], .club-shell .club-icon[data-icon="Left"] { opacity: .92; }
+.club-shell .lucide { stroke-width: 1.5; }
+
+/* Forms and existing account pages share the same hierarchy. */
+.club-shell .button { font-family: var(--font-sans); font-weight: 500; font-size: 14px; letter-spacing: .03em; }
+.club-shell .field > span:first-child { font-weight: 500; font-size: 13px; letter-spacing: .02em; }
+.club-shell .field :is(input, textarea, select) { font-family: var(--font-sans); font-size: 16px; font-weight: 400; }
+.club-shell .field small { font-weight: 400; }
+.club-shell :is(.join-summary h2, .checkout-plan h2, .form-panel h2, .form-heading h2, .post-list h3) { font-family: var(--font-serif); font-weight: 500; line-height: 1.6; letter-spacing: .02em; }
+.club-shell .join-summary h2 { font-size: 17px; }
+.club-shell .checkout-plan h2 { font-size: 20px; }
+.club-shell :is(.join-summary .price, .checkout-plan .price) { font-family: var(--font-serif); font-weight: 500; font-variant-numeric: lining-nums tabular-nums; }
+.club-shell .join-summary .price { font-size: 25px; }
+.club-shell .checkout-plan .price { font-size: 28px; }
+.club-shell .price small, .club-shell .price > span { font-family: var(--font-sans); font-weight: 400; }
+.club-shell .account-order strong { font-weight: 500; }
+.club-shell .tab-row > button { font-weight: 400; letter-spacing: .02em; }
+.club-shell .tab-row > button.active { font-weight: 500; }
+.club-shell .dialog h2 { font-family: var(--font-serif); font-weight: 500; font-size: 22px; line-height: 1.6; }
+.club-shell .dialog :is(p, a, button) { font-family: var(--font-sans); }
+/* Keep the primary home action visible after the new font metrics settle. */
+.club-shell .club-home-section { margin-top: 12px; }
+.club-shell .club-home .club-section-title { margin-bottom: 8px; }
+.club-shell .club-home .club-section-title > a { min-height: 27px; }
+.club-shell .club-home .club-editorial { padding-top: 12px; padding-bottom: 8px; }
+.club-shell .club-home .club-editorial h3 { margin-top: 5px; margin-bottom: 5px; }
+.club-shell .club-home .club-editorial p { line-height: 1.7; text-wrap: pretty; }
+.club-shell .club-home .club-editorial-status { margin-top: 6px; }
+@media (max-width: 380px) {
+  .club-shell .club-brand-hero h1 { font-size: 23px; letter-spacing: .025em; }
+  .club-shell .club-quick a { font-size: 11px; }
+  .club-shell .club-plan-title h2 { font-size: 16px; }
+  .club-shell .club-plan-price { font-size: 21px; }
+}

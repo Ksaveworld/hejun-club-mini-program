@@ -1,0 +1,40 @@
+import { test, expect } from '@playwright/test';
+const headers={'X-Club-Request':'1'}, password='OnlyInIsolatedTests1';
+test('后台受理、丢响应重试及完成回复，会员读取完整历史，退出清除资料',async({page,browser})=>{
+  const member=await browser.newContext();
+  try {
+    const url='http://127.0.0.1:5188/api';
+    await member.request.post(url+'/auth/login',{headers,data:{username:'test_paid_member',password}});
+    expect((await member.request.get(url+'/admin/feedback')).status()).toBe(403);
+    const created=await member.request.post(url+'/feedback',{headers:{...headers,'Idempotency-Key':crypto.randomUUID()},data:{title:'隔离反馈浏览器联验',body:'<b>原问题纯文字</b>',category:'account'}});
+    expect(created.status()).toBe(201);const ticket=(await created.json()).ticket;
+    await page.goto('/#/admin');await page.getByLabel('账号',{exact:true}).fill('test_admin');await page.getByLabel('密码',{exact:true}).fill(password);
+    await page.getByRole('button',{name:'登录',exact:true}).click();await page.getByRole('tab',{name:'帮助反馈',exact:true}).click();
+    await page.getByRole('button',{name:'查看并处理',exact:true}).click();
+    const detail=page.getByRole('region',{name:'反馈详情',exact:true});await expect(detail).toContainText('<b>原问题纯文字</b>');
+    await page.getByRole('button',{name:'受理此反馈',exact:true}).click();await expect(page.getByRole('status')).toContainText('已受理');
+    await page.getByLabel('回复内容',{exact:true}).fill('已记录，正在核实');
+    let lost=false;
+    await page.route('**/api/admin/feedback/*/reply',async route=>{if(!lost){lost=true;await route.fetch();await route.abort('failed');}else await route.continue();});
+    await page.getByRole('button',{name:'保存回复',exact:true}).click();await expect(page.getByRole('alert')).toBeVisible();
+    await expect(page.getByLabel('回复内容',{exact:true})).toHaveValue('已记录，正在核实');
+    await page.getByRole('button',{name:'保存回复',exact:true}).click();await expect(page.getByRole('status')).toContainText('回复已保存');
+    expect((await (await member.request.get(url+'/feedback/'+ticket.id)).json()).ticket.events).toHaveLength(2);
+    await page.getByLabel('回复内容',{exact:true}).fill('已处理，请刷新查看');await page.getByLabel('回复后的状态',{exact:true}).selectOption('resolved');
+    await page.getByRole('button',{name:'保存回复',exact:true}).click();await expect(page.getByRole('button',{name:'保存回复',exact:true})).toHaveCount(0);
+    const final=(await (await member.request.get(url+'/feedback/'+ticket.id)).json()).ticket;
+    expect(final.status).toBe('resolved');expect(final.events.map((e:any)=>e.body)).toEqual(['','已记录，正在核实','已处理，请刷新查看']);
+    const follow=await member.request.post(url+'/feedback/'+ticket.id+'/followup',{headers:{...headers,'Idempotency-Key':crypto.randomUUID()},data:{revision:final.revision,body:'还有一个问题需要核对'}});
+    expect(follow.status()).toBe(200);
+    await page.getByRole('button',{name:'刷新反馈列表',exact:true}).click();await page.getByRole('button',{name:'查看并处理',exact:true}).click();
+    await expect(detail).toContainText('用户补充');await expect(detail).toContainText('还有一个问题需要核对');
+    await page.getByLabel('回复内容',{exact:true}).fill('补充问题也已处理');await page.getByLabel('回复后的状态',{exact:true}).selectOption('resolved');await page.getByRole('button',{name:'保存回复',exact:true}).click();
+    await expect(page.getByRole('button',{name:'保存回复',exact:true})).toHaveCount(0);
+    const latest=(await (await member.request.get(url+'/feedback/'+ticket.id)).json()).ticket;
+    const confirm=await member.request.post(url+'/feedback/'+ticket.id+'/confirm',{headers:{...headers,'Idempotency-Key':crypto.randomUUID()},data:{revision:latest.revision}});expect(confirm.status()).toBe(200);
+    await page.getByRole('button',{name:'重新读取当前反馈',exact:true}).click();await expect(detail).toContainText('用户已确认解决');
+    await page.setViewportSize({width:390,height:844});expect(await page.locator('body').evaluate(el=>el.scrollWidth<=innerWidth+1)).toBe(true);
+    await page.request.post('/api/auth/logout',{headers,data:{}});await page.getByRole('button',{name:'刷新反馈列表',exact:true}).click();
+    await expect(page.getByRole('alert')).toContainText('登录状态已变化');await expect(detail).toHaveCount(0);
+  } finally {await member.close();}
+});

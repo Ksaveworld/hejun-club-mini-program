@@ -1,0 +1,17 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="card">正在读取服务…</view>
+  <view wx:if="{{error}}" class="card"><view>{{error}}</view><button class="secondary-action" bindtap="refresh" disabled="{{loading || opening}}">重新读取</button></view>
+  <view wx:if="{{service}}">
+    <view class="heading"><view class="subtitle">{{category}}</view><view class="page-title serif">{{service.title}}</view></view>
+    <view class="subtitle">{{service.summary}}</view><view class="service-body">{{service.body}}</view>
+    <button class="primary-action" bindtap="useService" loading="{{opening}}" disabled="{{opening || loading || confirming}}">{{actionLabel}}</button>
+  </view>
+  <view wx:if="{{confirming && service}}" class="confirm-overlay"><view class="confirm-panel">
+    <view class="service-title serif">{{actionLabel}}</view>
+    <view class="service-body">{{service.action.type === 'phone' ? '即将拨打 ' + service.action.phoneNumber : '即将进入“' + service.title + '”的服务小程序。'}}</view>
+    <button class="primary-action" bindtap="confirmService">{{service.action.type === 'phone' ? '确认拨打' : '确认打开'}}</button>
+    <button class="secondary-action" bindtap="cancelUse">暂不使用</button>
+  </view></view>
+  <button class="secondary-action" bindtap="openHelp">帮助与反馈</button>
+  <button class="secondary-action" bindtap="backToServices">返回服务列表</button>
+</view>

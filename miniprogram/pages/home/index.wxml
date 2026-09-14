@@ -1,0 +1,36 @@
+<view class="page">
+  <view class="brand-row">
+    <image class="brand-logo" src="/assets/cabc-official-logo.png" mode="widthFix" />
+    <text class="brand-label">会员服务</text>
+  </view>
+  <view class="hero">
+    <view class="hero-line hero-line-one"></view>
+    <view class="hero-line hero-line-two"></view>
+    <view class="hero-title serif">中国—东盟<view>跨境企业家俱乐部</view></view>
+    <view class="hero-subtitle">跨境知识 · 企业服务 · 交流参访</view>
+  </view>
+  <view class="shortcuts">
+    <button wx:for="{{shortcuts}}" wx:key="id" class="shortcut" hover-class="tap-feedback" data-service-id="{{item.id}}" bindtap="openServices">
+      <view class="shortcut-mark serif">{{item.mark}}</view>
+      <view>{{item.label}}</view>
+    </button>
+  </view>
+  <button wx:if="{{journey}}" class="journey-summary card" bindtap="openJourney"><view><view class="guide-title">{{journey.title}}</view><view class="guide-copy">{{journey.note}}</view></view><text class="arrow">›</text></button>
+  <view wx:if="{{articles.length || contentError}}" class="section">
+    <view class="section-heading"><text class="section-title serif">精选阅读</text><button class="text-action" bindtap="openArticles">查看更多 ›</button></view>
+    <button wx:if="{{contentError}}" class="text-action" bindtap="refresh">{{contentError}}</button>
+    <button wx:for="{{articles}}" wx:key="id" class="editorial" data-id="{{item.id}}" bindtap="openArticle" hover-class="tap-feedback">
+      <view class="editorial-kicker">{{item.category === 'knowledge' ? '知识与实务' : '行业资讯'}}</view>
+      <view class="editorial-title serif">{{item.title}}</view><view class="editorial-copy">{{item.summary}}</view><view class="editorial-status">{{item.document && !item.fullAccess ? '试看前10页' : '阅读全文'}} <text>›</text></view>
+    </button>
+  </view>
+  <view class="section">
+    <view class="section-title serif">入会指南</view>
+    <button class="guide" hover-class="tap-feedback" bindtap="openGuide">
+      <view><view class="guide-title">第一次加入，从这里开始</view><view class="guide-copy">了解会籍、申请方式与开通流程。</view></view>
+      <text class="arrow">›</text>
+    </button>
+  </view>
+  <button class="membership-banner" hover-class="tap-feedback" bindtap="openMembers"><text>会员指南与权益</text><text class="arrow">›</text></button>
+  <button class="all-services" hover-class="tap-feedback" bindtap="openServices">查看全部跨境服务 ›</button>
+</view>

@@ -1,0 +1,26 @@
+<view class="page">
+  <view class="heading">
+    <view class="page-title serif">跨境服务</view>
+    <view class="subtitle">找到需要的资料与服务。</view>
+  </view>
+  <view class="search-row">
+    <input class="search-input" value="{{query}}" bindinput="search" placeholder="搜索服务、内容" maxlength="50" confirm-type="search" />
+    <button wx:if="{{query}}" class="clear-search" hover-class="tap-feedback" bindtap="clearSearch">清空</button>
+  </view>
+  <view wx:if="{{loading}}" class="result-count">正在更新服务…</view>
+  <view wx:if="{{error}}" class="card">{{error}}<button class="secondary-action" bindtap="refresh">重新读取服务</button></view>
+  <view wx:if="{{hasMore}}" class="result-count">当前显示最近发布的 100 项服务。</view>
+  <view wx:if="{{query}}" class="result-count">找到 {{filteredServices.length}} 项服务</view>
+  <view wx:if="{{filteredServices.length}}" class="service-list">
+    <button wx:for="{{filteredServices}}" wx:key="id" class="service-item" hover-class="tap-feedback" data-service-id="{{item.id}}" bindtap="openService">
+      <view class="service-copy"><view class="service-category">{{item.category}}</view><view class="service-title serif">{{item.title}}</view><view class="service-summary">{{item.summary}}</view></view>
+      <text class="arrow">›</text>
+    </button>
+  </view>
+  <view wx:else class="empty-state">
+    <view class="empty-title serif">没有找到相关服务</view>
+    <view class="empty-copy">试试“知识”“投稿”或“帮助”。</view>
+    <button class="secondary-action" hover-class="tap-feedback" bindtap="clearSearch">清空搜索</button>
+  </view>
+  <button class="primary-action membership-action" hover-class="tap-feedback" bindtap="openMembers">查看会员权益与入会说明</button>
+</view>

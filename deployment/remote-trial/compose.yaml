@@ -1,0 +1,57 @@
+name: hejun-club-trial
+services:
+  api:
+    image: ${CLUB_NODE_IMAGE:?Set the verified cached Node image ID}
+    pull_policy: never
+    container_name: hejun-club-trial-api
+    # Native nginx runs on the host. The application itself binds only 127.0.0.1:5210.
+    network_mode: host
+    user: "1000:1000"
+    init: true
+    working_dir: /app
+    command: ["node", "server/remote-index.mjs", "--config", "/run/club/remote.json"]
+    environment:
+      NODE_ENV: test
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    cpus: 0.5
+    mem_limit: 512m
+    pids_limit: 128
+    stop_grace_period: 35s
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=64m,mode=1777
+    volumes:
+      - type: bind
+        source: ./release
+        target: /app
+        read_only: true
+      - type: bind
+        source: ./private/remote.json
+        target: /run/club/remote.json
+        read_only: true
+      - type: bind
+        source: ./state
+        target: /var/lib/hejun-club
+      - type: bind
+        source: ./backups
+        target: /var/backups/hejun-club
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          const c=JSON.parse(require('fs').readFileSync('/run/club/remote.json','utf8'));
+          const req=require('http').get({host:'127.0.0.1',port:5210,path:'/api/health',headers:{Host:new URL(c.apiOrigin).host,'X-Real-IP':'127.0.0.1','X-Forwarded-Proto':'https'}},r=>{let b='';r.on('data',x=>b+=x);r.on('end',()=>{try{const h=JSON.parse(b);process.exit(r.statusCode===200&&h.mode==='remote-trial'&&h.paymentReady===false&&h.nativeAuth.localTrial===false?0:1)}catch{process.exit(1)}})});
+          req.setTimeout(3000,()=>{req.destroy();process.exit(1)});req.on('error',()=>process.exit(1));
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

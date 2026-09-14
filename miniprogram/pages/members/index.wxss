@@ -1,0 +1,18 @@
+.plan { margin-bottom: 28rpx; padding: 34rpx 32rpx 10rpx; border: 1rpx solid #dfe6e0; border-radius: 16rpx; background: #ffffff; }
+.plan-english { color: #758479; font-size: 20rpx; letter-spacing: 4rpx; }
+.plan-title { margin-top: 6rpx; font-size: 38rpx; font-weight: 600; }
+.plan-price { margin-top: 14rpx; color: #276450; font-size: 52rpx; line-height: 1.5; }
+.currency { margin-right: 4rpx; font-size: 28rpx; }
+.period { margin-left: 4rpx; font-size: 25rpx; }
+.plan-summary { margin-top: 20rpx; color: #697970; font-size: 26rpx; }
+.benefits { margin-top: 24rpx; padding-top: 18rpx; border-top: 1rpx solid #dfe6e0; }
+.benefit { padding: 3rpx 0; font-size: 26rpx; }
+.benefit-dot { margin-right: 14rpx; color: #a88436; font-weight: 600; }
+.plan-action { display: flex; align-items: center; justify-content: space-between; min-height: 98rpx; margin-top: 14rpx; color: #287963; font-size: 27rpx; }
+.plan-star { border-color: #d7b96c; background: #f8efce; }
+.plan-star .benefits { border-top-color: #dfcd99; }
+.plan-organization { border-color: #c9a956; background: #164c3d; color: #f0e6cc; }
+.plan-organization .plan-english, .plan-organization .plan-summary { color: #cfddce; }
+.plan-organization .plan-price, .plan-organization .plan-action, .plan-organization .benefit-dot { color: #edcf87; }
+.plan-organization .benefits { border-top-color: #52705a; }
+.services-action { margin-top: 28rpx; }

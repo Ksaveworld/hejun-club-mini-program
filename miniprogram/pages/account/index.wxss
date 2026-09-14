@@ -1,0 +1,29 @@
+.account-error { margin-bottom: 24rpx; padding: 20rpx 24rpx; border-radius: 12rpx; background: #fff0e7; color: #9d4534; font-size: 26rpx; }
+.account-loading { margin-bottom: 22rpx; color: #697970; font-size: 26rpx; }
+.profile-card { display: flex; align-items: center; margin-bottom: 24rpx; }
+.profile-avatar { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 96rpx; height: 96rpx; margin-right: 24rpx; border: 1rpx solid #d7b96c; border-radius: 50%; background: #f8efce; color: #164c3d; font-size: 40rpx; }
+.profile-copy { min-width: 0; }
+.profile-name { font-size: 34rpx; font-weight: 600; word-break: break-all; }
+.profile-note { margin-top: 5rpx; color: #697970; font-size: 24rpx; }
+.membership-card { padding: 34rpx 32rpx; border: 1rpx solid #c9a956; border-radius: 18rpx; background: #164c3d; color: #f8efce; }
+.membership-title { font-size: 42rpx; }
+.membership-status { margin-top: 18rpx; font-size: 29rpx; }
+.membership-expiry { margin-top: 10rpx; color: #cfddce; font-size: 23rpx; }
+.account-menu { margin-top: 28rpx; padding: 0 28rpx; border-radius: 16rpx; background: #fff; }
+.account-menu-item { display: flex; align-items: center; justify-content: space-between; min-height: 110rpx; font-size: 29rpx; }
+.account-menu-item + .account-menu-item { border-top: 1rpx solid #edf1eb; }
+.source-card { margin-top: 28rpx; }
+.source-title { font-size: 26rpx; color: #697970; }
+.source-code { margin-top: 10rpx; font-size: 29rpx; }
+.source-card .footnote { margin-top: 14rpx; }
+.invite-card { margin-top: 24rpx; }
+.invite-card .footnote { margin-top: 14rpx; }
+.share-invite { margin-top: 22rpx; }
+.refresh-account { margin-top: 28rpx; }
+.logout-action { min-height: 96rpx; margin-top: 8rpx; padding: 24rpx; color: #697970; text-align: center; font-size: 26rpx; }
+.guest-title { font-size: 38rpx; }
+.guest-copy { margin: 20rpx 0 30rpx; color: #697970; font-size: 27rpx; line-height: 1.9; }
+.guest-members { margin-top: 12rpx; padding: 22rpx 0; color: #287963; text-align: center; font-size: 27rpx; }
+
+.journey-note { margin-top: 20rpx; font-size: 27rpx; line-height: 1.8; }
+.journey-action { margin-top: 28rpx; padding: 22rpx; background: #fff; color: #164c3d; border-radius: 10rpx; font-size: 28rpx; text-align: center; }

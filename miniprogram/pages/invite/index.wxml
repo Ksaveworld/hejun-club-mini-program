@@ -1,0 +1,20 @@
+<view class="page">
+  <view class="heading"><view class="page-title serif">邀请与奖励</view><view class="subtitle">分享小程序卡片，推荐来源自动带入。</view></view>
+  <view wx:if="{{error}}" class="invite-error">{{error}}</view>
+  <view wx:if="{{message}}" class="invite-message">{{message}}</view>
+  <view wx:if="{{loading}}" class="muted">正在核对推荐信息并生成图片…</view>
+  <view wx:if="{{ready}}" class="invite-preview">
+    <view class="footnote">邀请朋友了解俱乐部。奖励明细及提现尚未开放，分享不代表已经取得奖励。</view><view class="section-title serif">小程序分享卡片</view>
+    <image class="invite-card-image" src="{{cardPath}}" mode="widthFix" />
+    <button class="primary-action" open-type="share" disabled="{{loading || saving}}">分享小程序卡片</button>
+    <view class="section-title serif">介绍图片</view>
+    <image class="invite-poster-image" src="{{posterPath}}" mode="widthFix" />
+    <view class="footnote">此图片不含扫码入口，请与小程序卡片配合使用。推荐关系不代表已取得奖励资格。</view>
+    <button class="secondary-action" bindtap="savePoster" loading="{{saving}}" disabled="{{loading || saving}}">保存介绍图片</button>
+  </view>
+  <button wx:if="{{albumDenied}}" class="secondary-action" bindtap="openSettings">打开相册权限设置</button>
+  <button class="secondary-action retry-invite" bindtap="refresh" disabled="{{loading || saving}}">重新生成邀请图片</button>
+  <button wx:if="{{!ready && !loading}}" class="text-action" bindtap="openLogin">前往登录</button>
+  <canvas type="2d" id="invite-card" class="export-canvas card-canvas"></canvas>
+  <canvas type="2d" id="invite-poster" class="export-canvas poster-canvas"></canvas>
+</view>

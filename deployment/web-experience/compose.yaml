@@ -1,0 +1,36 @@
+name: hejun-club-web
+services:
+  api:
+    image: ${CLUB_NODE_IMAGE:?Use the verified cached image}
+    pull_policy: never
+    container_name: hejun-club-web-api
+    network_mode: host
+    user: "1000:1000"
+    init: true
+    working_dir: /app
+    command: ["node", "server/web-index.mjs"]
+    environment:
+      NODE_ENV: test
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    cpus: 0.5
+    mem_limit: 512m
+    pids_limit: 128
+    stop_grace_period: 35s
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=64m,mode=1777
+    volumes:
+      - ./release/backend:/app:ro
+      - ./state:/var/lib/hejun-club-web
+      - ./backups:/var/backups/hejun-club-web
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "3"}
+    healthcheck:
+      test: ["CMD", "node", "-e", "const r=require('http').get({host:'127.0.0.1',port:5211,path:'/api/health',headers:{Host:'example.com','X-Real-IP':'127.0.0.1','X-Forwarded-Proto':'https'}},r=>{let b='';r.on('data',d=>b+=d);r.on('end',()=>{try{const h=JSON.parse(b);process.exit(r.statusCode===200&&h.mode==='web-trial'&&h.paymentReady===false?0:1)}catch{process.exit(1)}})});r.setTimeout(3000,()=>r.destroy());r.on('error',()=>process.exit(1));"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

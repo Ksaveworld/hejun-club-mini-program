@@ -1,0 +1,4 @@
+.service-body { margin: 30rpx 0; line-height: 1.9; font-size: 29rpx; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.confirm-overlay { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.35); display: flex; align-items: flex-end; }
+.confirm-panel { width: 100%; box-sizing: border-box; background: #fffdf7; border-radius: 28rpx 28rpx 0 0; padding: 36rpx 36rpx calc(36rpx + env(safe-area-inset-bottom)); }

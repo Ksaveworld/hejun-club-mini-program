@@ -1,0 +1,34 @@
+<view class="page posts-page">
+  <view class="heading"><view class="page-title serif">{{mode === 'new' ? '写一篇稿件' : mode === 'detail' ? '稿件与审核结果' : '我的投稿'}}</view><view class="subtitle">提交行业观察与跨境经验，查看自己的稿件和审核结果。</view></view>
+  <view wx:if="{{error}}" class="posts-error">{{error}}</view>
+  <view wx:if="{{message}}" class="posts-message">{{message}}</view>
+  <view wx:if="{{loading}}" class="posts-loading">正在读取会籍与稿件…</view>
+  <view wx:if="{{!loggedIn && !loading}}" class="card posts-guest"><view>登录后可查看自己的稿件。</view><button class="primary-action" bindtap="openLogin">登录后查看</button></view>
+  <view wx:if="{{ready && !canSubmit}}" class="card access-note"><view>{{accessNote}}</view><button class="secondary-action" bindtap="openMembers">查看会员权益</button></view>
+  <view wx:if="{{ready && canSubmit && mode === 'new'}}" class="card post-form">
+    <view class="section-title serif">写一篇稿件</view>
+    <label class="field-label" for="post-title">标题</label>
+    <input id="post-title" class="post-input" value="{{title}}" maxlength="60" placeholder="用一句话说明主题" disabled="{{busy || loading}}" data-field="title" bindinput="changeField" />
+    <view class="field-count">{{title.length}} / 60</view>
+    <label class="field-label" for="post-body">正文</label>
+    <textarea id="post-body" class="post-body" value="{{body}}" maxlength="2000" placeholder="分享你的观察、经验或观点" disabled="{{busy || loading}}" data-field="body" bindinput="changeField" />
+    <view class="field-count">{{body.length}} / 2000</view>
+    <view class="footnote">提交后需审核，不会立即公开；请确认文字为本人原创或已获授权。</view>
+    <view wx:if="{{draftNote}}" class="footnote">{{draftNote}}</view>
+    <button class="primary-action submit-post" disabled="{{busy || loading}}" loading="{{busy}}" bindtap="submit">{{busy ? '正在保存…' : '提交审核'}}</button>
+  </view>
+  <view wx:if="{{ready && mode === 'list'}}" class="section">
+    <button wx:if="{{canSubmit}}" class="primary-action" bindtap="newPost">写一篇稿件</button>
+    <view class="section-heading"><view class="section-title serif">我的稿件</view><text class="muted">{{posts.length}} 篇</text></view>
+    <view wx:if="{{!posts.length}}" class="card posts-empty">还没有提交过稿件。</view>
+    <view wx:for="{{posts}}" wx:key="id" class="card post-item"><button class="post-row" data-post-id="{{item.id}}" bindtap="navigatePost"><view class="post-title">{{item.title}}</view><view class="post-meta"><text>{{item.statusLabel}}</text><text>{{item.createdLabel}}</text></view><view class="post-expand">查看稿件与审核结果 ›</view></button></view>
+  </view>
+  <view wx:if="{{ready && mode === 'detail' && selectedPost}}" class="card post-detail">
+    <view class="section-title serif">{{selectedPost.title}}</view><view class="muted">{{selectedPost.statusLabel}}</view><text class="post-text" selectable>{{selectedPost.body}}</text>
+    <view wx:if="{{selectedPost.status === 'pending'}}" class="review-note">稿件已收到，审核结果会保留在这里。</view>
+    <view wx:if="{{selectedPost.reason}}" class="review-note">审核说明：{{selectedPost.reason}}</view>
+    <view wx:if="{{selectedPost.status === 'rejected'}}" class="footnote">修改复审功能尚未开放；请先查看本次审核说明。</view>
+    <button class="secondary-action" bindtap="backToList">返回上一页</button>
+  </view>
+  <button wx:if="{{error}}" class="secondary-action refresh-posts" disabled="{{loading || busy}}" loading="{{loading}}" bindtap="refreshPosts">重新读取稿件</button>
+</view>

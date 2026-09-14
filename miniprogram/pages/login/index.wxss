@@ -1,0 +1,19 @@
+.login-section-title { font-size: 34rpx; }
+.capability-copy { margin-top: 16rpx; color: #697970; font-size: 26rpx; line-height: 1.9; }
+.wechat-action { margin-top: 26rpx; }
+.capability-retry { min-height: 84rpx; margin-top: 14rpx; padding: 18rpx 0; color: #287963; font-size: 25rpx; text-align: center; }
+.consent-card { margin: 28rpx 0; }
+.login-consent { display: flex; align-items: flex-start; color: #697970; font-size: 24rpx; line-height: 1.9; }
+.login-consent checkbox { flex-shrink: 0; margin: 2rpx 12rpx 0 0; transform: scale(.88); transform-origin: top left; }
+.login-consent text { flex: 1; }
+.login-error { color: #9d4534; font-size: 26rpx; line-height: 1.8; }
+.auth-error { margin-bottom: 24rpx; padding: 20rpx 24rpx; border-radius: 12rpx; background: #fff0e7; }
+.local-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.local-subtitle { margin-top: 7rpx; color: #697970; font-size: 23rpx; }
+.local-form { margin-top: 26rpx; padding-top: 24rpx; border-top: 1rpx solid #dfe6e0; }
+.local-form-title { margin-bottom: 22rpx; font-size: 27rpx; font-weight: 600; }
+.login-field { display: block; margin-bottom: 24rpx; }
+.login-label { display: block; margin-bottom: 10rpx; font-size: 26rpx; }
+.login-input { width: 100%; height: 94rpx; padding: 18rpx 22rpx; border: 1rpx solid #dfe6e0; border-radius: 10rpx; background: #f9faf7; font-size: 26rpx; }
+.local-boundary { margin: 6rpx 0 25rpx; color: #697970; font-size: 23rpx; }
+.register-toggle { min-height: 86rpx; margin-top: 12rpx; padding: 20rpx 0 10rpx; color: #287963; font-size: 25rpx; text-align: center; }

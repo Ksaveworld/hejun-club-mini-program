@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.work-docx/
+.work-review/
+work/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+*.log
+
+# Private runtime state and machine configuration
+**/project.private.config.json
+**/private/
+**/backups/
+**/__pycache__/
+*.pyc
+*.sqlite*
+*.db
+*.pem
+*.key
+*.p12
+*.pfx
+*.local.json
+deployment/presentation-project.json

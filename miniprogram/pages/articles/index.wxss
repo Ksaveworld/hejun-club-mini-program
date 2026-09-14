@@ -1,0 +1,10 @@
+.toolbar, .categories { display: flex; flex-wrap: wrap; gap: 16rpx; margin-bottom: 24rpx; }
+.toolbar .text-action { padding-left: 0; }
+.search-input { height: 88rpx; margin: 24rpx 0; padding: 18rpx 24rpx; border: 1rpx solid #d7dfd7; border-radius: 12rpx; background: white; }
+.category { min-height: 80rpx; padding: 16rpx 28rpx; border-radius: 12rpx; border: 1rpx solid #d7dfd7; }
+.category.active { background: #164c3d; color: #f8efce; }
+.article-item { width: 100%; margin-bottom: 20rpx; }
+.article-detail { margin-bottom: 24rpx; }
+.article-body { display: block; white-space: pre-wrap; word-break: break-all; margin-top: 24rpx; line-height: 1.9; }
+.read-link { margin-top: 18rpx; color: #287963; }
+.error { padding: 24rpx; margin-bottom: 20rpx; background: #fff1e8; color: #8d4129; border-radius: 12rpx; }

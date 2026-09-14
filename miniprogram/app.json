@@ -1,0 +1,44 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/members/index",
+    "pages/services/index",
+    "pages/account/index",
+    "pages/login/index",
+    "pages/join/index",
+    "pages/orders/index",
+    "pages/posts/index",
+    "pages/articles/index",
+    "pages/activities/index",
+    "pages/invite/index",
+    "pages/feedback/index",
+    "pages/service-detail/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "俱乐部",
+    "navigationBarBackgroundColor": "#f6f7f3",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f7f3"
+  },
+  "tabBar": {
+    "color": "#697970",
+    "selectedColor": "#164c3d",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/services/index",
+        "text": "服务"
+      },
+      {
+        "pagePath": "pages/account/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}
