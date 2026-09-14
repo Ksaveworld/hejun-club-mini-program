@@ -37,7 +37,7 @@ test('standalone preview permissions cover guests, unpaid, all active plans, exp
   const user=insertUser(db,'reader_'+(planId||'unpaid'),await hashPassword(password),'member');
   const login=await get('/auth/login',{username:user.username,password});const headers={Cookie:login.headers['set-cookie'][0].split(';')[0]};
   if(planId){const order=createOrder(db,user.id,{planId,consent:true,form:{name:'隔离会员',phone:'13800000000',city:'隔离',company:'隔离机构',organizationType:'机构会员'}},randomUUID());if(order.status==='review')db.prepare("UPDATE orders SET status='pending' WHERE id=?").run(order.id);
-    const expected={appId:'ISOLATED_PREVIEW',merchantId:'ISOLATED_PREVIEW'};applyVerifiedPayment(db,{...expected,transactionId:randomUUID(),orderId:order.id,currency:'CNY',amountCents:order.amountCents,status:'SUCCESS',paidAt:new Date().toISOString()},expected);paid.push({user,headers});}
+    const expected={appId:'ISOLATED_PREVIEW',merchantId:'ISOLATED_PREVIEW'};applyVerifiedPayment(db,{...expected,transactionId:randomUUID(),orderId:order.id,currency:'CNY',amountCents:order.amountCents,status:'SUCCESS',paidAt:new Date().toISOString()},expected);if(planId==='organization'){const start=new Date().toISOString(),end='2099-01-01T00:00:00.000Z';db.prepare("UPDATE orders SET status='paid',paid_at=?,expires_at=? WHERE id=?").run(start,end,order.id);db.prepare('INSERT INTO memberships VALUES (?,?,?,?,?)').run(user.id,order.id,planId,start,end);}paid.push({user,headers});}
   assert.equal(JSON.parse((await get('/articles/'+id,null,headers)).body).article.fullAccess,!!planId);
   const full=await get('/articles/'+id+'/document',null,headers);assert.equal(full.status,planId?200:404);if(planId)assert.ok(full.body.includes('Isolated page 11'));
  }

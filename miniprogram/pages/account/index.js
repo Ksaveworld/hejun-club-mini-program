@@ -79,6 +79,7 @@ Page({
   },
   openLogin() { wx.navigateTo({ url: '/pages/login/index' }); },
   openOrders() { wx.navigateTo({ url: '/pages/orders/index' }); },
+  openCommunity(){wx.navigateTo({url:'/pages/posts/index?mode=feed'});},
   openPosts() { wx.navigateTo({ url: '/pages/posts/index' }); },
   openInvite() { wx.navigateTo({ url: '/pages/invite/index' }); },
   openFeedback() { wx.navigateTo({ url: '/pages/feedback/index' }); },

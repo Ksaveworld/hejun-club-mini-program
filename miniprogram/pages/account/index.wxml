@@ -9,6 +9,7 @@
     <view class="account-menu">
       <button class="account-menu-item" bindtap="openOrders"><text>申请与订单</text><text class="arrow">›</text></button>
       <button class="account-menu-item" bindtap="openMembers"><text>会籍与权益说明</text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openCommunity"><text>会员交流</text><text class="arrow">›</text></button>
       <button class="account-menu-item posts-entry" bindtap="openPosts"><text>我的投稿</text><text class="arrow">›</text></button>
       <button class="account-menu-item invite-entry" bindtap="openInvite"><text>邀请与奖励</text><text class="arrow">›</text></button>
       <button class="account-menu-item feedback-entry" bindtap="openFeedback"><text>帮助与反馈<text wx:if="{{unreadFeedback}}"> · {{unreadFeedback}} 条新回复</text></text><text class="arrow">›</text></button>

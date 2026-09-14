@@ -121,7 +121,7 @@ test('HTTP: lost cancellation result refreshes to the saved terminal state with 
   const note = '隔离审核说明：验证原记录保留，不代表实际资质认定';
   await adminReview(id, note);
   const orders = device.page('orders'); orders.onLoad({ id }); await orders.refreshOrders();
-  assert.equal(orders.data.selectedOrder.status, 'pending');
+  assert.equal(orders.data.selectedOrder.status, 'review');
   device.dropNext((path, method, status) => path === '/orders/' + id + '/cancel' && method === 'POST' && status === 200);
   await orders.cancelOrder();
   assert.equal(db.prepare('SELECT status FROM orders WHERE id=?').get(id).status, 'cancelled');

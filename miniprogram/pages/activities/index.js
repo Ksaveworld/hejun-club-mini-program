@@ -5,11 +5,12 @@ function decorate(item){
  return {...item,time:format(item.startAt)+' 至 '+format(item.endAt),phase:Date.parse(item.endAt)<Date.now()?'已结束':Date.parse(item.startAt)>Date.now()?'即将开始':'进行中'};
 }
 Page({
- data:{id:'',items:[],filtered:[],selected:null,query:'',ready:false,loading:false,error:''},
+ data:{campaign:null,id:'',items:[],filtered:[],selected:null,query:'',ready:false,loading:false,error:''},
  onLoad(options={}){this.setData({id:options.id||''});},
- onShow(){return this.refresh();},
+ onShow(){api('/campaign').then(r=>this.setData({campaign:r.campaign?.active?r.campaign:null})).catch(()=>{});return this.refresh();},
  onHide(){this._request=(this._request||0)+1;this.setData({items:[],filtered:[],selected:null,ready:false,loading:false});},
  onUnload(){this._unloaded=true;this.onHide();},
+ openCampaign(){wx.navigateTo({url:'/pages/surveys/index'});},
  async onPullDownRefresh(){try{await this.refresh();}finally{wx.stopPullDownRefresh();}},
  async refresh(){
   if(this._unloaded)return;const version=this._request=(this._request||0)+1;

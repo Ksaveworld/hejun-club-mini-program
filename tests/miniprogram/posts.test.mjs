@@ -97,22 +97,23 @@ test('guest and unpaid members cannot submit; login and membership routes remain
 test('eligible member submits once, reads full original text and sees real administrator review results', async t => {
   const env = await setup(t), user = (await env.login()).user; env.activate(user);
   await env.page.refreshPosts(); env.fill(); await Promise.all([env.page.submit(), env.page.submit()]);
-  assert.equal(env.page.data.posts.length, 1); assert.equal(env.page.data.selectedPost.status, 'pending');
+  assert.equal(env.page.data.posts.length, 1); assert.equal(env.page.data.selectedPost.status, 'published');
   assert.equal(env.page.data.selectedPost.body, article.body); assert.equal(env.page.data.body, '');
   const id = env.page.data.selectedId;
-  assert.equal((await env.http('/content')).data.posts.length, 0);
+  assert.equal((await env.http('/content')).statusCode, 401);
+  assert.equal((await env.client.api('/content')).posts.length, 1);
   assert.equal((await env.review(id, 'rejected', '')).statusCode, 400);
   assert.equal((await env.review(id, 'rejected', '请补充事实依据')).statusCode, 200);
   await env.page.refreshPosts();
-  assert.equal(env.page.data.selectedPost.statusLabel, '未通过'); assert.equal(env.page.data.selectedPost.reason, '请补充事实依据');
+  assert.equal(env.page.data.selectedPost.statusLabel, '已下架'); assert.equal(env.page.data.selectedPost.reason, '请补充事实依据');
   assert.ok(env.page.data.selectedPost.reviewedLabel);
   assert.equal((await env.review(id, 'published', '')).statusCode, 409);
   env.fill({ title: '另一篇原创稿件', body: '另一段文字，不覆盖原稿。' }); await env.page.submit();
   const secondId = env.page.data.selectedId;
-  assert.equal((await env.review(secondId, 'published', '审核通过')).statusCode, 200);
+  assert.equal((await env.review(secondId, 'published', '')).statusCode, 200);
   await env.page.refreshPosts(); assert.equal(env.page.data.selectedPost.statusLabel, '已发表');
   assert.equal(env.db.prepare('SELECT count(*) n FROM posts').get().n, 2);
-  assert.equal(env.db.prepare("SELECT count(*) n FROM audit_log WHERE action='post.submitted'").get().n, 2);
+  assert.equal(env.db.prepare("SELECT count(*) n FROM audit_log WHERE action='post.published'").get().n, 2);
 });
 
 test('lost successful post response retains text and submission key; explicit retry returns one persisted post', async t => {
@@ -129,7 +130,7 @@ test('lost successful post response retains text and submission key; explicit re
   const writes = env.sent.filter(r => r.path === '/posts' && r.method === 'POST');
   assert.equal(writes.length, 2); assert.equal(writes[0].key, writes[1].key);
   assert.equal(env.page.data.posts.length, 1); assert.equal(env.page.data.body, '');
-  assert.equal(env.db.prepare("SELECT count(*) n FROM audit_log WHERE action='post.submitted'").get().n, 1);
+  assert.equal(env.db.prepare("SELECT count(*) n FROM audit_log WHERE action='post.published'").get().n, 1);
 });
 
 test('expired session hides private text; same member login restores the draft but another member clears it', async t => {

@@ -6,7 +6,7 @@ const plans = [
     id: 'basic', name: '基础会员', english: 'ESSENTIAL', priceLabel: '365',
     summary: '从日常资讯与知识工具开始，了解跨境经营。',
     audience: '希望持续了解跨境市场的企业家与从业者',
-    benefits: ['翻译服务', '跨境大讲堂', '跨境知识库', '产品与服务名录', '行业资讯'],
+    benefits: ['翻译服务（功能更新中）', '跨境大讲堂', '跨境知识库', '产品与服务名录', '行业资讯'],
     rule: '付款成功后开通，无需资质预审。'
   },
   {
@@ -21,7 +21,7 @@ const plans = [
     summary: '展示专业服务，参与俱乐部的资源交流与品牌活动。',
     audience: '商协会、产业园区及跨境专业服务机构',
     benefits: ['包含星级会员全部权益', '机构与专业服务名录', '路演与项目展示', '品牌展示与传播', '资源交流与合作对接'],
-    rule: '先审核资质，再付款；付款成功后开通。'
+    rule: '本期仅预报名，暂不收费或开通会籍。'
   }
 ];
 
@@ -29,7 +29,7 @@ const services = [
   {
     id: 'translation', title: '翻译服务', category: '沟通工具', summary: '为跨语言沟通提供辅助。',
     detail: '会员资料列有翻译权益。支持的语言、使用次数与服务方式，需随正式服务入口一并确认。',
-    availability: '待提供正式入口及使用说明'
+    availability: '功能更新中'
   },
   {
     id: 'lectures', title: '跨境大讲堂', category: '学习交流', summary: '围绕跨境经营开展主题分享。',

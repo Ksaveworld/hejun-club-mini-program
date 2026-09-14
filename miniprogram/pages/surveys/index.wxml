@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="page-title serif">中国—东盟人工智能供需对接会</view>
+  <view class="subtitle">9月17日 14:30—16:30 · 南宁国际会展中心 B103、B105</view>
+  <view wx:if="{{!survey && !busy}}">
+    <button data-side="supply" bindtap="choose">我提供AI产品或解决方案</button>
+    <button data-side="demand" bindtap="choose">我有AI应用场景需求</button>
+  </view>
+  <view wx:if="{{busy}}">正在处理…</view>
+  <view wx:if="{{error}}" class="survey-error">{{error}}</view>
+  <view wx:if="{{receipt}}" class="card"><view>提交成功</view><view>我们已保存您的填写内容，用于对接撮合与活动安排。</view><view>回执编号：{{receipt}}</view></view>
+  <view wx:elif="{{survey}}">
+    <view class="section-title">{{survey.title}}</view>
+    <view class="subtitle">第{{section}} / {{survey.sections.length}}部分 · {{survey.sections[section - 1]}}</view>
+    <view wx:for="{{fields}}" wx:key="id" class="survey-field">
+      <view>{{item.number}}. {{item.label}}</view>
+      <textarea wx:if="{{item.type === 'text'}}" value="{{item.value}}" data-id="{{item.id}}" bindinput="change" maxlength="3000" disabled="{{busy}}" auto-height />
+      <checkbox-group wx:elif="{{item.type === 'multi'}}" data-id="{{item.id}}" bindchange="change">
+        <label wx:for="{{item.choices}}" wx:for-item="option" wx:key="value"><checkbox value="{{option.value}}" checked="{{option.checked}}" disabled="{{busy}}" />{{option.label}}</label>
+      </checkbox-group>
+      <radio-group wx:else data-id="{{item.id}}" bindchange="change">
+        <label wx:for="{{item.choices}}" wx:for-item="option" wx:key="value"><radio value="{{option.value}}" checked="{{option.checked}}" disabled="{{busy}}" />{{option.label}}</label>
+      </radio-group>
+      <textarea wx:if="{{item.options.length}}" placeholder="选项中的国别、其他内容或补充说明（选填）" value="{{item.note}}" data-id="{{item.id + 'Note'}}" bindinput="change" maxlength="1000" disabled="{{busy}}" auto-height />
+    </view>
+    <button wx:if="{{section > 1}}" data-step="-1" bindtap="move" disabled="{{busy}}">上一部分</button>
+    <button wx:if="{{section < survey.sections.length}}" data-step="1" bindtap="move" disabled="{{busy}}">下一部分</button>
+    <view wx:else>
+      <checkbox-group bindchange="consent"><label><checkbox checked="{{consent}}" disabled="{{busy}}" />我同意将所填信息用于本次对接撮合与活动安排。联系信息不公开展示。</label></checkbox-group>
+      <button class="primary-action" bindtap="submit" disabled="{{busy}}" loading="{{busy}}">提交问卷</button>
+    </view>
+  </view>
+</view>

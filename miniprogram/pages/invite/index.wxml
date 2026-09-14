@@ -1,4 +1,4 @@
-<view class="page">
+<view class="page"><button class="secondary-action" bindtap="openAmbassador">申请成为推荐大使 ›</button>
   <view class="heading"><view class="page-title serif">邀请与奖励</view><view class="subtitle">分享小程序卡片，推荐来源自动带入。</view></view>
   <view wx:if="{{error}}" class="invite-error">{{error}}</view>
   <view wx:if="{{message}}" class="invite-message">{{message}}</view>

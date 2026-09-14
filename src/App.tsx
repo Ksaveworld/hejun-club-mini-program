@@ -1,3 +1,5 @@
+import { WebActivities } from './Activities';
+import { Surveys } from './Surveys';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { X, CircleHelp, PanelTop } from 'lucide-react';
@@ -73,8 +75,8 @@ export default function App() {
   const service = services.find(item => item.id === path.split('/')[2]);
   const admin = path === '/admin' && !isPresentation;
   const showNavigation = path === '/' || path === '/services' || (path === '/account' && !accountTab);
-  const pageTitle = path === '/' ? '首页' : path === '/services' ? '服务大厅' : path === '/account' ? (accountTab ? tabTitles[accountTab] || '申请与订单' : '我的') : path === '/members' ? '会员权益' : path === '/directory' ? '企业名录' : path.startsWith('/join/') ? '申请入会' : path.startsWith('/checkout/') || path.startsWith('/result/') ? '订单详情' : path.startsWith('/guides/') ? '会员指南' : path === '/help' ? '帮助与反馈' : path === '/content' ? '会员交流' : service?.title || '会员服务';
-  const back = path === '/account' ? ['#/account', '返回我的'] : path.startsWith('/join/') ? ['#/members', '返回会员权益'] : path.startsWith('/checkout/') || path.startsWith('/result/') ? ['#/account?tab=orders', '返回我的订单'] : path.startsWith('/services/') || path === '/directory' || path === '/content' ? ['#/services', '返回服务大厅'] : ['#/', '返回首页'];
+  const pageTitle = path === '/' ? '首页' : path === '/services' ? '服务大厅' : path === '/account' ? (accountTab ? tabTitles[accountTab] || '申请与订单' : '我的') : path === '/members' ? '会员权益' : path.startsWith('/directory') ? '企业与服务名录' : path.startsWith('/join/') ? '申请入会' : path.startsWith('/checkout/') || path.startsWith('/result/') ? '订单详情' : path.startsWith('/guides/') ? '会员指南' : path === '/help' ? '帮助与反馈' : path === '/content' ? '会员交流' : service?.title || '会员服务';
+  const back = path.startsWith('/directory/') ? ['#/directory', '返回服务名录'] : path === '/account' ? ['#/account', '返回我的'] : path.startsWith('/join/') ? ['#/members', '返回会员权益'] : path.startsWith('/checkout/') || path.startsWith('/result/') ? ['#/account?tab=orders', '返回我的订单'] : path.startsWith('/services/') || path === '/directory' || path === '/content' ? ['#/services', '返回服务大厅'] : ['#/', '返回首页'];
   const returnRoute = returnRoutes.current.get(path);
   if (returnRoute) {
     back[0] = `#${returnRoute}`;
@@ -95,11 +97,13 @@ export default function App() {
   else if (path === '/account') page = <AccountPage key={route + (session.user?.id || 'guest')} session={session} refresh={refresh} />;
   else if (admin) page = <AdminPage key={session.user?.id || 'guest'} session={session} refresh={refresh} />;
   else if (path === '/services') page = <ClubServices query={serviceQuery} setQuery={setServiceQuery} />;
-  else if (path === '/directory' || path === '/services/directory') page = <ClubDirectory />;
+  else if (path === '/activities' || path.startsWith('/activities/')) page = <WebActivities key={path} id={path.split('/')[2] || ''}/>;
+  else if (path === '/directory' || path.startsWith('/directory/') || path === '/services/directory') page = <ClubDirectory key={path} id={path.startsWith('/directory/') ? path.split('/')[2] : undefined} />;
   else if (path.startsWith('/services/') && service) page = <ClubServicePage key={path} service={service} />;
   else if (path.startsWith('/guides/')) page = <ClubGuide id={path.split('/')[2]} />;
   else if (path === '/help') page = <ClubHelp />;
-  else if (path === '/content') page = <ContentPage />;
+  else if (path.startsWith('/surveys')) page = <Surveys key={path} side={path.split('/')[2]} />;
+  else if (path === '/content') page = <ContentPage key={session.user?.id || 'guest'} refresh={refresh} />;
   else page = <div className="empty-state"><h1 id="page-title">暂时找不到这个页面</h1><a className="button primary" href="#/">返回首页</a></div>;
   return <div className={admin ? 'admin-shell' : `member-shell club-shell ${showNavigation ? 'club-has-nav' : 'club-subpage'} ${path === '/directory' ? 'club-directory-page' : ''}`}>
     <div className="preview-bar"><span>{isPresentation ? '界面演示 · 申请与支付未开放' : '本机内测 · 支付尚未开放'}</span><button onClick={() => setGuideOpen(true)}>{isPresentation ? '演示说明' : '内测说明'}<CircleHelp size={13} /></button></div>

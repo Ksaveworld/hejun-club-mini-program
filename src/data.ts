@@ -10,7 +10,7 @@ export const plans: Plan[] = [
     summary: "从日常资讯与知识工具开始，了解跨境经营。",
     audience: "希望持续了解跨境市场的企业家与从业者",
     benefits: [
-      "翻译服务",
+      "翻译服务（功能更新中）",
       "跨境大讲堂",
       "跨境知识库",
       "产品与服务名录",
@@ -49,21 +49,21 @@ export const plans: Plan[] = [
       "品牌展示与传播",
       "资源交流与合作对接",
     ],
-    actionLabel: isPresentation ? "查看申请说明" : "申请加入",
-    ruleNote: isPresentation ? "先审核资质，再付款；付款成功后开通。当前演示版不接收申请。" :
-      "先审核资质，再付款；付款成功后开通。当前可保存申请并在后台审核。",
+    actionLabel: isPresentation ? "查看申请说明" : "预报名",
+    ruleNote: isPresentation ? "本期仅预报名，暂不收费或开通会籍。当前演示版不接收申请。" :
+      "本期仅预报名，暂不收费或开通会籍。提交后可在“我的”查看待审核记录。",
   },
 ];
 
 export const services: Service[] = [
   {
     id: "translation",
-    title: "翻译服务",
+    title: "翻译服务（功能更新中）",
     category: "沟通工具",
     summary: "为跨语言沟通提供辅助。",
     detail:
       "会员资料列有翻译权益。支持的语言、使用次数与服务方式，需随正式服务入口一并确认。",
-    availability: "待提供正式入口及使用说明",
+    availability: "功能更新中",
   },
   {
     id: "lectures",

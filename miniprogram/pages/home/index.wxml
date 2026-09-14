@@ -9,6 +9,7 @@
     <view class="hero-title serif">中国—东盟<view>跨境企业家俱乐部</view></view>
     <view class="hero-subtitle">跨境知识 · 企业服务 · 交流参访</view>
   </view>
+
   <view class="shortcuts">
     <button wx:for="{{shortcuts}}" wx:key="id" class="shortcut" hover-class="tap-feedback" data-service-id="{{item.id}}" bindtap="openServices">
       <view class="shortcut-mark serif">{{item.mark}}</view>
@@ -34,3 +35,8 @@
   <button class="membership-banner" hover-class="tap-feedback" bindtap="openMembers"><text>会员指南与权益</text><text class="arrow">›</text></button>
   <button class="all-services" hover-class="tap-feedback" bindtap="openServices">查看全部跨境服务 ›</button>
 </view>
+
+<view wx:if="{{campaignOpen && campaign}}" class="campaign-mask" catchtouchmove="stopCampaignTap"><view class="campaign-panel"><button class="campaign-close" bindtap="closeCampaign" aria-label="关闭活动邀请">×</button><view class="campaign-kicker">CAEXPO 2026 · 限时活动</view><view class="campaign-date">09 / 17</view><view class="campaign-title serif">中国—东盟
+人工智能供需对接会</view><view class="campaign-copy">让应用场景找到解决方案
+让专业能力连接真实需求</view><view class="campaign-meta">{{campaign.timeLabel}}
+{{campaign.venue}}</view><button class="campaign-choice" data-side="supply" bindtap="chooseSurvey">我提供AI产品 / 方案 ↗</button><button class="campaign-choice campaign-demand" data-side="demand" bindtap="chooseSurvey">我有AI应用需求 ↗</button><button class="campaign-later" bindtap="closeCampaign">稍后再看</button><view class="campaign-note">关闭后可从「俱乐部活动」再次进入，无需购买会员。</view></view></view>

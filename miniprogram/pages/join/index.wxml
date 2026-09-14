@@ -2,7 +2,7 @@
   <view wx:if="{{reapplyNote}}" class="footnote">{{reapplyNote}}</view>
   <view wx:if="{{draftNote}}" class="footnote">{{draftNote}}</view>
   <view class="test-note"><text class="test-label">开发内测</text>申请和订单会实际保存到测试服务。只填写虚构联系资料，当前不收款。</view>
-  <view class="heading"><view class="page-title serif">填写入会信息</view><view class="subtitle">{{planId === 'organization' ? '先审核资质，通过后付款，付款成功后开通。' : '付款成功后开通，无需资质预审。'}}</view></view>
+  <view class="heading"><view class="page-title serif">填写入会信息</view><view class="subtitle">{{planId === 'organization' ? '本期仅接受预报名，提交后待审核，暂不收费。' : '付款成功后开通，无需资质预审。'}}</view></view>
   <view wx:if="{{loadError}}" class="join-error">{{loadError}}</view>
   <view wx:if="{{loading}}" class="join-loading">正在核对方案与账号…</view>
   <view wx:if="{{plan}}">
@@ -23,12 +23,12 @@
     </view>
     <checkbox-group class="join-consent-group" bindchange="changeConsent"><label class="join-consent"><checkbox value="agree" checked="{{consent}}" disabled="{{busy}}" color="#164c3d" /><text>我同意将本次虚构联系资料、申请和订单保存到当前测试服务，用于内测。正式协议与权益资料待提供；本次提交不会收款或开通会员。</text></label></checkbox-group>
     <view wx:if="{{error}}" class="join-error">{{error}}</view>
-    <button wx:if="{{loggedIn}}" class="primary-action" loading="{{busy}}" disabled="{{busy || loading || !planReady || user.role === 'admin'}}" bindtap="submit">{{busy ? '正在保存…' : planId === 'organization' ? '提交资质申请' : '保存入会订单'}}</button>
+    <button wx:if="{{loggedIn}}" class="primary-action" loading="{{busy}}" disabled="{{busy || loading || !planReady || user.role === 'admin'}}" bindtap="submit">{{busy ? '正在保存…' : planId === 'organization' ? '提交预报名' : '保存入会订单'}}</button>
     <button wx:else class="primary-action" disabled="{{busy}}" bindtap="openLogin">登录后保存申请</button>
     <button wx:if="{{error || conflict}}" class="join-order-link" disabled="{{busy}}" bindtap="openOrders">前往我的订单，核对保存结果 ›</button>
     <button wx:if="{{loadError}}" class="join-order-link" disabled="{{busy || loading}}" bindtap="loadContext">重新读取方案与账号</button>
     </view>
-    <view class="footnote">{{planId === 'organization' ? '资质审核通过仅表示允许付款，付款成功后才开通会籍。' : '订单保存后保持待付款，当前微信支付尚未接通。'}}会籍有效期从核验付款成功时起算一年。</view>
+    <view class="footnote">{{planId === 'organization' ? '本期仅登记预报名，暂不收费或开通会籍。' : '订单保存后保持待付款，当前微信支付尚未接通。'}}会籍有效期从核验付款成功时起算一年。</view>
   </view>
   <button class="back-members" hover-class="tap-feedback" bindtap="openMembers">返回上一页</button>
 </view>

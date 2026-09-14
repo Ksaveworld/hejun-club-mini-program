@@ -1,7 +1,39 @@
 import { test, expect, type Page } from '@playwright/test';
 
+test.beforeEach(async ({page})=>{await page.addInitScript(()=>localStorage.setItem('caexpo-ai-20260917-v1','dismissed'));});
 const password='OnlyInIsolatedTests1';
 const unique=()=>`u_${crypto.randomUUID().replaceAll('-','').slice(0,15)}`;
+test('未付费访客分段填写需求问卷，后台导出同一记录且无公开答案接口', async ({ page, browser }) => {
+  const schema = (await (await page.request.get('/api/surveys/demand')).json()).survey;
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/#/surveys/demand');
+  await expect(page.getByRole('heading', { name: schema.title })).toBeVisible();
+  for (let section = 1; section <= schema.sections.length; section++) {
+    for (const field of schema.fields.filter((f: { section: number; required: boolean }) => f.section === section && f.required)) {
+      if (field.type === 'text') await page.getByRole('textbox', { name: field.label, exact: true }).fill(field.id === 'q9' ? 'survey@example.test' : '隔离活动测试');
+      else await page.locator('fieldset').filter({ has: page.locator('legend', { hasText: `${field.number}. ` }) }).locator('input').first().check();
+    }
+    if (section < schema.sections.length) await page.getByRole('button', { name: '下一部分' }).click();
+  }
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: '提交问卷', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '提交成功' })).toBeVisible();
+  await page.screenshot({path:'../analysis/mvp-survey-receipt.png',fullPage:true});
+  const receipt = (await page.getByText('回执编号：').innerText()).split('：')[1].trim();
+  expect((await page.request.get('/api/admin/surveys')).status()).toBe(401);
+  expect((await page.request.get('/api/surveys/demand/' + receipt)).status()).not.toBe(200);
+  const context = await browser.newContext(); const admin = await context.newPage();
+  try {
+    await login(admin, 'test_admin', true);
+    const exported = await admin.request.get('/api/admin/surveys');
+    expect(exported.status()).toBe(200);
+    const row = (await exported.json()).submissions.find((r: { id: string }) => r.id === receipt);
+    expect(row.answers.q9).toBe('survey@example.test');
+    const download = admin.waitForEvent('download');
+    await admin.getByRole('button', { name: '导出全部问卷（JSON）' }).click();
+    expect((await download).suggestedFilename()).toBe('ai-matchmaking-surveys.json');
+  } finally { await context.close(); }
+});
 async function register(page:Page,username=unique(),path='/#/account?tab=orders',referral='') {
   await page.goto(path);
   await page.getByRole('button',{name:'没有账号，创建内测账号'}).click();
@@ -27,7 +59,7 @@ async function apply(page:Page,plan='basic') {
   await page.getByRole('textbox',{name:'所在城市'}).fill('上海');
   if(plan==='organization')await page.getByRole('textbox',{name:'机构名称'}).fill('虚构内测机构');
   await page.getByRole('checkbox').check();
-  await page.getByRole('button',{name:plan==='organization'?'提交资质申请':'保存订单',exact:true}).click();
+  await page.getByRole('button',{name:plan==='organization'?'提交预报名':'保存订单',exact:true}).click();
   await expect(page).toHaveURL(/#\/checkout\/HJ/);
   return page.url().split('/').at(-1)!;
 }
@@ -62,7 +94,7 @@ test('星级无需预审；重复申请由服务端阻止',async({page})=>{
   await page.getByRole('checkbox').check();await page.getByRole('button',{name:'保存订单',exact:true}).click();
   await expect(page.getByRole('alert')).toContainText('已有待处理订单');
 });
-test('机构先审后付，管理员查到同一订单，审核通过仍不开通',async({page,browser})=>{
+test('机构只预报名，管理员核验后仍待审核且不能付款',async({page,browser})=>{
   await register(page);const id=await apply(page,'organization');
   await expect(page.getByRole('heading',{name:'待资质审核',exact:true})).toBeVisible();
   const context=await browser.newContext();const admin=await context.newPage();
@@ -72,14 +104,17 @@ test('机构先审后付，管理员查到同一订单，审核通过仍不开�
     await admin.getByRole('searchbox').fill(id);
     const card=admin.getByRole('article').filter({hasText:id});
     await expect(card).toContainText('虚构内测机构');
-    await card.getByRole('button',{name:'资质通过，允许付款'}).click();
+    await card.getByRole('button',{name:'保存核验记录（仍待审核）'}).click();
     await expect(admin.getByRole('alert')).toContainText('审核说明');
     await card.getByRole('textbox',{name:'资质核验 / 驳回说明'}).fill('隔离测试：已核对虚构资质，仅验证审核状态');
-    await card.getByRole('button',{name:'资质通过，允许付款'}).click();
-    await expect(card).toContainText('待付款');
+    await card.getByRole('button',{name:'保存核验记录（仍待审核）'}).click();
+    await expect(card).toContainText('待资质审核');
     await page.getByRole('button',{name:'刷新订单状态'}).click();
-    await expect(page.getByRole('heading',{name:'待付款',exact:true})).toBeVisible();
-    await expect(page.getByText('支付尚未开放',{exact:true})).toBeVisible();
+    await expect(page.getByRole('heading',{name:'待资质审核',exact:true})).toBeVisible();
+    await expect(page.locator('.checkout-plan')).toContainText('暂不收费');
+    const payment = await page.request.post(`/api/orders/${id}/payment`, {headers:{'X-Club-Request':'1'},data:{}});
+    expect(payment.status()).toBe(409);
+    expect(await payment.json()).toMatchObject({error:expect.stringContaining('仅接受预报名')});
     await page.goto('/#/account');await expect(page.getByText('尚未开通会员',{exact:true})).toBeVisible();
   }finally{await context.close();}
 });
@@ -130,7 +165,7 @@ test('无效推荐码给出错误，清空可继续；未提供默认码时来�
   await expect(page.getByRole('heading',{name:'我的订单',exact:true})).toBeVisible();await apply(page);
   await expect(page.locator('.order-details')).toContainText('未指定 · 默认值待配置');
 });
-test('隔离会员样本验证文字投稿审核：待审不公开，通过后可读',async({page,browser})=>{
+test('隔离会员样本验证直接发布与运营下架',async({page,browser})=>{
   await login(page,'test_paid_member');await page.getByRole('tab',{name:'我的投稿',exact:true}).click();
   await expect(page).toHaveURL(/#\/account\?tab=posts$/);
   await expect(page.locator('#page-title')).toHaveText('我的投稿');
@@ -141,10 +176,43 @@ test('隔离会员样本验证文字投稿审核：待审不公开，通过后�
   try{
     await admin.goto('/#/content');await expect(admin.getByRole('heading',{name:title,exact:true})).toHaveCount(0);
     await login(admin,'test_admin',true);await admin.getByRole('tab',{name:'内容审核',exact:true}).click();
-    await admin.getByRole('article').filter({hasText:title}).getByRole('button',{name:'通过审核',exact:true}).click();
+    const card=admin.getByRole('article').filter({hasText:title});
+    await card.getByRole('textbox',{name:'驳回理由'}).fill('补充信息来源');
+    await card.getByRole('button',{name:'下架内容',exact:true}).click();
     await expect(admin.getByRole('status')).toContainText('审核已保存');
-    await page.goto('/#/content');await expect(page.getByRole('heading',{name:title,exact:true})).toBeVisible();
+    await page.goto('/#/content');await expect(page.getByRole('heading',{name:title,exact:true})).toHaveCount(0);
   }finally{await context.close();}
+});
+
+test('交流内容要求登录，未付费注册用户可阅读，退出后不可读取',async({page,browser})=>{
+  await login(page,'test_paid_member');
+  await page.goto('/#/account?tab=posts');
+  const title='注册用户阅读_'+unique();
+  await page.getByRole('textbox',{name:'标题',exact:true}).fill(title);
+  await page.getByRole('textbox',{name:'正文',exact:true}).fill('隔离测试的已审核交流文字。');
+  await page.getByRole('button',{name:'提交投稿',exact:true}).click();
+  await expect(page.getByRole('status')).toContainText('投稿已保存');
+  const context=await browser.newContext();
+  try {
+    const reader=await context.newPage();
+    await login(reader,'test_admin',true);
+    await reader.getByRole('tab',{name:'内容审核',exact:true}).click();
+    await expect(reader.getByRole('article').filter({hasText:title})).toContainText('已发布');
+    await context.clearCookies();
+    await reader.goto('/#/content');
+    await expect(reader.getByRole('alert')).toHaveText('请先登录');
+    await expect(reader.getByRole('heading',{name:title,exact:true})).toHaveCount(0);
+    await reader.getByRole('button',{name:'前往登录',exact:true}).click();
+    await expect(reader.getByRole('heading',{name:'登录会员账号',exact:true})).toBeVisible();
+    await register(reader);
+    await reader.goto('/#/content');
+    await expect(reader.getByRole('heading',{name:title,exact:true})).toBeVisible();
+    await reader.goto('/#/account?tab=settings');
+    await reader.getByRole('button',{name:'退出登录',exact:true}).click();
+    await reader.goto('/#/content');
+    await expect(reader.getByRole('alert')).toHaveText('请先登录');
+    await expect(reader.getByRole('heading',{name:title,exact:true})).toHaveCount(0);
+  } finally { await context.close(); }
 });
 test('开发服务禁止下载数据、管理员凭据和服务端文件',async({request})=>{
   for(const path of ['/work/local-admin.txt','/work/data/club.sqlite','/server/domain.mjs','/scripts/e2e-server.mjs']) {
@@ -204,8 +272,8 @@ for(const width of [360,390,820,1440])test(`当前设计与功能回归 ${width}
   await page.getByRole('searchbox',{name:'搜索会员服务',exact:true}).fill('不存在');
   await expect(page.locator('.club-service-results a')).toHaveCount(0);
   await page.getByRole('button',{name:'清空搜索',exact:true}).click();await expect(page.locator('.service-link')).toHaveCount(6);
-  await page.goto('/#/directory');await expect(page.getByRole('searchbox')).toBeVisible();await expect(page.getByRole('combobox')).toHaveCount(2);
-  await expect(page.getByText('企业名录待上架',{exact:true})).toBeVisible();
+  await page.goto('/#/directory');await expect(page.getByRole('searchbox')).toBeVisible();await expect(page.getByRole('tab')).toHaveCount(2);await expect(page.locator('.directory-category')).toHaveCount(6);
+  await page.getByRole('tab',{name:'会员企业',exact:true}).click();await expect(page.getByRole('heading',{name:'会员企业资料整理中'})).toBeVisible();
   await page.goto('/#/');await page.getByRole('link',{name:/第一次加入，从这里开始/}).click();
   await expect(page).toHaveURL(/#\/guides\/getting-started$/);await expect(page.locator('#page-title')).toHaveText('第一次加入，从这里开始');
   await expect(page.locator('main')).toContainText('先审核资质');

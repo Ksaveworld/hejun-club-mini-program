@@ -1,4 +1,4 @@
-<view class="page">
+<view class="page"><button wx:if="{{campaign}}" class="primary-action" bindtap="openCampaign">{{campaign.timeLabel}} · AI供需问卷 ↗</button>
   <view class="heading"><view class="page-title serif">{{selected ? selected.title : '俱乐部活动'}}</view><view class="subtitle">活动安排与参与说明</view></view>
   <view wx:if="{{error}}" class="card"><view class="error">{{error}}</view><button class="secondary-action" bindtap="refresh">重新读取</button></view>
   <view wx:if="{{loading}}" class="muted">正在读取活动…</view>

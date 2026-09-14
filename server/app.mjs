@@ -1,3 +1,7 @@
+import { publishMemberPost, moderateMemberPost } from './posts.mjs';
+import { installAmbassadors, ambassadorStatus, applyAmbassador, listAmbassadors, followAmbassador } from './ambassadors.mjs';
+import { campaignState } from './campaign.mjs';
+import { surveys, installSurveys, submitSurvey, listSurveys } from './surveys.mjs';
 import {sendArticleDocument} from './article-documents.mjs';
 import {listActivities,readActivity,saveActivity,transitionActivity} from './activities.mjs';
 import { createWebPolicy } from './web-policy.mjs';
@@ -21,14 +25,14 @@ function json(res, status, value, extra = {}) {
     'X-Content-Type-Options':'nosniff', ...extra });
   res.end(JSON.stringify(value));
 }
-async function readBody(req) {
+async function readBody(req, maxBytes = 16384) {
   requireRule(req.headers['content-type']?.split(';')[0] === 'application/json', '请求必须使用 JSON', 415);
   const chunks = [];
   let bytes = 0;
   for await (const chunk of req) {
     chunks.push(chunk);
     bytes += chunk.length;
-    requireRule(bytes <= 16384, '提交内容过长', 413);
+    requireRule(bytes <= maxBytes, '提交内容过长', 413);
   }
   try {
     const body = Buffer.concat(chunks).toString('utf8');
@@ -43,6 +47,8 @@ function postView(row) {
 }
 
 export function createApplication(db, options = {}) {
+  installSurveys(db);
+  installAmbassadors(db);
   const web = options.webTrial ? createWebPolicy(options.webTrial) : null;
   if(web && (options.remoteTrial || options.lanNetwork || options.allowNativeTrialAuth || options.wechat)) throw new Error('网页体验不可混用其他身份环境');
   const remote = options.remoteTrial ? createRemotePolicy(options.remoteTrial) : null;
@@ -74,10 +80,10 @@ export function createApplication(db, options = {}) {
     db.prepare('INSERT INTO sessions VALUES (?,?,?)').run(digest(token), userId, new Date(Date.now()+sessionDuration).toISOString());
     return { 'Set-Cookie':`${cookieName}=${token}; HttpOnly; SameSite=Strict; Path=${cookiePath}; Max-Age=${sessionDuration/1000}${cookieSecurity}` };
   }
-  function limit(req) {
+  function limit(req, scope = 'auth') {
     const time = Date.now();
     for (const [key,value] of attempts) if (value.until <= time) attempts.delete(key);
-    const key = req.trialClientIp ?? req.socket.remoteAddress;
+    const key = scope + ':' + (req.trialClientIp ?? req.socket.remoteAddress);
     requireRule(attempts.has(key) || attempts.size < 10000, '服务繁忙，请稍后重试', 429);
     const item = attempts.get(key) ?? { count:0, until:time+60000 };
     item.count++;
@@ -111,9 +117,16 @@ export function createApplication(db, options = {}) {
         if (!nativeAuth.wechat || !remote.allowsIdentity(identity))
           throw authError('测试访问资格已失效', 403, 'TRIAL_NOT_INVITED');
       }
+      if (path === '/api/campaign' && method === 'GET') return json(res,200,{campaign:campaignState()});
+      const surveyRoute = /^\/api\/surveys\/(supply|demand)$/.exec(path);
+      if (surveyRoute && method === 'GET') return json(res, 200, { survey: surveys[surveyRoute[1]] });
+      if (surveyRoute && method === 'POST') {
+        limit(req, 'survey');
+        requireRule(campaignState().active, '本次活动问卷已结束，感谢关注', 410);
+        return json(res, 201, { receipt: submitSurvey(db, surveyRoute[1], await readBody(req, 512 * 1024), req.headers['idempotency-key']) });
+      }
       if (path === '/api/health' && method === 'GET') return json(res,200,{ status:'ok', storage:'sqlite', mode, paymentReady:false, nativeAuth });
       if (path === '/api/plans' && method === 'GET') return json(res,200,{ plans:Object.values(plans), paymentReady:false });
-      if (path === '/api/content' && method === 'GET') return json(res,200,{ posts:db.prepare("SELECT * FROM posts WHERE status='published' ORDER BY created_at DESC LIMIT 100").all().map(postView) });
       if (['/api/native/auth/login','/api/native/auth/register','/api/native/auth/wechat'].includes(path) && method === 'POST') {
         requireUnauthenticatedNativeLogin(req);
         if (!path.endsWith('/wechat') && !allowNativeTrialAuth) throw new BusinessError('接口不存在', 404);
@@ -179,8 +192,15 @@ export function createApplication(db, options = {}) {
         membership:user ? membership(db,user.id) : null, paymentReady:false,
         defaultReferralConfigured:!!db.prepare("SELECT 1 FROM settings WHERE key='default_referral_code'").get() });
       requireRule(user, '请先登录', 401);
+      if (path === '/api/content' && method === 'GET') return json(res,200,{ posts:db.prepare("SELECT * FROM posts WHERE status='published' ORDER BY created_at DESC LIMIT 100").all().map(postView) });
       if(web && method!=='GET') requireRule(req.headers['x-club-actor']===user.id,'登录账号已变化，请刷新后重新操作',409);
       if (path.startsWith('/api/admin/')) requireRule(user.role === 'admin', '需要管理员权限', 403);
+      if (path === '/api/admin/surveys' && method === 'GET') return json(res, 200, listSurveys(db, user, url.searchParams.get('before') ?? undefined));
+      if (path === '/api/ambassador' && method === 'GET') return json(res,200,ambassadorStatus(db,user));
+      if (path === '/api/ambassador' && method === 'POST') return json(res,201,{application:applyAmbassador(db,user,await readBody(req),req.headers['idempotency-key'])});
+      if (path === '/api/admin/ambassadors' && method === 'GET') return json(res,200,listAmbassadors(db,user,url.searchParams.get('before') ?? undefined));
+      const ambassadorMatch = /^\/api\/admin\/ambassadors\/([a-f0-9-]+)$/.exec(path);
+      if (ambassadorMatch && method === 'POST') return json(res,200,{application:followAmbassador(db,user,ambassadorMatch[1],await readBody(req))});
       if (path === '/api/feedback/summary' && method === 'GET') return json(res, 200, feedbackSummary(db,user));
       const memberFeedbackRoute = /^\/api\/feedback\/([a-f0-9-]+)\/(followup|confirm|read)$/.exec(path);
       if (memberFeedbackRoute && method === 'POST') {
@@ -242,6 +262,7 @@ export function createApplication(db, options = {}) {
         if (method === 'GET' && !orderMatch[2]) return json(res,200,{ order:orderView(db,row) });
         if (method === 'POST' && orderMatch[2] === 'cancel') return json(res,200,{ order:cancelOrder(db,user.id,row.id) });
         if (method === 'POST' && orderMatch[2] === 'payment') {
+          requireRule(!plans[row.plan_id]?.registrationOnly,'机构及专业会员目前仅接受预报名，暂不收费',409);
           requireRule(row.status === 'pending','此订单当前不能付款',409);
           throw new BusinessError('微信支付尚未接通，订单已保存；当前不会收款或开通会员',503);
         }
@@ -252,36 +273,10 @@ export function createApplication(db, options = {}) {
       const reviewMatch = /^\/api\/admin\/orders\/([A-Z0-9]+)\/review$/.exec(path);
       if (reviewMatch && method === 'POST') return json(res,200,{ order:reviewOrder(db,user.id,reviewMatch[1],await readBody(req)) });
       if (path === '/api/posts' && method === 'GET') return json(res,200,{ posts:db.prepare('SELECT * FROM posts WHERE user_id=? ORDER BY created_at DESC').all(user.id).map(postView) });
-      if (path === '/api/posts' && method === 'POST') {
-        requireRule(membership(db,user.id)?.active,'开通且在有效期内的会员才能投稿',403);
-        const body = await readBody(req);
-        const title = textField(body.title,'标题',60,true), content = textField(body.body,'正文',2000,true);
-        const key = req.headers['idempotency-key']; validateKey(key);
-        const post = transaction(db, () => {
-          const previous = db.prepare('SELECT * FROM posts WHERE user_id=? AND idempotency_key=?').get(user.id,key);
-          if (previous) { requireRule(previous.title === title && previous.body === content,'提交编号已用于其他内容',409); return previous; }
-          const id = randomUUID();
-          db.prepare("INSERT INTO posts(id,user_id,title,body,status,created_at,idempotency_key) VALUES (?,?,?,?,'pending',?,?)")
-            .run(id,user.id,title,content,nowISO(),key);
-          audit(db,user.id,'post.submitted',id);
-          return db.prepare('SELECT * FROM posts WHERE id=?').get(id);
-        });
-        return json(res,201,{ post:postView(post) });
-      }
+      if (path === '/api/posts' && method === 'POST') return json(res,201,{post:postView(publishMemberPost(db,user,await readBody(req),req.headers['idempotency-key']))});
       if (path === '/api/admin/posts' && method === 'GET') return json(res,200,{ posts:db.prepare('SELECT * FROM posts ORDER BY created_at DESC').all().map(postView) });
       const postMatch = /^\/api\/admin\/posts\/([a-f0-9-]+)\/review$/.exec(path);
-      if (postMatch && method === 'POST') {
-        const body = await readBody(req);
-        requireRule(['published','rejected'].includes(body.status),'审核状态不正确');
-        const reason = textField(body.reason ?? '','审核说明',500,body.status === 'rejected');
-        transaction(db, () => {
-          const post = db.prepare('SELECT * FROM posts WHERE id=?').get(postMatch[1]);
-          requireRule(post,'投稿不存在',404); requireRule(post.status === 'pending','投稿已审核，请刷新查看',409);
-          db.prepare('UPDATE posts SET status=?,reason=?,reviewed_by=?,reviewed_at=? WHERE id=?').run(body.status,reason,user.id,nowISO(),post.id);
-          audit(db,user.id,`post.${body.status}`,post.id,{ reason });
-        });
-        return json(res,200,{ ok:true });
-      }
+      if (postMatch && method === 'POST') return json(res,200,moderateMemberPost(db,user,postMatch[1],await readBody(req)));
       throw new BusinessError('接口不存在',404);
     } catch (error) {
       if (!(error instanceof BusinessError)) console.error('API error:',error.message);
