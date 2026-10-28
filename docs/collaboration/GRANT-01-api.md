@@ -1,6 +1,8 @@
-# GRANT-01 API 契约 v1
+# GRANT-01 API 契约 v2
 
 日期：2026-10-28。基线：306d1ac53f06ff8315c35e7a05673a9abaf1d241。供后台并行开发；这些是待宿主装配的端点，不是线上已启用能力。
+
+v2依据：[Issue #2 最新范围](https://github.com/Ksaveworld/hejun-club-mini-program/issues/2#issuecomment-6466871327)，覆盖v1仅星级/仅userId约束，支持基础/星级与可信手机号查找；原历史文档不回改。
 
 ## 会话与传输
 
@@ -9,21 +11,28 @@
 
 | 方法与路径 | 输入 | 成功输出 |
 |---|---|---|
-| POST `/lookup` | `{type:"userId",value:"精确消费userId"}` | 脱敏身份摘要、核验结果与阻断项；不按姓名/未核验手机认人 |
-| POST `/preflight` | `{userId,reason,approvalReference}` | `{ready,blockers,identitySummary,existingEntitlements,proposal,confirmationToken?,expiresAt?}` |
-| POST 根路径 | `{userId,reason,approvalReference,confirmationToken,idempotencyKey}` | `{grantId,userId,level,startsAt,expiresAt,status,duplicate,source:"grant",effectiveEntitlements}` |
-| GET 根路径 | `userId?&status?&cursor?&limit?` | `{items,nextCursor}`；默认20，上限100；status为scheduled/active/expired/revoked |
-| POST `/:grantId/revoke` | `{reason}` | 来源撤销结果、duplicate及剩余有效权益；实际字段见服务实现与测试 |
+| POST `/lookup` | `{type:"userId"或"phone",value:"精确标识"}` | `{userId,verified,identitySummary,blockers}`；phone失败可userId:null；不按姓名/未核验手机认人 |
+| POST `/preflight` | `{userId,level:"basic"或"star",reason,approvalReference}` | `{ready,blockers,identitySummary,existingEntitlements,proposal,confirmationToken?,expiresAt?}` |
+| POST 根路径 | `{userId,level:"basic"或"star",reason,approvalReference,confirmationToken,idempotencyKey}` | `{grantId,userId,level,startsAt,expiresAt,status,duplicate,source:"grant",effectiveEntitlements,...历史字段}` |
+| GET 根路径 | `userId?&status?&cursor?&limit?` | `{items,asOf,nextCursor}`；默认25，上限100；status为scheduled/active/expired/revoked |
+| GET `/operations/:idempotencyKey` | 原操作编号 | 已提交：`{found:true,outcome:"committed",grant}`；未查到：`{found:false,outcome:"unknown",grant:null}`，可能仍在提交，不表示确定失败 |
+| POST `/:grantId/revoke` | `{reason}` | 与确认同一记录DTO，status:"revoked"、duplicate及剩余有效权益 |
 
-仅单人，不接受userIds数组、客户端等级/起止/approved字段。批准引用必须解析到服务器已核定且与该消费userId匹配的星级赠送批准记录；填写引用本身不构成批准。没有可靠身份绑定/批准记录时预检阻断，不临时收费核验或创建真实用户。
+仅单人，不接受userIds数组、客户端起止/approved字段。level必填且只能basic/star，服务端批准记录必须同时匹配userId与level；改等级重新预检，同键换等级409。批准引用本身不构成批准。没有可靠身份绑定/批准记录时预检阻断，不临时收费核验或创建真实用户。
+
+手机号仅POST body，禁止URL/日志/审计中记录完整号码；默认大陆11位移动号码转+86，支持+86/0086及显式其他国际区号，去空格/短横线/括号。规范化不代表验证。返回phoneMasked及证据类型，不返回完整号码。匹配查询必须读取可信已核验绑定，不能把表单里的手机号当成该数据源。
+
+当前快照core明确phoneVerified:false，user_profiles只有昵称/头像；申请/表单中的联系电话均不能证明绑定。默认phoneResolver缺省时返回200、verified:false、blockers:[{code:"PHONE_VERIFICATION_UNAVAILABLE"}]；零匹配PHONE_NOT_FOUND，多匹配IDENTITY_AMBIGUOUS，证据不足IDENTITY_UNVERIFIED。集成方需提供服务器适配器 `phoneResolver(c,{phone,actor,now}) -> {available:true,matches:[{userId,phone,verified,reference,revision,expiresAt?}]}`，只读同事务且锁住证据行。测试全部为虚构绑定。
+
+手机号lookup负责定位，预检/确认仍须独立identityVerifier和批准记录核对本人→消费账号。如果将可信手机号绑定作为本人证据，该绑定的版本和有效期必须进入identityVerifier的fingerprint/validUntil，不能只在lookup查一次。无证据仍阻断，不放宽到任意填手机号开通。
 
 ## 确认与幂等
 
 - 策略由服务器持有：`approved:true,version,startRule:'confirmation-time',timeZone:'Asia/Shanghai',yearRule:'calendar-anniversary-clamp',overlap:'block-active'`。
-- HMAC签名确认凭据绑定管理员、目标、原因、批准引用、策略、身份/批准证据与权益快照，默认5分钟；密钥仅在服务器配置，不纳入源码。原OpenID/完整手机不进入凭据或响应。
+- HMAC签名确认凭据绑定管理员、目标、等级、原因、批准引用、策略、身份/批准证据与权益快照，默认5分钟；密钥仅在服务器配置，不纳入源码。原OpenID/完整手机不进入凭据或响应。
 - 预检时间为预计值；首次确认成功以服务端当时取时固定起止，按北京时间一日历年，闰日次年2月28日同刻。生效区间 `[startsAt,expiresAt)`，UTC ISO传输，界面上海时间展示。
 - 同键同业务请求恢复原grantId和固定时间；动态时间和token不进入业务请求摘要。重试仍核验当前权限、身份及批准；不同业务请求复用同键返回409。
-- 超时或断网不得用新键再送。保留原完整请求，同键重试；若身份/批准撤销导致无法重试，由授权管理员查历史处理，不显示假成功。
+- 超时、断网或畸形响应不得当成确定失败、不得用新键再送。按operations接口查原操作编号可跨设备恢复；未查到仍unknown，保留原完整请求同键重试。幂等已提交结果先于token到期检查恢复；若身份/批准撤销导致无法重试，由授权管理员查历史处理，不显示假成功。
 - 目标、策略、身份/批准证据或原权益变化需重做预检。成功后旧凭据不能用新键绕过重叠限制。
 
 ## 错误与界面处理
@@ -40,7 +49,7 @@
 | 413/415 | 请求体超限/非JSON；修正请求 |
 | 503 | 写入口关闭、迁移/并发协调未就绪或暂时不可用；保留原请求，不改前端标签冒充开通 |
 
-最终错误码、lookup/revoke详细字段以本分支测试与交接记录为准，接口修订在此记录。
+审计/历史字段包括reason、approvalReference、actorId、idempotencyKey、createdAt、revokedAt、revokedBy、revokeReason。PHONE_*及APPROVAL_REQUIRED等是预检/查找阻断code。原始数据库错误不透出，暂时断连/锁超时为503，可先按操作编号查结果。
 
 ## 集成不可省略项
 
