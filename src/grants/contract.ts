@@ -1,15 +1,19 @@
 // UI port only. HTTP paths and server DTOs remain owned by GRANT-01/03.
+export type GrantLevel = 'basic' | 'star';
+export const levelLabel = (level: string) => level === 'basic' ? '基础会员' : level === 'star' ? '星级会员' : '未知等级';
+export type LookupInput = { type: 'userId' | 'phone'; value: string };
+export type LookupResult = { matches: Identity[]; blockers: string[] };
 export type Identity = { userId: string; displayName: string; maskedContact: string; verified: boolean; evidence: string };
 export type Entitlement = { source: 'paid' | 'grant'; level: string; startsAt: string; expiresAt: string };
-export type Draft = { userId: string; reason: string; approvalReference: string };
-export type Preflight = { userId: string; ready: boolean; blockers: string[]; existing: Entitlement[]; level: 'star'; startsAt: string; expiresAt: string; confirmationToken: string; confirmationExpiresAt: string };
-export type Grant = { grantId: string; userId: string; level: 'star'; startsAt: string; expiresAt: string; reason: string; approvalReference: string; actor: string; status: 'active' | 'revoked'; revokedAt?: string; revokeReason?: string };
+export type Draft = { userId: string; level: GrantLevel; reason: string; approvalReference: string };
+export type Preflight = { userId: string; ready: boolean; blockers: string[]; existing: Entitlement[]; level: GrantLevel; startsAt: string; expiresAt: string; confirmationToken: string; confirmationExpiresAt: string };
+export type Grant = { grantId: string; userId: string; level: GrantLevel; startsAt: string; expiresAt: string; reason: string; approvalReference: string; actor: string; status: 'active' | 'revoked'; revokedAt?: string; revokeReason?: string };
 export type IssueInput = Draft & { confirmationToken: string; idempotencyKey: string };
 export type RevokeInput = { grantId: string; reason: string; idempotencyKey: string };
 export type Pending = { kind: 'issue'; input: IssueInput } | { kind: 'revoke'; input: RevokeInput };
 export interface GrantGateway {
   checkSession(): Promise<{ actorId: string; canGrant: boolean }>;
-  lookup(userId: string): Promise<Identity[]>;
+  lookup(input: LookupInput): Promise<LookupResult>;
   preflight(input: Draft): Promise<Preflight>;
   issue(input: IssueInput): Promise<{ grant: Grant; duplicate: boolean }>;
   list(input: { userId: string; cursor?: string }): Promise<{ items: Grant[]; nextCursor?: string }>;
@@ -28,6 +32,7 @@ export const sessionJournal: GrantJournal = {
     const p = JSON.parse(raw) as Pending;
     if (!p || !['issue', 'revoke'].includes(p.kind) || typeof p.input?.idempotencyKey !== 'string') throw Error('待核对操作记录损坏，请保留本页并联系管理员核对。');
     if (p.kind === 'issue' && [p.input.userId, p.input.reason, p.input.approvalReference, p.input.confirmationToken].some(v => typeof v !== 'string' || !v)) throw Error('赠送恢复记录不完整。');
+    if (p.kind === 'issue' && !['basic', 'star'].includes(p.input.level)) throw Error('旧版或损坏的待核对操作缺少等级，请先按原操作编号核对结果，勿新建赠送。');
     if (p.kind === 'revoke' && [p.input.grantId, p.input.reason].some(v => typeof v !== 'string' || !v)) throw Error('撤销恢复记录不完整。');
     return p;
   },
