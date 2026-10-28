@@ -14,7 +14,7 @@ import {createPostgresRateLimiter,createLoginAdmission} from './postgres-rate-li
 
 // Migration endpoint, all supported routes use the same PG database. Explicitly not
 // a replacement for the full production application until remaining modules are ported.
-export function createPostgresApplication({core,profile,forms,applicationMaterials,content,batch2,support,rewards,reminders,inviteCode,reviewAccess,admin,manualAftercare,wechat,payment,virtualPayment,paymentChannel='ordinary',autoRecover=true,hosts,origins=[],enterpriseIntake=false,mode='migration'}){
+export function createPostgresApplication({core,profile,forms,applicationMaterials,content,batch2,support,rewards,reminders,inviteCode,reviewAccess,admin,grantHost,manualAftercare,wechat,payment,virtualPayment,paymentChannel='ordinary',autoRecover=true,hosts,origins=[],enterpriseIntake=false,mode='migration'}){
   requireRule(Array.isArray(hosts)&&hosts.length>0,'需要显式配置允许访问的服务域名');
   requireRule(['migration','fresh'].includes(mode),'数据库运行方式不受支持');
   if(payment?.configured)requireRule(payment.appId===core.appId&&wechat?.appId===core.appId,'微信身份与支付AppID不一致');
@@ -22,6 +22,7 @@ export function createPostgresApplication({core,profile,forms,applicationMateria
   if(virtualPayment?.configured)requireRule(virtualPayment.appId===core.appId&&wechat?.appId===core.appId,'虚拟支付身份AppID不一致');
   const ready=paymentChannel==='virtual'?virtualPayment?.configured===true:payment?.configured===true;
   const limit=createPostgresRateLimiter(),admitLogin=createLoginAdmission();
+  const admitGrant=createLoginAdmission({concurrency:4,capacity:32,waitMs:5000});
   const sourceDiagnostics=createSourceDiagnostics();
   const uploads=createEnterpriseUpload();
   const reportUploads=createReportUpload();
@@ -54,6 +55,10 @@ export function createPostgresApplication({core,profile,forms,applicationMateria
     try{
       requireRule(hosts.includes(req.headers.host),'访问地址不受支持',403);
       sourceDiagnostics(req,res);
+      if(grantHost?.http&&/^\/api\/admin\/membership-grants(?:\/|\?|$)/.test(req.url||'')){
+        limit(req,'grant-admission',120);
+        if(await admitGrant(req,()=>grantHost.http(req,res),res))return;
+      }
       const path=new URL(req.url,'http://localhost').pathname,method=req.method;
       if(path==='/api/exclusive-contacts'){res.setHeader('Cache-Control','no-store');res.setHeader('Vary','Authorization');}
       if(path==='/api/native/auth/login'&&method==='POST')requireRule(!req.headers.cookie&&req.headers.authorization===undefined,'登录时不能混用会话',400);
@@ -102,7 +107,7 @@ export function createPostgresApplication({core,profile,forms,applicationMateria
           return json(res,200,{user:result.user},{'Set-Cookie':[result.cookie,'club_pg_collab=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0']});
         }
         const actor=await admin.authenticate(req);
-        if(path==='/api/me'&&method==='GET')return json(res,200,{user:actor,membership:null,paymentReady:ready,paymentChannel,manualPaymentReady:false,defaultReferralConfigured:false});
+        if(path==='/api/me'&&method==='GET')return json(res,200,{user:actor,membership:null,membershipGrantsEnabled:!!grantHost?.http,paymentReady:ready,paymentChannel,manualPaymentReady:false,defaultReferralConfigured:false});
         requireRule(actor,'请重新登录管理员账号',401);
         limit.bind(req,'admin',actor.id);
         if(method!=='GET')requireRule(req.headers['x-club-actor']===actor.id,'登录账号已变化，请刷新后重新操作',409);
@@ -313,7 +318,8 @@ export function createPostgresApplication({core,profile,forms,applicationMateria
       if(path==='/api/exclusive-contacts'&&method==='GET'){
         requireRule(user.role==='member','请使用本人会员账号',403);
         requireRule(new URL(req.url,'http://localhost').search==='','联系人接口不接受额外参数');
-        const {membership}=await core.me(user);
+        const session=await core.me(user);
+        const membership=session.effectiveEntitlements===undefined?session.membership:session.effectiveEntitlements.byPlan.find(item=>item.planId==='star');
         return json(res,200,exclusiveContactsForMembership(membership),{'Vary':'Authorization'});
       }
       if(path==='/api/profile'){

@@ -1,3 +1,4 @@
+import {prepareGrantHost} from './collaboration/grant-host.mjs';
 import {createApplicationMaterials} from './application-materials.mjs';
 import {requireRule} from './domain.mjs';
 import {initializeBatch2,createBatch2Content} from './batch2-content.mjs';
@@ -137,9 +138,11 @@ export async function startCloudMigration(env=process.env){
       const incremental=await runCloudReportIncremental(pool,config,env);
       if(incremental.enabled)console.log('Incremental private report batch; '+JSON.stringify(incremental)+'.');
       if(closing)return;
+      const grantHost=await prepareGrantHost(pool,{schema:config.schema,adminOrigin:config.adminOrigin});
+      const grantOptions=grantHost?{entitlementResolver:grantHost.entitlementResolver,grantPaymentConflict:grantHost.grantPaymentConflict}:{};
       const rewards=createPostgresRewardRuntime(pool,config);
       const {renewals,reminders}=createPostgresLifecycleRuntime(pool,config);
-      const core=createPostgresCore(pool,{...config,rewards,renewals}),paymentRuntime=await createPostgresPaymentRuntime(pool,config,wechat,core,{rewards,renewals});
+      const core=createPostgresCore(pool,{...config,rewards,renewals,...grantOptions}),paymentRuntime=await createPostgresPaymentRuntime(pool,config,wechat,core,{rewards,renewals,grantPaymentConflict:grantHost?.grantPaymentConflict});
       virtualPayment=paymentRuntime.virtualPayment;
       if(env.CLUB_VERIFY_VIRTUAL_TOKEN_APPID!==undefined){
         const tokenCheck=await checkVirtualTokenAtStartup(config,virtualPayment,env.CLUB_VERIFY_VIRTUAL_TOKEN_APPID);
@@ -157,7 +160,7 @@ export async function startCloudMigration(env=process.env){
         batch2=createBatch2Content(pool,config);
       }
 
-      application=createPostgresApplication({core,profile,batch2,rewards,reminders,inviteCode,reviewAccess,manualAftercare,forms:createPostgresForms(pool,config),applicationMaterials:createApplicationMaterials(pool,config),content:createPostgresContent(pool,config),support:createPostgresSupport(pool,config),admin,wechat,...paymentRuntime,hosts:config.hosts,origins:config.origins,enterpriseIntake:config.enterpriseIntake===true,mode:config.mode});
+      application=createPostgresApplication({core,grantHost,profile,batch2,rewards,reminders,inviteCode,reviewAccess,manualAftercare,forms:createPostgresForms(pool,config),applicationMaterials:createApplicationMaterials(pool,config),content:createPostgresContent(pool,{...config,...grantOptions}),support:createPostgresSupport(pool,config),admin,wechat,...paymentRuntime,hosts:config.hosts,origins:config.origins,enterpriseIntake:config.enterpriseIntake===true,mode:config.mode});
       const handler=application.listeners('request')[0];
       delegate=(req,res)=>{
         if((req.method==='GET'||req.method==='HEAD')&&req.url==='/healthz'){

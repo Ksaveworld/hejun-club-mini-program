@@ -50,7 +50,7 @@ export async function verifyVirtualPaymentSchema(pool,{schema}){
 
 // All money/account writes follow the existing core users-table lock. External
 // code2Session/query/delivery calls never happen inside a database transaction.
-export function createPostgresVirtualPayment(pool,{schema,appId,legal,provider,wechat,core,rewards,renewals,clock=Date.now}={}){
+export function createPostgresVirtualPayment(pool,{schema,appId,legal,provider,wechat,core,rewards,renewals,grantPaymentConflict,clock=Date.now}={}){
   if(!provider?.configured)return Object.freeze({configured:false});
   requireRule(schemaValid(schema)&&provider.appId===appId&&wechat?.configured&&wechat.appId===appId
     &&typeof wechat.exchangePaymentCode==='function'&&legal?.status==='approved'&&core,'虚拟支付服务尚未完成配置',503);
@@ -123,6 +123,7 @@ export function createPostgresVirtualPayment(pool,{schema,appId,legal,provider,w
       const member=await one(c,'SELECT * FROM memberships WHERE user_id=$1',[user.id]);
       const renewal=renewals?await renewals.fulfillmentInTransaction(c,row,paidAt):null;
       outcome=renewal?.outcome??(row.status==='pending'&&!member?'activated':'needs_reconciliation');
+      if(outcome==='activated'&&grantPaymentConflict&&await grantPaymentConflict(c,user.id,{startsAt:renewal?.startsAt??paidAt,expiresAt:renewal?.expiresAt??yearAfter(paidAt)}))outcome='needs_reconciliation';
       if(outcome==='activated'){
         const expires=renewal?.expiresAt??yearAfter(paidAt);
         await c.query("UPDATE orders SET status='paid',actual_paid_cents=$1,paid_at=$2,expires_at=$3 WHERE id=$4",[state.paidFeeCents,paidAt,expires,id]);

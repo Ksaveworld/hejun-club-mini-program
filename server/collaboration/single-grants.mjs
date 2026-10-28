@@ -36,7 +36,7 @@ function publicGrant(g, now) {
 // side effects. They must lock the server-owned identity/approval rows they read.
 export function createSingleGrants(access, {policy, clock=()=>new Date().toISOString(), confirmationSecret,
   identityVerifier=createGrantIdentityVerifier(), phoneResolver, approvalResolver, writesEnabled=false, writeCoordinationReady=false} = {}) {
-  const run = access.run;
+  const run = access.run, writeRun = access.writeRun ?? run;
   const policySnapshot = policy ? JSON.parse(JSON.stringify(policy)) : null;
   const policyHash = hash(policySnapshot);
   const secret = typeof confirmationSecret === 'string' ? Buffer.from(confirmationSecret) : confirmationSecret;
@@ -125,7 +125,7 @@ export function createSingleGrants(access, {policy, clock=()=>new Date().toISOSt
       const expiresAt=new Date(Date.parse(now)+TOKEN_TTL_MS).toISOString();
       return {...view,writes:0,confirmationToken:sign({v:1,actorId:actor.id,requestHash:hash(request),policyHash,...binding,issuedAt:now,expiresAt}),expiresAt};
     }),
-    issue:(actor,input)=>run(async c=>{
+    issue:(actor,input)=>writeRun(async c=>{
       await access.platform(c,actor); requireWrites(); const request=normalize(input,true);validateKey(input.idempotencyKey);
       const requestHash=hash({actorId:actor.id,request}),key=input.idempotencyKey;
       // Global batch key precedes target lock. Two disjoint requests using one key
@@ -160,7 +160,7 @@ export function createSingleGrants(access, {policy, clock=()=>new Date().toISOSt
       await audit(c,actor.id,'collab.grant.issued',row.id,{userId:request.userId,level:request.level,startsAt:row.starts_at,expiresAt:row.expires_at,reason:request.reason,approvalReference:request.approvalReference,idempotencyKey:key,policyVersion:policySnapshot.version},confirmedAt);
       return result(c,row,confirmedAt,false);
     }),
-    revoke:(actor,id,input)=>run(async c=>{
+    revoke:(actor,id,input)=>writeRun(async c=>{
       await access.platform(c,actor);requireWrites();object(input,['reason']);const reason=string(input.reason,'reason',500);id=string(id,'grantId',200);
       const ref=await one(c,'SELECT user_id FROM collab_grants WHERE id=$1',[id]);fail(ref,'Grant unavailable',404,'NOT_FOUND');
       await one(c,'SELECT id FROM users WHERE id=$1 FOR UPDATE',[ref.user_id]);

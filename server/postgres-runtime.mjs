@@ -1,3 +1,4 @@
+import {grantMigrationTables} from './collaboration/grant-migration.mjs';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {postgresTransaction} from './postgres.mjs';
@@ -68,6 +69,7 @@ export async function verifyPostgresImport(pool,{schema,sourceDigest}){
     if(markers.length!==1||Number(markers[0].version)!==1||markers[0].baseline_sha256!==baselineHash||markers[0].source_digest!==sourceDigest||Number(markers[0].source_tables)!==tables.length)fail();
     const actual=(await client.query('SELECT table_name FROM information_schema.tables WHERE table_schema=$1 AND table_type=$2',[schema,'BASE TABLE'])).rows.map(r=>r.table_name).filter(n=>n!=='_club_pg_migrations').sort();
     const optional=await virtualPaymentMigrationTables(client,schema);
+    optional.push(...await grantMigrationTables(client,schema));
     optional.push(...await postVersionMigrationTables(client,schema));
     optional.push(...await renewalMigrationTables(client,schema),...await reminderMigrationTables(client,schema));
     optional.push(...await reviewMigrationTables(client,schema));
@@ -82,14 +84,14 @@ export function virtualPaymentApproved(config){return config?.virtualPayment?.en
 
 // Native memberships default to the virtual channel. An ordinary channel must
 // be explicitly selected; incomplete virtual configuration never falls back.
-export async function createPostgresPaymentRuntime(pool,config,wechat,core,{fetchImpl=globalThis.fetch,rewards,renewals}={}){
+export async function createPostgresPaymentRuntime(pool,config,wechat,core,{fetchImpl=globalThis.fetch,rewards,renewals,grantPaymentConflict}={}){
   const paymentChannel=config.paymentChannel??'virtual';
   if(paymentChannel==='ordinary')return {paymentChannel,payment:createWechatPay(config.payment)};
   if(!virtualPaymentApproved(config))return {paymentChannel,payment:{configured:false},virtualPayment:{configured:false}};
   requireVirtualPrices(config);
   await verifyVirtualPaymentSchema(pool,config);
   const provider=createWechatVirtualPay(config.virtualPayment,{fetchImpl,getAccessToken:input=>wechat.getAccessToken(input)});
-  return {paymentChannel,payment:{configured:false},virtualPayment:createPostgresVirtualPayment(pool,{...config,provider,wechat,core,rewards,renewals})};
+  return {paymentChannel,payment:{configured:false},virtualPayment:createPostgresVirtualPayment(pool,{...config,provider,wechat,core,rewards,renewals,grantPaymentConflict})};
 }
 function requireVirtualPrices(config){
   if(config.virtualPayment.appId!==config.appId||!['basic','star'].every(id=>config.virtualPayment.products?.[id]?.goodsPriceCents===plans[id].amountCents))fail();
