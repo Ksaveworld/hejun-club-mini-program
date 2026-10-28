@@ -22,7 +22,9 @@ export function createCollaborationAccess(pool,{schema,clock=()=>new Date().toIS
  }
  async function current(c,actor) {
   const proof=actor&&proofs.get(actor);fail(proof,'Server-authenticated actor required',401,'AUTH_REQUIRED');
-  const user=await one(c,'SELECT u.id,u.role FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.user_id=$2 AND s.expires_at>$3',[proof.hash,actor.id,clock()]);
+  // Hold platform session/role through a grant transaction. Do not add these
+  // locks to association paths: their existing account-disable lock order differs.
+  const user=await one(c,`SELECT u.id,u.role FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.user_id=$2 AND s.expires_at>$3${proof.admin?' FOR SHARE OF s,u':''}`,[proof.hash,actor.id,clock()]);
   fail(user,'Session expired',401,'AUTH_REQUIRED');
   if(proof.admin){fail(user.role==='admin','Platform admin required',403,'FORBIDDEN');return {id:user.id,platform:true};}
   fail(user.role==='member','Account changed',403,'FORBIDDEN');
