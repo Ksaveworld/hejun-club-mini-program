@@ -9,6 +9,7 @@ import {canRead as canReadArticle,accessPolicy,prepareArticleContent} from './ar
 import {prepareActivity} from './activities.mjs';
 import {sendDocumentRow} from './article-documents.mjs';
 import {sendPostgresReport} from './postgres-report-store.mjs';
+import {isOperationalAccount} from './collaboration/grant-identity.mjs';
 
 export const postVersionMigrationMarker={key:'_club_post_versions_migration',value:'004-post-versions-v1'};
 export const postVersionTables=['_club_post_versions','_club_post_revision_heads','_club_post_review_receipts'];
@@ -32,8 +33,9 @@ export async function initializePostgresPostVersions(pool,{schema}={}){
   });
 }
 
-export function createPostgresContent(pool,{schema,documentsDirectory,reportStorage,postVersions=false}={}){
+export function createPostgresContent(pool,{schema,documentsDirectory,reportStorage,postVersions=false,entitlementResolver}={}){
   requireRule(/^club_migration_[a-z0-9_]{1,40}$/.test(schema||''),'需要指定迁移隔离区');
+  requireRule(entitlementResolver===undefined||typeof entitlementResolver==='function','会员权益解析器配置不正确',503);
   const run=(fn,write=false)=>postgresTransaction(pool,async c=>{
     // Read related access, membership and file metadata from one consistent snapshot.
     if(!write)await c.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
@@ -44,9 +46,25 @@ export function createPostgresContent(pool,{schema,documentsDirectory,reportStor
   const one=async(c,sql,args=[])=>(await c.query(sql,args)).rows[0];
   async function member(c,user){
     if(!user)return null;
+    if(entitlementResolver){
+      const current=user.role==='member'&&await one(c,"SELECT id FROM users WHERE id=$1 AND role='member'",[user.id]);
+      if(!current||await isOperationalAccount(c,user.id))return null;
+      const entitlement=await entitlementResolver(c,user.id,nowISO());
+      requireRule(entitlement&&typeof entitlement.active==='boolean'&&Array.isArray(entitlement.planIds),'会员权益暂时不可读取',503);
+      return {active:entitlement.active,planIds:entitlement.planIds,consumerVerified:true};
+    }
     const row=await one(c,'SELECT * FROM memberships WHERE user_id=$1',[user.id]),now=nowISO();
     return row?{planId:row.plan_id,active:row.starts_at<=now&&row.expires_at>now}:null;
   }
+  function canConsume(row,user,membership,parsePolicy,legacy){
+    if(!entitlementResolver)return legacy(row,user,membership);
+    if(row?.status!=='published')return false;
+    let policy;try{policy=parsePolicy(JSON.parse(row.access_json));}catch{return false;}
+    return policy.visibility==='public'||policy.visibility==='plans'&&user?.role==='member'&&membership?.consumerVerified===true&&
+      membership.active===true&&policy.planIds.some(id=>membership.planIds.includes(id));
+  }
+  const canConsumeArticle=(row,user,membership)=>canConsume(row,user,membership,accessPolicy,canReadArticle);
+  const canConsumeResource=(row,user,membership)=>canConsume(row,user,membership,resourceAccessPolicy,canReadResource);
   const summary=r=>({id:r.id,title:r.title,summary:r.summary,category:r.category,publishedAt:r.published_at});
   const activity=r=>({id:r.id,...JSON.parse(r.content_json),status:r.status,revision:safeInteger(r.revision),publishedAt:r.published_at});
   const post=r=>({id:r.id,userId:r.user_id,title:r.title,body:r.body,status:r.status,reason:r.reason,createdAt:r.created_at,reviewedAt:r.reviewed_at});
@@ -115,7 +133,7 @@ export function createPostgresContent(pool,{schema,documentsDirectory,reportStor
   function assembleArticleState(user,row,membership,doc,preview){
     let policy;try{policy=accessPolicy(JSON.parse(row.access_json));}catch{policy=null;}
     const published=row.status==='published';
-    const full=canReadArticle(row,user,membership);
+    const full=canConsumeArticle(row,user,membership);
     const catalog=published&&!!doc&&policy?.visibility==='plans';
     const canPreview=catalog&&policy.previewPages===10&&Number(preview?.pages)>0;
     return {row,doc,preview,full,canPreview,visible:full||catalog||canPreview,
@@ -129,8 +147,8 @@ export function createPostgresContent(pool,{schema,documentsDirectory,reportStor
       let bytes;try{bytes=await readFile(new URL('../public/'+row.posterUrl,import.meta.url));}catch{requireRule(false,'文件暂时不可读取，请稍后重试',503);}
       res.writeHead(200,{'Content-Type':{jpg:'image/jpeg',png:'image/png',webp:'image/webp'}[row.posterUrl.split('.').at(-1)],'Content-Length':bytes.length,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(bytes);
     },
-    resources:user=>run(async c=>{const m=await member(c,user),rows=(await c.query("SELECT * FROM service_resources WHERE status='published' ORDER BY published_at DESC,id")).rows.filter(r=>canReadResource(r,user,m));return {resources:rows.slice(0,100).map(summary),hasMore:rows.length>100};}),
-    resource:(user,id)=>run(async c=>{const r=await one(c,'SELECT * FROM service_resources WHERE id=$1',[id]);requireRule(r&&canReadResource(r,user,await member(c,user)),'服务不存在或当前不可使用',404);return {...summary(r),body:r.body,action:JSON.parse(r.action_json),revision:safeInteger(r.revision)};}),
+    resources:user=>run(async c=>{const m=await member(c,user),rows=(await c.query("SELECT * FROM service_resources WHERE status='published' ORDER BY published_at DESC,id")).rows.filter(r=>canConsumeResource(r,user,m));return {resources:rows.slice(0,100).map(summary),hasMore:rows.length>100};}),
+    resource:(user,id)=>run(async c=>{const r=await one(c,'SELECT * FROM service_resources WHERE id=$1',[id]);requireRule(r&&canConsumeResource(r,user,await member(c,user)),'服务不存在或当前不可使用',404);return {...summary(r),body:r.body,action:JSON.parse(r.action_json),revision:safeInteger(r.revision)};}),
     articles:(user,after)=>run(async c=>{
       requireRule(after===undefined||/^[a-f0-9-]{36}$/.test(after),'资料翻页标记不正确');
       const m=await member(c,user),rows=(await c.query("SELECT * FROM articles WHERE status='published' ORDER BY published_at DESC,id")).rows,result=[];

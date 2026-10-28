@@ -7,7 +7,9 @@ export interface User {
   referralLockedAt: string | null; phoneVerified: boolean;
 }
 export interface Membership { planId: PlanId; orderId: string; startsAt: string; expiresAt: string; active: boolean }
-export interface Session { user: User | null; membership: Membership | null; paymentReady: boolean; manualPaymentReady?: boolean; defaultReferralConfigured: boolean }
+export interface DisplayMembership { planId: PlanId; active:boolean; startsAt:string; expiresAt:string }
+export interface EffectiveEntitlements { active:boolean; planIds:PlanId[]; byPlan:DisplayMembership[]; evaluatedAt:string; paidActive:boolean }
+export interface Session { displayMembership?:DisplayMembership|null; effectiveEntitlements?:EffectiveEntitlements; membershipGrantsEnabled?:boolean; user: User | null; membership: Membership | null; paymentReady: boolean; manualPaymentReady?: boolean; defaultReferralConfigured: boolean }
 export interface Order {
   id: string; userId: string; planId: PlanId; amountCents: number; actualPaidCents: number | null;
   currency: string; status: 'review' | 'pending' | 'paid' | 'cancelled' | 'rejected';
@@ -16,6 +18,7 @@ export interface Order {
   referralSource: string | null;
   manualAftercareAvailable?: boolean;
   paymentAttempted?: boolean;
+  paymentReconciliationRequired?: boolean;
   cancellation?: {localOnly:boolean;paymentReconciliationRequired:boolean} | null;
   aftercare?: {status:'completed';refundAmountCents:number;refundCompletedAt:string;membershipDisposition:'terminate'|'retain';recordedAt:string} | null;
 }

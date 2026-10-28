@@ -1,3 +1,4 @@
+import {prepareGrantHost} from './collaboration/grant-host.mjs';
 import {readFileSync} from 'node:fs';
 import {openPostgres} from './postgres.mjs';
 import {validatePostgresRuntime,verifyPostgresImport,createPostgresPaymentRuntime,virtualPaymentApproved} from './postgres-runtime.mjs';
@@ -28,11 +29,13 @@ try{
   if(process.argv[4]==='--check'){
     await pool.end();console.log('配置及隔离库导入标记检查通过；未启动HTTP、未调用微信、未写入数据库。');
   }else{
-    const rewards=createPostgresRewardRuntime(pool,config),{renewals,reminders}=createPostgresLifecycleRuntime(pool,config),core=createPostgresCore(pool,{...config,rewards,renewals}),forms=createPostgresForms(pool,config);
-    const paymentRuntime=await createPostgresPaymentRuntime(pool,config,wechat,core,{rewards,renewals});
+    const grantHost=await prepareGrantHost(pool,{schema:config.schema,adminOrigin:config.adminOrigin});
+      const grantOptions=grantHost?{entitlementResolver:grantHost.entitlementResolver,grantPaymentConflict:grantHost.grantPaymentConflict}:{};
+      const rewards=createPostgresRewardRuntime(pool,config),{renewals,reminders}=createPostgresLifecycleRuntime(pool,config),core=createPostgresCore(pool,{...config,rewards,renewals,...grantOptions}),forms=createPostgresForms(pool,config);
+    const paymentRuntime=await createPostgresPaymentRuntime(pool,config,wechat,core,{rewards,renewals,grantPaymentConflict:grantHost?.grantPaymentConflict});
     const inviteCode=createPostgresInviteCode(pool,config,wechat);
     const reviewAccess=createPostgresReviewRuntime(pool,config);
-    server=createPostgresApplication({core,rewards,reminders,inviteCode,reviewAccess,forms,content:createPostgresContent(pool,config),support:createPostgresSupport(pool,config),admin:config.adminOrigin?createPostgresAdmin(pool,config):undefined,wechat,...paymentRuntime,hosts:config.hosts,origins:config.origins,enterpriseIntake:config.enterpriseIntake===true,mode:config.mode});
+    server=createPostgresApplication({core,grantHost,rewards,reminders,inviteCode,reviewAccess,forms,content:createPostgresContent(pool,{...config,...grantOptions}),support:createPostgresSupport(pool,config),admin:config.adminOrigin?createPostgresAdmin(pool,config):undefined,wechat,...paymentRuntime,hosts:config.hosts,origins:config.origins,enterpriseIntake:config.enterpriseIntake===true,mode:config.mode});
     await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(config.port,config.listenHost,resolve);});
     console.log('PostgreSQL隔离迁移服务已启动；尚未完成正式发布验收。');
     let closing=false;

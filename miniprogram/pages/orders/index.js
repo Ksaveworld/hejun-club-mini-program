@@ -3,17 +3,20 @@ const { api, hasSession, sessionStamp, isCurrentSession, money, statusLabels } =
 const { orderMembership, orderAftercare, memberNextStep } = require('../../utils/membership-display');
 const { chineseDateTime } = require('../../utils/display-time');
 
+const reconciliationMessage = '已收到付款，需人工核对，请勿重复付款';
+function needsReconciliation(order) { return order?.paymentReconciliationRequired === true || order?.cancellation?.paymentReconciliationRequired === true; }
 function sessionExpired(error) { return error && (error.status === 401 || error.statusCode === 401); }
 function dateLabel(value) { return value ? chineseDateTime(value) : ''; }
 function formatOrder(order) {
   return Object.assign({}, order, orderMembership(order), orderAftercare(order), {
     amountLabel: money(order.amountCents),
-    hasMemberNextStep: orderAftercare(order).hasMemberNextStep && !order.cancellation?.paymentReconciliationRequired,
+    paymentReconciliationRequired: needsReconciliation(order),
+    hasMemberNextStep: orderAftercare(order).hasMemberNextStep && !needsReconciliation(order),
     refundCompletedLabel: dateLabel(order.aftercare?.refundCompletedAt),
     actualPaidLabel: order.actualPaidCents === null || order.actualPaidCents === undefined ? '' : money(order.actualPaidCents),
-    statusLabel: statusLabels[order.status] || order.status, createdLabel: chineseDateTime(order.createdAt),
+    statusLabel: needsReconciliation(order) ? reconciliationMessage : statusLabels[order.status] || order.status, createdLabel: chineseDateTime(order.createdAt),
     paidLabel: dateLabel(order.paidAt), expiryLabel: dateLabel(order.expiresAt), reviewedLabel: dateLabel(order.reviewedAt),
-    canCancel: ['pending', 'review'].includes(order.status)
+    canCancel: !needsReconciliation(order) && ['pending', 'review'].includes(order.status)
   });
 }
 
@@ -35,7 +38,7 @@ Page({
   },
   toggleMore() { this.setData({ moreOpen: !this.data.moreOpen }); },
   openHelp() { if (this.data.selectedOrder && this._orderStamp && isCurrentSession(this._orderStamp)) wx.navigateTo({url:'/pages/feedback/index?mode=new&relatedOrderId='+encodeURIComponent(this.data.selectedOrder.id)}); },
-  openPayment(){if(!this.data.cancelUncertain && !this.data.busy && !this.data.loading && ['pending','paid'].includes(this.data.selectedOrder?.status) && !this.data.selectedOrder?.cancellation?.paymentReconciliationRequired && this._orderStamp && isCurrentSession(this._orderStamp))wx.navigateTo({url:'/pages/payment/index?id='+encodeURIComponent(this.data.selectedOrder.id)});},
+  openPayment(){if(!this.data.cancelUncertain && !this.data.busy && !this.data.loading && ['pending','paid'].includes(this.data.selectedOrder?.status) && !needsReconciliation(this.data.selectedOrder) && this._orderStamp && isCurrentSession(this._orderStamp))wx.navigateTo({url:'/pages/payment/index?id='+encodeURIComponent(this.data.selectedOrder.id)});},
   openEnterprise(){if(this.data.selectedOrder?.hasMemberNextStep && hasSession() && this._orderStamp && isCurrentSession(this._orderStamp))wx.navigateTo({url:'/pages/enterprise-intake/index'});},
   backToRecords() { returnToPrevious(this,'/pages/orders/index'); },
   onUnload() { this._unloaded = true; },
@@ -109,7 +112,7 @@ Page({
   },
   async cancelOrder() {
     const order = this.data.selectedOrder;
-    if (!order || !order.canCancel || this.data.cancelUncertain || this.data.busy || this.data.loading || this.data.detailLoading) return;
+    if (!order || needsReconciliation(order) || !order.canCancel || this.data.cancelUncertain || this.data.busy || this.data.loading || this.data.detailLoading) return;
     this.setData({ busy: true, error: '', message: '' });
     const stamp = this._orderStamp;
     let sent = false;
@@ -121,11 +124,18 @@ Page({
       }));
       if (!decision.confirm) return;
       this.assertContext(stamp);
+      const current = await api('/orders/' + encodeURIComponent(order.id));
+      this.assertContext(stamp);
+      const checked = formatOrder(current.order);
+      this.setData({selectedOrder: checked, orders: this.data.orders.map(item => item.id === checked.id ? checked : item)});
+      if (needsReconciliation(checked)) { this.setData({message: reconciliationMessage}); return; }
+      if (!checked.canCancel) throw Object.assign(new Error('订单状态已变化，请刷新核对。'), {status:409});
       sent = true;
       const response = await api('/orders/' + encodeURIComponent(order.id) + '/cancel', {});
       this.assertContext(stamp);
       const updated = formatOrder(response.order);
       this.setData({ selectedOrder: updated, orders: this.data.orders.map(item => item.id === updated.id ? updated : item) });
+      if (needsReconciliation(updated)) { this.setData({message: reconciliationMessage, cancelUncertain:false}); return; }
       if (updated.status !== 'cancelled') throw Object.assign(new Error('订单未取消，请核对当前订单状态。'), {status:409});
       this.setData({ selectedId: '', selectedOrder: null, moreOpen: false, cancelUncertain: false, message: '订单已取消，原记录已保留。' });
       if (this.data.detailMode) {

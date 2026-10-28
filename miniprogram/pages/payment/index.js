@@ -3,14 +3,17 @@ const {legalConsent}=require('../../utils/legal');
 const {openPublicDocument,showPublicDocuments,hidePublicDocuments,clearPublicDocuments}=require('../../utils/public-documents');
 const {orderMembership,orderAftercare,memberNextStep}=require('../../utils/membership-display');
 const {chineseDateTime}=require('../../utils/display-time');
+const reconciliationMessage='已收到付款，需人工核对，请勿重复付款';
+function needsReconciliation(order){return order?.paymentReconciliationRequired===true||order?.cancellation?.paymentReconciliationRequired===true;}
 function paymentOrder(order){return Object.assign({},order,orderMembership(order),orderAftercare(order),{
-  hasMemberNextStep:orderAftercare(order).hasMemberNextStep&&!order.cancellation?.paymentReconciliationRequired,
+  paymentReconciliationRequired:needsReconciliation(order),
+  hasMemberNextStep:orderAftercare(order).hasMemberNextStep&&!needsReconciliation(order),
   refundCompletedLabel:order.aftercare?.refundCompletedAt?chineseDateTime(order.aftercare.refundCompletedAt):'',
   previousExpiryLabel:order.renewal?chineseDateTime(order.renewal.previousExpiresAt):'',
   expiryLabel:order.expiresAt?chineseDateTime(order.expiresAt):''
 });}
 function paymentResultMessage(order,exitedCashier=false){
-  if(order.cancellation?.paymentReconciliationRequired)return '该订单已收到付款，需联系工作人员核对。请勿重复付款，会员资格以核对结果为准。';
+  if(needsReconciliation(order))return reconciliationMessage;
   if(order.status==='cancelled')return '订单已取消，不能继续付款。原申请与订单记录已保留。';
   const aftercare=orderAftercare(order);
   if(aftercare.hasAftercare)return aftercare.aftercareMessage;
@@ -67,7 +70,7 @@ Page({
   async acceptLegal(){
     if(this._disposed)return;
     this.clearChangedContext();
-    if(this.data.busy||this.data.loading||!this.data.order||!this._stamp)return;
+    if(this.data.busy||this.data.loading||!this.data.order||needsReconciliation(this.data.order)||!this._stamp)return;
     const operation=this.beginOperation();
     try{
       this.assertOperation(operation);
@@ -81,12 +84,19 @@ Page({
   async payWechat(){
     if(this._disposed)return;
     this.clearChangedContext();
-    if(this.data.busy||this.data.loading||this.data.clipboardBusy||this.data.showClipboardPrivacy||!this.data.enabled||this.data.order?.status!=='pending'||this.data.order?.cancellation?.paymentReconciliationRequired)return;
+    if(this.data.busy||this.data.loading||this.data.clipboardBusy||this.data.showClipboardPrivacy||!this.data.enabled||this.data.order?.status!=='pending'||needsReconciliation(this.data.order))return;
     if(this.data.order.paymentAttempted)return this.reapplyPayment();
     const operation=this.beginOperation();
     let exitedCashier=false;
     try{
       this.assertOperation(operation);
+      const latest=await api('/orders/'+this._id+'/payment-status');
+      this.assertOperation(operation);
+      const checked=paymentOrder(latest.order);
+      this.setData({order:checked,hasMemberNextStep:checked.hasMemberNextStep,enabled:latest.enabled===true,
+        paymentChannel:latest.paymentChannel||'ordinary',legal:latest.legal,legalAccepted:latest.legalAccepted===true});
+      if(needsReconciliation(checked)){this.setData({message:reconciliationMessage});return;}
+      if(checked.status!=='pending'||latest.enabled!==true||checked.paymentAttempted)throw new Error('订单付款状态已变化，请刷新核对后再操作');
       if(this.data.legal&&!this.data.legalAccepted)throw new Error('请先确认订单资料与协议');
       const channel=this.data.paymentChannel;
       if(!['ordinary','virtual'].includes(channel))throw new Error('支付渠道尚未确认，请刷新订单后重试');
@@ -100,6 +110,7 @@ Page({
       }
       const result=await api('/orders/'+this._id+'/payment',body);
       this.assertOperation(operation);
+      if(needsReconciliation(result.order)){const checked=paymentOrder(result.order);this.setData({order:checked,hasMemberNextStep:false,message:reconciliationMessage});return;}
       if((result.paymentChannel||'ordinary')!==channel)throw new Error('支付渠道已变化，请刷新订单核对结果');
       if(channel==='virtual'){
         const params=result.payment;
@@ -124,17 +135,23 @@ Page({
   async reapplyPayment(){
     this.clearChangedContext();
     const order=this.data.order;
-    if(this._disposed||this.data.busy||this.data.loading||!order||order.status!=='pending'||!order.paymentAttempted||order.cancellation?.paymentReconciliationRequired)return;
+    if(this._disposed||this.data.busy||this.data.loading||!order||order.status!=='pending'||!order.paymentAttempted||needsReconciliation(order))return;
     const operation=this.beginOperation();
     try{
       this.assertOperation(operation);
       const decision=await new Promise((resolve,reject)=>wx.showModal({title:'重新办理付款？',content:'将取消这笔未付款订单，自动带入原资料。核对资料和协议后生成新订单付款，无需重新填写。如已扣款，请先核对支付结果。',confirmText:'继续办理',cancelText:'暂不办理',success:resolve,fail:reject}));
       this.assertOperation(operation);if(!decision.confirm)return;
+      const latest=await api('/orders/'+this._id+'/payment-status');
+      this.assertOperation(operation);
+      const checked=paymentOrder(latest.order);
+      this.setData({order:checked,hasMemberNextStep:checked.hasMemberNextStep});
+      if(needsReconciliation(checked)){this.setData({message:reconciliationMessage});return;}
+      if(checked.status!=='pending')throw new Error('订单状态已变化，请刷新核对后再操作');
       const result=await api('/orders/'+this._id+'/cancel',{});
       this.assertOperation(operation);
       const updated=paymentOrder(result.order);
       this.setData({order:updated,hasMemberNextStep:updated.hasMemberNextStep,message:paymentResultMessage(result.order)});
-      if(result.order.status!=='cancelled'||result.order.cancellation?.paymentReconciliationRequired)throw new Error('原订单未确认可以重新办理，请刷新核对；如已扣款，请联系工作人员。');
+      if(result.order.status!=='cancelled'||needsReconciliation(result.order))throw new Error('原订单未确认可以重新办理，请刷新核对；如已扣款，请联系工作人员。');
       wx.redirectTo({url:'/pages/join/index?planId='+encodeURIComponent(order.planId)+'&reapplyId='+encodeURIComponent(order.id)+(order.transactionKind==='renewal'?'&transactionKind=renewal':'')});
     }catch(error){if(this.operationCurrent(operation))this.setData({error:error.message||'办理结果暂未确认，请刷新订单后核对，勿重复付款'});}
     finally{if(this.operationCurrent(operation)){this._operation=null;this.setData({busy:false});}}

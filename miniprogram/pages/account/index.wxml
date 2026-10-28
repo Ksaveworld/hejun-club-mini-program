@@ -3,11 +3,11 @@
   <view wx:if="{{error}}" class="account-error">{{error}}<button class="text-action" bindtap="retryAccount" disabled="{{loading || busy}}">{{logoutCleanupPending ? '重试退出清理' : '重试'}}</button></view>
   <view wx:if="{{loading}}" class="account-loading">正在更新我的状态…</view>
   <view wx:if="{{loggedIn}}">
-    <view class="profile-card"><view class="profile-avatar" aria-hidden="true"><image wx:if="{{profileAvatar}}" class="profile-photo" src="{{profileAvatar}}" mode="aspectFill" /><block wx:else><view class="avatar-head"></view><view class="avatar-shoulders"></view></block></view><view class="profile-copy"><view class="profile-name">{{profileNickname || displayLabel}}</view><view class="profile-note">{{reviewAccess ? '审核只读账号' : membership && membership.active ? '俱乐部会员' : '已登录 · 了解会员权益与服务'}}</view></view></view>
+    <view class="profile-card"><view class="profile-avatar" aria-hidden="true"><image wx:if="{{profileAvatar}}" class="profile-photo" src="{{profileAvatar}}" mode="aspectFill" /><block wx:else><view class="avatar-head"></view><view class="avatar-shoulders"></view></block></view><view class="profile-copy"><view class="profile-name">{{profileNickname || displayLabel}}</view><view class="profile-note">{{reviewAccess ? '审核只读账号' : membership && displayMembership.active ? '俱乐部会员' : '已登录 · 了解会员权益与服务'}}</view></view></view>
     <button wx:if="{{!reviewAccess}}" class="profile-edit" bindtap="openProfile" disabled="{{loading || busy}}">{{profileNickname ? '修改头像与昵称' : '首次完善头像与昵称'}} ›</button>
     <button class="membership-card" bindtap="openMembers" disabled="{{loading || busy}}">
       <image class="membership-art" src="/assets/ui/club-membership-guilloche-v1.jpg" mode="aspectFill" aria-hidden="true" />
-      <view class="membership-content"><view class="membership-title">俱乐部会籍</view><view class="membership-status">{{membershipLabel}}</view><view class="membership-expiry">{{reviewAccess ? '限时只读授权 · 不代表正式会籍' : expiryLabel ? (membership.active ? '有效期至 ' : '已于以下日期到期：') + expiryLabel : '查看会员权益与入会方式'}}<text class="pass-arrow">›</text></view></view>
+      <view class="membership-content"><view class="membership-title">俱乐部会籍</view><view class="membership-status">{{membershipLabel}}</view><view class="membership-expiry">{{reviewAccess ? '限时只读授权 · 不代表正式会籍' : expiryLabel ? (displayMembership.active ? '有效期至 ' : '已于以下日期到期：') + expiryLabel : '查看会员权益与入会方式'}}<text class="pass-arrow">›</text></view></view>
     </button>
     <view wx:if="{{reviewAccess}}" class="card source-card"><view class="section-title">{{reviewLabel}}</view><view class="footnote">授权期限：{{reviewStartsLabel}} 至 {{reviewExpiryLabel}}（当前设备时间）</view><view class="footnote">{{reviewNotice}}</view><view class="footnote">这份限时访问授权不代表已付款、正式会员期限或可提现余额。</view></view>
     <view wx:if="{{journey}}" class="card journey-card"><view class="journey-title">办理与服务进度</view><view class="journey-status">{{journey.title}}</view><view class="journey-note">{{journey.note}}</view><button class="journey-action" bindtap="openJourney" disabled="{{loading || busy}}">{{journey.action}} ›</button></view>
@@ -38,7 +38,7 @@
     </view>
     <view wx:if="{{reviewAccess}}" class="card source-card"><view class="section-title">推荐及资金功能范围</view><view class="footnote">审核只读账号不生成经营推荐码，不登记真实推荐来源，不获得奖励或提现资格。相关入口仍保留，点击会说明当前体验限制。</view></view>
     <view wx:elif="{{user}}" class="card source-card"><view class="section-title">我的推荐信息</view><view class="source-title">我的推荐码</view><view class="source-code">{{user.referralCode || '尚未生成'}}</view><view class="source-title">入会推荐来源</view><view class="source-code">{{user.sourceCode || '未指定 · 默认值待配置'}}</view><view class="source-title">来源状态</view><view class="source-code">{{sourceState}}</view><view class="footnote">推荐关系不代表已取得奖励资格，奖励明细及提现尚未开放。</view><view class="footnote">手机验证：{{user.phoneVerified ? '已验证' : '未验证'}}</view></view>
-    <button wx:if="{{membership.active && membership.planId === 'star'}}" class="secondary-action" bindtap="openExclusiveContacts">星级专属服务联系人</button>
+    <button wx:if="{{starContact}}" class="secondary-action" bindtap="openExclusiveContacts">星级专属服务联系人</button>
     <button class="logout-action" loading="{{busy}}" disabled="{{loading || busy}}" bindtap="logout">退出当前账号</button>
   </view>
   <view wx:elif="{{!loading}}" class="guest-card">

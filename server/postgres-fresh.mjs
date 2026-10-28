@@ -1,3 +1,4 @@
+import {grantMigrationTables} from './collaboration/grant-migration.mjs';
 import {batch2MigrationTables} from './batch2-content.mjs';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -51,6 +52,7 @@ export async function verifyFreshDatabase(pool,{schema},profileSchemaTarget){
     const actual=(await client.query('SELECT table_name FROM information_schema.tables WHERE table_schema=$1 AND table_type=$2',[schema,'BASE TABLE'])).rows.map(r=>r.table_name).filter(n=>n!==marker).sort();
     const store=(await client.query("SELECT value FROM settings WHERE key='private-report-store-v1'")).rows[0];
     const optional=await virtualPaymentMigrationTables(client,schema);
+    optional.push(...await grantMigrationTables(client,schema));
     // An explicitly enabled private profile table must survive subsequent boots.
     // Keep rejecting all unknown tables and unexpected profile definitions.
     if(profileSchemaTarget!==undefined&&profileSchemaTarget!==schema)throw Error('头像资料数据区不匹配');

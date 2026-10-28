@@ -1,8 +1,8 @@
 const { plans } = require('../data/content');
-function memberJourney(membership, orders) {
+function memberJourney(membership, orders, displayMembership = membership) {
   const ordered = (orders || []).slice().sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   const order = ordered.find(o => ['review','pending','rejected'].includes(o.status));
-  if (membership && membership.active) return { title: (plans.find(p=>p.id===membership.planId)||{}).name || '有效会员', note: '会籍有效，前往查看当前可用的服务。', action: '使用我的权益', kind: 'services' };
+  if (displayMembership && displayMembership.active) return { title: (plans.find(p=>p.id===displayMembership.planId)||{}).name || '有效会员', note: '会籍有效，前往查看当前可用的服务。', action: '使用我的权益', kind: 'services' };
   if (order) {
     const states = { review: ['资质审核中','预报名已收到，待审核。本期暂不收费或开通会籍。','查看申请进度'], pending: ['订单待付款','使用微信支付办理入会。已扣款请刷新订单，勿重复支付。','查看订单进度'], rejected: ['申请未通过','查看审核说明，核对资料后再申请。','查看原因与下一步'] };
     const state=states[order.status]; return { title: state[0], note: state[1], action: state[2], kind:'order', id:order.id };

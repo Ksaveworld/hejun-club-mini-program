@@ -3,12 +3,26 @@ import {postgresTransaction,safeInteger} from './postgres.mjs';
 import {requireRule,nowISO,digest,hashPassword,checkPassword,validateCredentials,prepareOrder,prepareOrderReview,plans,yearAfter,textField} from './domain.mjs';
 import {prepareAuditQuery,auditRecord} from './audit-query.mjs';
 import {manualAftercareSummaryInTransaction} from './postgres-manual-aftercare.mjs';
+import {isOperationalAccount} from './collaboration/grant-identity.mjs';
+
+// Public consumer projection only: never expose the resolver's raw paid row,
+// audit/approval fields, or manufacture a paid order for a gifted entitlement.
+function publicEntitlementView(value){
+  requireRule(value&&typeof value.active==='boolean'&&Array.isArray(value.planIds)&&Array.isArray(value.sources)&&Array.isArray(value.byPlan),'会员权益暂时不可读取',503);
+  const sourceId=s=>({source:s.source,id:s.id});
+  const plan=p=>({planId:p.planId,active:p.active,startsAt:p.startsAt,expiresAt:p.expiresAt,sourceIds:p.sourceIds.map(sourceId)});
+  const effectiveEntitlements={active:value.active,planIds:[...value.planIds],evaluatedAt:value.evaluatedAt,
+    sources:value.sources.map(s=>({...sourceId(s),planId:s.planId,startsAt:s.startsAt,expiresAt:s.expiresAt})),byPlan:value.byPlan.map(plan),paidActive:value.paidActive===true};
+  return {effectiveEntitlements,displayMembership:value.displayMembership?plan(value.displayMembership):null};
+}
 
 // Core writes serialize on users during the migration phase. All account/order/payment
 // operations share one connection, one schema and one transaction; no SQLite fallback.
-export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewals}={}){
+export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewals,entitlementResolver,grantPaymentConflict}={}){
   requireRule(/^club_migration_[a-z0-9_]{1,40}$/.test(schema||''),'需要指定迁移隔离区');
   requireRule(/^wx[a-f0-9]{16}$/.test(appId||''),'需要正确的小程序AppID');
+  requireRule(entitlementResolver===undefined||typeof entitlementResolver==='function','会员权益解析器配置不正确',503);
+  requireRule(grantPaymentConflict===undefined||typeof grantPaymentConflict==='function','赠送与付款协调配置不正确',503);
   const run=(fn,write=false)=>postgresTransaction(pool,async client=>{
     await client.query(`SET LOCAL search_path TO "${schema}"`);
     if(write)await client.query('LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE');
@@ -21,18 +35,26 @@ export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewal
     const ref=user.referrer_id?await one(c,'SELECT referral_code FROM users WHERE id=$1',[user.referrer_id]):null;
     return {id:user.id,username:user.username,role:user.role,referralCode:user.referral_code,sourceCode:ref?.referral_code??null,referralSource:user.referral_source,referralLockedAt:user.referral_locked_at,phoneVerified:false};
   }
-  async function member(c,id){
-    const row=await one(c,'SELECT * FROM memberships WHERE user_id=$1',[id]),now=nowISO();
+  async function member(c,id,now=nowISO()){
+    const row=await one(c,'SELECT * FROM memberships WHERE user_id=$1',[id]);
     return row?{planId:row.plan_id,orderId:row.order_id,startsAt:row.starts_at,expiresAt:row.expires_at,active:row.starts_at<=now&&row.expires_at>now}:null;
   }
+  async function consumption(c,user,now){
+    if(!entitlementResolver)return {};
+    requireRule(user?.role==='member'&&await one(c,"SELECT 1 FROM users WHERE id=$1 AND role='member'",[user.id])&&!await isOperationalAccount(c,user.id),'请使用当前消费会员账号',403);
+    return publicEntitlementView(await entitlementResolver(c,user.id,now));
+  }
+  const orderNeedsPaymentReconciliation=(c,orderId)=>one(c,"SELECT 1 FROM payment_receipts WHERE order_id=$1 AND outcome='needs_reconciliation'",[orderId]);
+  const needsPaymentReconciliation=(c,userId)=>one(c,"SELECT 1 FROM payment_receipts p JOIN orders o ON o.id=p.order_id WHERE o.user_id=$1 AND p.outcome='needs_reconciliation' LIMIT 1",[userId]);
   async function orderView(c,row){
     const aftercare=await manualAftercareSummaryInTransaction(c,row.id);
     const paymentAttempted=!!await one(c,'SELECT 1 FROM settings WHERE key=$1',['virtual_payment_attempt:'+row.id]);
     const locallyCancelled=!!await one(c,'SELECT 1 FROM settings WHERE key=$1 AND value=$2',['virtual_application_cancelled:'+row.id,'local']);
-    const cancellation=locallyCancelled?{localOnly:true,paymentReconciliationRequired:!!await one(c,"SELECT 1 FROM payment_receipts WHERE order_id=$1 AND outcome='needs_reconciliation'",[row.id])}:null;
+    const paymentReconciliationRequired=!!await orderNeedsPaymentReconciliation(c,row.id);
+    const cancellation=locallyCancelled?{localOnly:true,paymentReconciliationRequired}:null;
     const ref=row.referrer_id?await one(c,'SELECT referral_code FROM users WHERE id=$1',[row.referrer_id]):null;
     return {id:row.id,userId:row.user_id,planId:row.plan_id,amountCents:safeInteger(row.amount_cents),actualPaidCents:row.actual_paid_cents===null?null:safeInteger(row.actual_paid_cents),currency:row.currency,status:row.status,form:JSON.parse(row.profile_json),createdAt:row.created_at,paidAt:row.paid_at,expiresAt:row.expires_at,reviewNote:row.review_note,reviewedAt:row.reviewed_at,sourceCode:ref?.referral_code??null,referralSource:row.referral_source,registrationOnly:plans[row.plan_id]?.registrationOnly===true,
-      aftercare,paymentAttempted,cancellation,...(renewals?await renewals.orderInfoInTransaction(c,row):{transactionKind:'first_purchase'})};
+      aftercare,paymentAttempted,paymentReconciliationRequired,cancellation,...(renewals?await renewals.orderInfoInTransaction(c,row):{transactionKind:'first_purchase'})};
   }
   async function owned(c,user,id){const row=await one(c,'SELECT * FROM orders WHERE id=$1 AND user_id=$2',[id,user.id]);requireRule(row,'找不到这笔订单',404);return row;}
   function requireConsent(body){
@@ -117,7 +139,7 @@ export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewal
     },
     async authenticate(token){
       requireRule(typeof token==='string'&&/^[a-f0-9]{64}$/.test(token),'请重新登录',401);
-      return run(async c=>{const user=await one(c,"SELECT u.* FROM native_sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>$2 AND s.auth_mode='wechat' AND u.role='member'",[digest(token),nowISO()]);requireRule(user,'登录已失效，请重新登录',401);return user;});
+      return run(async c=>{const user=await one(c,"SELECT u.* FROM native_sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>$2 AND s.auth_mode='wechat' AND u.role='member'",[digest(token),nowISO()]);requireRule(user,'登录已失效，请重新登录',401);if(entitlementResolver)requireRule(!await isOperationalAccount(c,user.id),'请使用消费会员账号',403);return user;});
     },
     logout:token=>run(c=>c.query('DELETE FROM native_sessions WHERE token_hash=$1',[digest(token)]),true),
     captureReferral:(user,body)=>run(async c=>{
@@ -127,13 +149,21 @@ export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewal
       await referral(c,current,body.code??'');
       return publicUser(c,await one(c,'SELECT * FROM users WHERE id=$1',[user.id]));
     },true),
-    me:user=>run(async c=>({user:await publicUser(c,user),membership:await member(c,user.id),defaultReferralConfigured:!!await one(c,"SELECT 1 FROM settings WHERE key='default_referral_code'"),renewals:renewals?await renewals.statusInTransaction(c,user.id):{enabled:false,canRenew:false,reason:'同档续费配置尚未启用，暂未开放'}})),
+    me:user=>run(async c=>{
+      if(entitlementResolver)await c.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
+      const now=nowISO(),view=await consumption(c,user,now);
+      return {user:await publicUser(c,user),membership:await member(c,user.id,now),...view,defaultReferralConfigured:!!await one(c,"SELECT 1 FROM settings WHERE key='default_referral_code'"),renewals:renewals?await renewals.statusInTransaction(c,user.id):{enabled:false,canRenew:false,reason:'同档续费配置尚未启用，暂未开放'}};
+    }),
     listOrders:user=>run(async c=>{const {rows}=await c.query('SELECT * FROM orders WHERE user_id=$1 ORDER BY created_at DESC',[user.id]);return Promise.all(rows.map(row=>orderView(c,row)));}),
     managedOrders:actor=>run(async c=>{await c.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');await editor(c,actor);return Promise.all((await c.query('SELECT * FROM orders ORDER BY created_at DESC,id')).rows.map(row=>orderView(c,row)));}),
     managedMembers:actor=>run(async c=>{
       await c.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');await editor(c,actor);
-      const rows=(await c.query("SELECT * FROM users WHERE role='member' ORDER BY created_at DESC,id")).rows;
-      return Promise.all(rows.map(async row=>({...await publicUser(c,row),membership:await member(c,row.id)})));
+      const rows=(await c.query("SELECT * FROM users WHERE role='member' ORDER BY created_at DESC,id")).rows,now=nowISO(),results=[];
+      for(const row of rows){
+        if(entitlementResolver&&await isOperationalAccount(c,row.id))continue;
+        results.push({...await publicUser(c,row),membership:await member(c,row.id,now),...await consumption(c,row,now)});
+      }
+      return results;
     }),
     reviewOrder:(actor,id,body)=>run(async c=>{
       await editor(c,actor);const {decision,note}=prepareOrderReview(body),row=await one(c,'SELECT * FROM orders WHERE id=$1 FOR UPDATE',[id]);
@@ -160,6 +190,7 @@ export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewal
         requireRule(await one(c,"SELECT 1 FROM users WHERE id=$1 AND role='member'",[user.id]),'请使用当前会员账号',403);
         const previous=await one(c,'SELECT * FROM orders WHERE user_id=$1 AND idempotency_key=$2',[user.id,key]);
         if(previous){requireRule(previous.request_hash===requestHash,'提交编号已用于其他内容',409);return orderView(c,previous);}
+        requireRule(!await needsPaymentReconciliation(c,user.id),'已有付款待核对，请保留原订单，勿重复下单或付款',409);
         const membership=await one(c,'SELECT * FROM memberships WHERE user_id=$1 FOR UPDATE',[user.id]);
         if(kind==='renewal'){
           requireRule(renewals,'同档续费尚未开放',503);const readiness=await renewals.statusInTransaction(c,user.id);
@@ -178,6 +209,7 @@ export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewal
     paymentAccepted:(user,id)=>run(async c=>{await owned(c,user,id);return !legal||!!await one(c,"SELECT 1 FROM legal_consents WHERE user_id=$1 AND scope='payment' AND target_id=$2 AND release_id=$3",[user.id,id,legal.id]);}),
     async preparePayment(user,id){return run(async c=>{
       const order=await owned(c,user,id);requireRule(order.status==='pending'&&!plans[order.plan_id]?.registrationOnly,'当前订单不能付款',409);
+      requireRule(!await needsPaymentReconciliation(c,user.id),'已有付款待核对，请保留原订单，勿重复付款',409);
       if(renewals)await renewals.assertPayableInTransaction(c,order);
       requireRule(!await one(c,'SELECT 1 FROM settings WHERE key=$1',['virtual_payment_attempt:'+id]),'已有虚拟支付尝试，请先核对结果',409);
       requireRule(!legal||!!await one(c,"SELECT 1 FROM legal_consents WHERE user_id=$1 AND scope='payment' AND target_id=$2 AND release_id=$3",[user.id,id,legal.id]),'请先确认订单与协议',409);
@@ -190,11 +222,12 @@ export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewal
     async cancelOrder(user,id,provider){
       const cancellation=await run(async c=>{
         const order=await owned(c,user,id);requireRule(['pending','review','cancelled'].includes(order.status),'当前状态不能取消',409);
+        if(order.status==='cancelled')return {order:await orderView(c,order)};
+        requireRule(!await orderNeedsPaymentReconciliation(c,id),'订单已有付款待核对，不能取消，请保留原订单',409);
         const virtual=await one(c,'SELECT value FROM settings WHERE key=$1',['virtual_payment_attempt:'+id]);
         requireRule(!virtual||virtual.value==='closed','虚拟付款参数已发出，请保留订单并刷新权威结果后办理',409);
         requireRule(!await one(c,"SELECT 1 FROM manual_payments WHERE order_id=$1 AND status='pending'",[id]),'人工付款正在核对',409);
         const attempted=!!await one(c,'SELECT 1 FROM settings WHERE key=$1',[paymentKey(id)]);
-        if(order.status==='cancelled')return {order:await orderView(c,order)};
         if(!attempted){
           await c.query("UPDATE orders SET status='cancelled' WHERE id=$1",[id]);
           await audit(c,user.id,'order.cancelled',id);
@@ -221,12 +254,14 @@ export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewal
       return run(async c=>{
         const row=await owned(c,user,id);requireRule(['pending','review','cancelled'].includes(row.status),'当前状态不能取消',409);
         if(row.status==='cancelled')return orderView(c,row);
+        requireRule(!await orderNeedsPaymentReconciliation(c,id),'订单已有付款待核对，不能取消，请保留原订单',409);
         await c.query("UPDATE orders SET status='cancelled' WHERE id=$1",[id]);await audit(c,user.id,'order.cancelled',id);return orderView(c,await owned(c,user,id));
       },true);
     },
     // Re-check after the provider prepay call: a cancel may have started meanwhile.
     prepayStillOpen:(user,id)=>run(async c=>{
       const order=await owned(c,user,id);
+      if(await needsPaymentReconciliation(c,user.id))return false;
       if(order.status!=='pending'||(await one(c,'SELECT value FROM settings WHERE key=$1',[paymentKey(id)]))?.value!=='initiated')return false;
       if(renewals){
         try{await renewals.assertPayableInTransaction(c,order);}
@@ -248,9 +283,11 @@ export function createPostgresCore(pool,{schema,appId,legal=null,rewards,renewal
         requireRule(safeInteger(order.amount_cents)===remote.amount.total&&parsed>=Date.parse(order.created_at),'支付金额或时间与订单不一致');
         const identity=await one(c,'SELECT open_id FROM wechat_identities WHERE app_id=$1 AND user_id=$2',[appId,order.user_id]);requireRule(identity?.open_id===remote.payer?.openid,'支付人身份不匹配',409);
         const renewal=renewals?await renewals.fulfillmentInTransaction(c,order,paidAt):null;
-        const outcome=renewal?.outcome??(order.status==='pending'&&!plans[order.plan_id]?.registrationOnly&&!await member(c,order.user_id)?'activated':'needs_reconciliation');
+        let outcome=renewal?.outcome??(order.status==='pending'&&!plans[order.plan_id]?.registrationOnly&&!await member(c,order.user_id)?'activated':'needs_reconciliation');
+        const expires=renewal?.expiresAt??yearAfter(paidAt);
+        if(outcome==='activated'&&grantPaymentConflict&&await grantPaymentConflict(c,order.user_id,{startsAt:renewal?.startsAt??paidAt,expiresAt:expires}))outcome='needs_reconciliation';
         if(outcome==='activated'){
-          const expires=renewal?.expiresAt??yearAfter(paidAt);await c.query("UPDATE orders SET status='paid',actual_paid_cents=$1,paid_at=$2,expires_at=$3 WHERE id=$4",[remote.amount.total,paidAt,expires,id]);
+          await c.query("UPDATE orders SET status='paid',actual_paid_cents=$1,paid_at=$2,expires_at=$3 WHERE id=$4",[remote.amount.total,paidAt,expires,id]);
           if(renewal)await c.query('UPDATE memberships SET order_id=$1,starts_at=$2,expires_at=$3 WHERE user_id=$4',[id,renewal.startsAt,expires,order.user_id]);
           else await c.query('INSERT INTO memberships VALUES($1,$2,$3,$4,$5)',[order.user_id,id,order.plan_id,paidAt,expires]);
           if(renewals)await renewals.commitFulfillmentInTransaction(c,order,paidAt,expires);

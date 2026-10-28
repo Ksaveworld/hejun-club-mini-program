@@ -1,3 +1,4 @@
+const { consumptionMembership, hasConsumptionPlan } = require('../../utils/consumption-membership');
 const { api, clearSession, hasSession, sessionStamp, isCurrentSession, newKey, subscribeSession } = require('../../utils/api');
 const { accountDisplayLabel } = require('../../utils/user-display');
 const { plans } = require('../../data/content');
@@ -20,7 +21,7 @@ function reviewGrant(session,stamp){
 
 Page({
   data: {
-    profileAvatar: '', profileNickname: '', loggedIn: false, user: null, displayLabel: '访客浏览', membership: null, membershipLabel: '尚未开通会员',
+    profileAvatar: '', profileNickname: '', loggedIn: false, user: null, displayLabel: '访客浏览', membership: null, displayMembership: null, starContact: false, membershipLabel: '尚未开通会员',
     expiryLabel: '', sourceState: '', unreadFeedback: 0, journey: null, journeyError: '', loading: false, busy: false, error: '', shareReady: false,
     reminders:null,reminderBusy:false,reminderError:'',reminderMessage:'',reminderPending:false,
     reviewAccess:null,reviewLabel:'',reviewStartsLabel:'',reviewExpiryLabel:'',reviewNotice:'',logoutCleanupPending:false
@@ -33,7 +34,7 @@ Page({
       }
     });
   },
-  onUnload() { this._unsubscribeProfile?.(); this.clearProfile(); this._unloaded = true; this._accountRequest = (this._accountRequest || 0) + 1; },
+  onUnload() { this._unsubscribeProfile?.(); this.clearAccount(); this._unloaded = true; this._accountRequest = (this._accountRequest || 0) + 1; },
   onShow() { this._hidden = false; return this.refreshAccount(); },
   onHide() {
     this._hidden = true; this._accountRequest = (this._accountRequest || 0) + 1;
@@ -48,10 +49,12 @@ Page({
     this.setData({profileAvatar: '', profileNickname: ''});
   },
   clearAccount() {
+    if(this._entitlementExpiryTimer)clearTimeout(this._entitlementExpiryTimer);
+    this._entitlementExpiryTimer=null;
     this.clearProfile();
     this._reminderLock=false;
     this._accountStamp = null;
-    this.setData({ logoutCleanupPending:false, unreadFeedback: 0, journey: null, journeyError: '', profileAvatar: '', profileNickname: '', loggedIn: false, user: null, displayLabel: '访客浏览', membership: null, expiryLabel: '', sourceState: '', membershipLabel: '尚未开通会员', shareReady: false,reminders:null,reminderError:'',reminderMessage:'',reminderBusy:false,reminderPending:false,reviewAccess:null,reviewLabel:'',reviewStartsLabel:'',reviewExpiryLabel:'',reviewNotice:'' });
+    this.setData({ logoutCleanupPending:false, unreadFeedback: 0, journey: null, journeyError: '', profileAvatar: '', profileNickname: '', loggedIn: false, user: null, displayLabel: '访客浏览', membership: null, displayMembership: null, starContact: false, expiryLabel: '', sourceState: '', membershipLabel: '尚未开通会员', shareReady: false,reminders:null,reminderError:'',reminderMessage:'',reminderBusy:false,reminderPending:false,reviewAccess:null,reviewLabel:'',reviewStartsLabel:'',reviewExpiryLabel:'',reviewNotice:'' });
   },
   async refreshAccount() {
     if (this._unloaded || this._hidden) return;
@@ -72,7 +75,7 @@ Page({
       if (!isCurrentSession(stamp)) throw new Error('账号已变化，请刷新后继续。');
       if (!session.user) {
         clearSession();
-        this.setData({ profileAvatar: '', profileNickname: '', loggedIn: false, user: null, displayLabel: '访客浏览', membership: null, expiryLabel: '' });
+        this.setData({ profileAvatar: '', profileNickname: '', loggedIn: false, user: null, displayLabel: '访客浏览', membership: null, displayMembership: null, starContact: false, expiryLabel: '' });
         return;
       }
       const review=reviewGrant(session,stamp);
@@ -84,22 +87,25 @@ Page({
         return;
       }
       const membership = session.membership || null;
-      const plan = membership && plans.find(item => item.id === membership.planId);
+      const displayMembership = consumptionMembership(session) || (membership?.active===false?membership:null);
+      const plan = displayMembership && plans.find(item => item.id === displayMembership.planId);
       this._accountStamp = stamp;
       if(this._reminderPending&&(this._reminderPending.owner!==session.user.id||this._reminderPending.scope!==stamp.scope))this._reminderPending=null;
       this.setData({
-        loggedIn: true, user: session.user, displayLabel: accountDisplayLabel(session.user), membership,
+        loggedIn: true, user: session.user, displayLabel: accountDisplayLabel(session.user), membership, displayMembership, starContact:hasConsumptionPlan(session,'star'),
         sourceState: session.user.referralLockedAt ? '已随付款锁定' : session.user.referralSource === 'explicit' ? '已保留首次有效来源' : '尚未付款锁定',
         shareReady: session.user.role === 'member' && /^[A-Z0-9]{6}$/.test(session.user.referralCode || ''),
-        membershipLabel: membership ? (membership.active ? (plan ? plan.name : '有效会员') : '会员已到期') : '尚未开通会员',
-        expiryLabel: membership && membership.expiresAt ? chineseDateTime(membership.expiresAt).split(' ')[0] : ''
+        membershipLabel: displayMembership ? (displayMembership.active ? (plan ? plan.name : '有效会员') : '会员已到期') : '尚未开通会员',
+        expiryLabel: displayMembership && displayMembership.expiresAt ? chineseDateTime(displayMembership.expiresAt).split(' ')[0] : ''
       });
+      const remaining=Date.parse(displayMembership?.expiresAt)-Date.now();
+      if(remaining>0)this._entitlementExpiryTimer=setTimeout(()=>{if(this.currentRead(request)&&isCurrentSession(stamp)){this._accountRequest=(this._accountRequest||0)+1;this.setData({loading:false});this.clearAccount();void this.refreshAccount();}},Math.min(remaining+1,2147483647));
       void this.refreshProfile(stamp, request);
       try {
         const result = await api('/orders');
         if (!this.currentRead(request)) return;
         if (!isCurrentSession(stamp)) { this.clearAccount(); return; }
-        this.setData({ journey: memberJourney(membership, result.orders) });
+        this.setData({ journey: memberJourney(membership, result.orders, displayMembership) });
         const feedback=await api('/feedback/summary');
         if(!this.currentRead(request))return;
         if(!isCurrentSession(stamp)){this.clearAccount();return;}
