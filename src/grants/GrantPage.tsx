@@ -86,23 +86,24 @@ function Workspace({ actorId, gateway, journal = sessionJournal, mode }: Props) 
       setPre(p); setNow(Date.now());
     });
   }
-  async function mutate(p: Pending) {
+  async function mutate(p: Pending, recovery: 'lookup' | 'retry' | null = null) {
     // Persist BEFORE dispatch. If storage fails, no business call is sent.
     try { journal.write(actorId, p); } catch { setJournalError('无法保存操作恢复记录，本次未发出请求。请修复浏览器存储后重新打开。'); return; }
     setPending(p);
     let reply;
     try {
-      reply = p.kind === 'issue' ? await gateway.issue(p.input) : await gateway.revoke(p.input);
+      reply = recovery === 'lookup' && gateway.recover ? await gateway.recover(p) : p.kind === 'issue' ? await gateway.issue(p.input) : await gateway.revoke(p.input);
       if (!alive.current) return;
+      if (!reply) { setError('尚未查到可确认的结果，不能据此认定操作失败。原编号已保留，可稍后再次核对；确需重试时只使用原编号。'); return; }
       const g = reply.grant;
       if (!g?.grantId || !['active', 'revoked'].includes(g.status) || Date.parse(g.expiresAt) <= Date.parse(g.startsAt) || !['basic', 'star'].includes(g.level) || !Number.isFinite(Date.parse(g.startsAt)) || !Number.isFinite(Date.parse(g.expiresAt)) || (p.kind === 'issue' ? g.userId !== p.input.userId || g.level !== p.input.level : g.grantId !== p.input.grantId || g.status !== 'revoked')) throw Error('返回结果无法确认。');
     } catch (e) {
       if (!alive.current) return;
-      if (e instanceof GrantRejection) {
+      if (e instanceof GrantRejection && !recovery) {
         try { journal.write(actorId, null); setPending(null); setPre(null); setConfirmed(false); } catch { setJournalError('操作已被拒绝，但本机恢复记录未能清理，请重新打开后核对。'); }
         throw e;
       }
-      setError('本次结果尚未确认。请使用“核对并重试原操作”，保持同一操作编号；不要重新赠送或更换账号。'); return;
+      setError('本次结果尚未确认。请先核对原操作结果，保持同一操作编号；不要重新赠送或更换账号。'); return;
     }
     try { journal.write(actorId, null); } catch { setJournalError('服务已返回结果，但恢复记录未能清理；请保留操作编号并重新核对。'); return; }
     setPending(null); setResult(reply.grant); setPre(null); setConfirmed(false); setRevokeTarget(null); setRevokeReason('');
@@ -121,7 +122,7 @@ function Workspace({ actorId, gateway, journal = sessionJournal, mode }: Props) 
     <div aria-live="polite">{error && <p role="alert" className="grant-error">{error}</p>}{notice && <p role="status" className="grant-success">{notice}</p>}{journalError && <p role="alert" className="grant-error">{journalError}</p>}</div>
     {!authorized && <section className="grant-card"><p>需要核验当前管理员权限，核验通过前不能操作。</p><button disabled={busy} onClick={() => void run(async () => {})}>重新核验登录</button></section>}
     {pending && !authorized && <p className="grant-warning grant-card">存在待核对操作，请先恢复原管理员登录。</p>}
-    {pending && authorized && <section className="grant-card grant-warning"><h2>待核对的{pending.kind === 'issue' ? '赠送' : '撤销'}操作</h2><p>操作编号：<code>{pending.input.idempotencyKey}</code></p><p>对象：{pending.kind === 'issue' ? pending.input.userId : pending.input.grantId}</p>{pending.kind === 'issue' && <p>原操作等级：{levelLabel(pending.input.level)}</p>}<button disabled={busy || !authorized || !!journalError} onClick={() => void run(() => mutate(pending))}>核对并重试原操作</button></section>}
+    {pending && authorized && <section className="grant-card grant-warning"><h2>待核对的{pending.kind === 'issue' ? '赠送' : '撤销'}操作</h2><p>操作编号：<code>{pending.input.idempotencyKey}</code></p><p>对象：{pending.kind === 'issue' ? pending.input.userId : pending.input.grantId}</p>{pending.kind === 'issue' && <p>原操作等级：{levelLabel(pending.input.level)}</p>}{gateway.recover && <button disabled={busy || !authorized || !!journalError} onClick={() => void run(() => mutate(pending, 'lookup'))}>核对原操作结果</button>}<button disabled={busy || !authorized || !!journalError} onClick={() => void run(() => mutate(pending, 'retry'))}>核对并重试原操作</button></section>}
     {result && <section className="grant-card grant-result" aria-label="操作结果"><h2>{mode === 'fixture' ? '模拟' : ''}操作结果</h2><p>记录编号：{result.grantId}</p><p>用户编号：{result.userId} · {levelLabel(result.level)} · {grantState(result, now)}</p><p>生效：{shanghaiTime(result.startsAt)}　到期：{shanghaiTime(result.expiresAt)}（北京时间）</p></section>}
     <div className="grant-columns"><section className="grant-card"><h2><span className="grant-step" aria-hidden="true">1</span>核对受赠账号</h2>
       <form onSubmit={e => { e.preventDefault(); if (!locked && query.trim()) lookup(); }}><label>查找方式<select aria-label="查找方式" value={lookupType} disabled={locked} onChange={e => { setLookupType(e.target.value as LookupInput['type']); setQuery(''); resetTarget(); }}><option value="phone">手机号</option><option value="userId">用户编号</option></select></label><label>{lookupType === 'phone' ? '手机号' : '已注册用户编号'}<input autoComplete="off" inputMode={lookupType === 'phone' ? 'tel' : 'text'} value={query} maxLength={lookupType === 'phone' ? 30 : 100} disabled={locked} placeholder={lookupType === 'phone' ? '输入手机号，可含国家或地区代码' : '输入完整用户编号'} onChange={e => { setQuery(e.target.value); resetTarget(); }} /></label><button disabled={locked || !query.trim()}>{busy ? '正在核验…' : '查找账号'}</button></form>
@@ -143,7 +144,7 @@ function Workspace({ actorId, gateway, journal = sessionJournal, mode }: Props) 
       {!rows.length ? <p className="grant-muted">{historyUser ? '该账号暂无赠送记录。' : '查找账号后查看其赠送记录。'}</p> : <div className="grant-table-scroll"><table><caption>用户 {historyUser} 的赠送记录（北京时间）</caption><thead><tr><th>会籍与状态</th><th>有效期</th><th>原因与批准依据</th><th>操作记录</th><th>操作</th></tr></thead><tbody>{rows.map(g => <tr key={g.grantId}><td>{levelLabel(g.level)}<br /><span className="grant-state">{grantState(g, now)}</span></td><td>{shanghaiTime(g.startsAt)}<br />至 {shanghaiTime(g.expiresAt)}</td><td>{g.reason}<br /><small>{g.approvalReference}</small></td><td><small>{g.grantId}<br />办理人：{g.actor}{g.revokedAt && <><br />撤销：{shanghaiTime(g.revokedAt)}<br />{g.revokeReason}</>}</small></td><td><button disabled={locked || g.status === 'revoked'} onClick={() => { setRevokeTarget(g); setRevokeReason(''); }}>撤销</button></td></tr>)}</tbody></table></div>}
       {cursor && <button disabled={busy || !authorized} onClick={() => void run(() => history(historyUser, cursor))}>加载更多记录</button>}
     </section>
-    {revokeTarget && <section className="grant-card grant-warning" aria-label="撤销确认"><h2>确认撤销这条赠送</h2><p>用户：{revokeTarget.userId}　等级：{levelLabel(revokeTarget.level)}　记录：{revokeTarget.grantId}</p><p>仅撤销这一条赠送，保留其他合法付费或赠送权益及历史。</p><label>撤销原因<textarea aria-label="撤销原因" maxLength={500} value={revokeReason} disabled={locked} onChange={e => setRevokeReason(e.target.value)} /></label><div className="grant-actions"><button disabled={locked || !revokeReason.trim()} onClick={() => { const p: Pending = { kind: 'revoke', input: { grantId: revokeTarget.grantId, reason: revokeReason.trim(), idempotencyKey: crypto.randomUUID() } }; void run(() => mutate(p)); }}>确认撤销</button><button disabled={busy || !!pending} onClick={() => setRevokeTarget(null)}>取消撤销</button></div></section>}
+    {revokeTarget && <section className="grant-card grant-warning" aria-label="撤销确认"><h2>确认撤销这条赠送</h2><p>用户：{revokeTarget.userId}　等级：{levelLabel(revokeTarget.level)}　记录：{revokeTarget.grantId}</p><p>仅撤销这一条赠送，保留其他合法付费或赠送权益及历史。</p><label>撤销原因<textarea aria-label="撤销原因" maxLength={500} value={revokeReason} disabled={locked} onChange={e => setRevokeReason(e.target.value)} /></label><div className="grant-actions"><button disabled={locked || !revokeReason.trim()} onClick={() => { const p: Pending = { kind: 'revoke', input: { grantId: revokeTarget.grantId, userId: revokeTarget.userId, reason: revokeReason.trim(), idempotencyKey: crypto.randomUUID() } }; void run(() => mutate(p)); }}>确认撤销</button><button disabled={busy || !!pending} onClick={() => setRevokeTarget(null)}>取消撤销</button></div></section>}
     <footer className="grant-muted">赠送记录独立保存，不生成付款记录或推荐奖励。手机及报告全文以服务端实际权益为准。</footer>
   </main>;
 }

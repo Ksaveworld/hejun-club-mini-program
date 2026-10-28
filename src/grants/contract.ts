@@ -9,7 +9,7 @@ export type Draft = { userId: string; level: GrantLevel; reason: string; approva
 export type Preflight = { userId: string; ready: boolean; blockers: string[]; existing: Entitlement[]; level: GrantLevel; startsAt: string; expiresAt: string; confirmationToken: string; confirmationExpiresAt: string };
 export type Grant = { grantId: string; userId: string; level: GrantLevel; startsAt: string; expiresAt: string; reason: string; approvalReference: string; actor: string; status: 'active' | 'revoked'; revokedAt?: string; revokeReason?: string };
 export type IssueInput = Draft & { confirmationToken: string; idempotencyKey: string };
-export type RevokeInput = { grantId: string; reason: string; idempotencyKey: string };
+export type RevokeInput = { grantId: string; reason: string; idempotencyKey: string; userId?: string };
 export type Pending = { kind: 'issue'; input: IssueInput } | { kind: 'revoke'; input: RevokeInput };
 export interface GrantGateway {
   checkSession(): Promise<{ actorId: string; canGrant: boolean }>;
@@ -18,11 +18,14 @@ export interface GrantGateway {
   issue(input: IssueInput): Promise<{ grant: Grant; duplicate: boolean }>;
   list(input: { userId: string; cursor?: string }): Promise<{ items: Grant[]; nextCursor?: string }>;
   revoke(input: RevokeInput): Promise<{ grant: Grant; duplicate: boolean }>;
+  // null means outcome unknown, never permission to discard the original key.
+  recover?(pending: Pending): Promise<{ grant: Grant; duplicate: boolean } | null>;
 }
 // Only use this for a server response guaranteed not to have committed.
 // Network failures, invalid JSON and ambiguous responses MUST remain ordinary errors.
 export class GrantRejection extends Error {
-  constructor(message: string, public readonly code: string) { super(message); }
+  readonly code: string;
+  constructor(message: string, code: string) { super(message); this.code = code; }
 }
 export interface GrantJournal { read(actorId: string): Pending | null; write(actorId: string, value: Pending | null): void }
 export const sessionJournal: GrantJournal = {

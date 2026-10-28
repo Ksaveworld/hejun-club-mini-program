@@ -1,3 +1,4 @@
+const { consumptionMembership } = require('../../utils/consumption-membership');
 const { returnToPrevious } = require('../../utils/navigation');
 const { api, hasSession, clearSession, sessionStamp, isCurrentSession, newKey } = require('../../utils/api');
 const drafts = require('../../utils/drafts');
@@ -67,7 +68,7 @@ Page({
         if(this.data.mode==='edit'){this._editRevision=saved.revision;this._pendingEdit=!!saved.pending;}
         this.setData({ draftNote: '已恢复本机草稿，可继续编辑。' }); }
     }
-    const canSubmit = session.user.role === 'member' && !!(session.membership && session.membership.active);
+    const canSubmit = session.user.role === 'member' && !!consumptionMembership(session)?.active;
     this.setData({ loggedIn: true, canSubmit, title: this._draft.title, body: this._draft.body, pendingEdit:!!this._pendingEdit, editRevision:this._editRevision||null,
       accessNote: canSubmit ? '' : '投稿需要有效会籍。你仍可以查看自己的历史稿件和审核结果。' });
     return !changed;
@@ -75,6 +76,7 @@ Page({
   showFailure(error) {
     if (this._unloaded) return;
     if (error.status === 401 || error.code === 'CONTEXT_CHANGED') this.clearView();
+    if (error.status === 403) this.setData({canSubmit:false, accessNote:'当前会籍已不可用于投稿，请刷新核对。'});
     this.setData({ error: error.status === 401 ? '登录已过期，请重新登录。未提交文字仍保留在当前页面。' : error.message || '暂时无法读取稿件，请重试。' });
   },
   async refreshPosts() {
