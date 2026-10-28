@@ -1,0 +1,1733 @@
+{
+  "supply": {
+    "id": "supply",
+    "version": "20260914-v1",
+    "title": "AI解决方案供给征集表（供给端）",
+    "fields": [
+      {
+        "id": "q1",
+        "number": 1,
+        "label": "机构/企业名称（中文）（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q2",
+        "number": 2,
+        "label": "机构/企业名称（英文）",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q3",
+        "number": 3,
+        "label": "所属国家/地区（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q4",
+        "number": 4,
+        "label": "机构类型（必填）",
+        "required": true,
+        "type": "multi",
+        "options": [
+          "政府部门",
+          "国有企业",
+          "私营企业",
+          "高校/科研机构",
+          "商协会",
+          "其他（请注明）"
+        ],
+        "section": 1
+      },
+      {
+        "id": "q5",
+        "number": 5,
+        "label": "主营业务/职能（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q6",
+        "number": 6,
+        "label": "联系人（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q7",
+        "number": 7,
+        "label": "职务",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q8",
+        "number": 8,
+        "label": "电话/WhatsApp（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q9",
+        "number": 9,
+        "label": "邮箱（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q10",
+        "number": 10,
+        "label": "网址/公众号",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q11",
+        "number": 11,
+        "label": "是否东博会参展/往届参会企业（必填）",
+        "required": true,
+        "type": "single",
+        "options": [
+          "是，第____届",
+          "否",
+          "意向参展"
+        ],
+        "section": 1
+      },
+      {
+        "id": "q12",
+        "number": 12,
+        "label": "是否在东盟国家设有分支机构/本地团队（必填）",
+        "required": true,
+        "type": "single",
+        "options": [
+          "是（国别：______）",
+          "否",
+          "计划设立"
+        ],
+        "section": 1
+      },
+      {
+        "id": "q13",
+        "number": 13,
+        "label": "贵单位可提供的AI应用领域（可多选，对应需求端领域）： 基础技术与基础设施",
+        "required": false,
+        "type": "multi",
+        "options": [
+          "多语言大模型与智能交互（多语种实时翻译、跨语言智能客服等）",
+          "AI基础层与出海基础设施（算力支撑、数据存储、AI安全防护、跨境云服务） 产业赋能（B端应用）",
+          "工业AI与智能制造（智能工厂、自动化质量检测等）",
+          "跨境AI商贸服务（跨境电商、智能供应链、数字化通关等）",
+          "智慧农业AI（种养殖全链路智能化、农产品数字化溯源）",
+          "金融科技与智能风控（跨境支付、智能风险管控） 公共服务与消费（G端/C端）",
+          "智慧城市与公共服务AI（交通调度、安全防控、政务数字化）",
+          "文旅消费智能化（数字文旅、个性化智能推荐）",
+          "AIGC与数字文化出海（游戏/动漫/影视AI创作、内容本土化运营）",
+          "其他（请注明）"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q14",
+        "number": 14,
+        "label": "核心产品/解决方案名称（可列1—3个）（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 2
+      },
+      {
+        "id": "q15",
+        "number": 15,
+        "label": "产品/方案简要说明（功能、技术路线、适用场景）（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 2
+      },
+      {
+        "id": "q16",
+        "number": 16,
+        "label": "核心技术/能力（必填）",
+        "required": true,
+        "type": "multi",
+        "options": [
+          "大模型",
+          "NLP",
+          "语音识别/合成",
+          "计算机视觉",
+          "机器人",
+          "知识图谱",
+          "隐私计算",
+          "边缘计算",
+          "其他"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q17",
+        "number": 17,
+        "label": "技术成熟度与知识产权（必填）",
+        "required": true,
+        "type": "single",
+        "options": [
+          "概念/原型",
+          "小规模试用",
+          "商用",
+          "规模化商用 软著/专利/认证情况"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q18",
+        "number": 18,
+        "label": "主要竞争优势（技术、成本、交付、本地化、生态、案例等）",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 2
+      },
+      {
+        "id": "q19",
+        "number": 19,
+        "label": "已落地标杆案例（客户/国家/场景/效果）",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 2
+      },
+      {
+        "id": "q20",
+        "number": 20,
+        "label": "支持语种与本地化能力（必填）",
+        "required": true,
+        "type": "multi",
+        "options": [
+          "中文",
+          "英文",
+          "东盟小语种（请列明：______）",
+          "多语言实时翻译",
+          "跨语言客服",
+          "其他"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q21",
+        "number": 21,
+        "label": "部署方式（必填）",
+        "required": true,
+        "type": "multi",
+        "options": [
+          "公有云/SaaS",
+          "私有化部署",
+          "混合云",
+          "边缘计算",
+          "一体机",
+          "其他"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q22",
+        "number": 22,
+        "label": "标准交付周期（必填）",
+        "required": true,
+        "type": "single",
+        "options": [
+          "3个月内",
+          "3—6个月",
+          "6—12个月",
+          "1年以上",
+          "视项目而定"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q23",
+        "number": 23,
+        "label": "报价/预算参考区间（必填）",
+        "required": true,
+        "type": "single",
+        "options": [
+          "10万美元以下",
+          "10万—50万美元",
+          "50万—100万美元",
+          "100万美元以上",
+          "面议/待定"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q24",
+        "number": 24,
+        "label": "期望合作模式（必填）",
+        "required": true,
+        "type": "multi",
+        "options": [
+          "直接销售/设备出口",
+          "技术合作/联合开发",
+          "项目总包（EPC）",
+          "投资/合资",
+          "授权代理",
+          "联合运营",
+          "其他"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q25",
+        "number": 25,
+        "label": "希望对接的需求方类型（必填）",
+        "required": true,
+        "type": "multi",
+        "options": [
+          "政府部门",
+          "国有企业",
+          "私营企业",
+          "高校/科研机构",
+          "商协会",
+          "其他"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q26",
+        "number": 26,
+        "label": "目标东盟国家（可多选）",
+        "required": false,
+        "type": "multi",
+        "options": [
+          "文莱",
+          "柬埔寨",
+          "印度尼西亚",
+          "老挝",
+          "马来西亚",
+          "缅甸",
+          "菲律宾",
+          "新加坡",
+          "泰国",
+          "越南",
+          "其他"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q27",
+        "number": 27,
+        "label": "是否已有东盟客户/合作伙伴/渠道（必填）",
+        "required": true,
+        "type": "single",
+        "options": [
+          "是（请说明：______）",
+          "否",
+          "洽谈中"
+        ],
+        "section": 2
+      },
+      {
+        "id": "q28",
+        "number": 28,
+        "label": "可提供的POC/试用/试点方案（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 2
+      },
+      {
+        "id": "q29",
+        "number": 29,
+        "label": "交付与售后支持：团队规模、海外交付经验、支持语言、响应时间等",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 2
+      },
+      {
+        "id": "q30",
+        "number": 30,
+        "label": "希望组委会提供的市场营销协助（可多选）（必填）",
+        "required": true,
+        "type": "multi",
+        "options": [
+          "品牌曝光/新闻稿发布",
+          "中英文宣传材料翻译/润色",
+          "案例包装与产品手册优化",
+          "路演PPT辅导/演讲培训",
+          "媒体采访/专题报道",
+          "展会展示/屏幕/展位协调",
+          "需求方/买家邀约与一对一洽谈排期",
+          "渠道代理/本地合作伙伴对接",
+          "东盟市场调研/国别分析",
+          "竞品分析与定价策略",
+          "本地化数字营销/社交媒体推广",
+          "政府关系/商协会资源对接",
+          "其他（请注明）"
+        ],
+        "section": 3
+      },
+      {
+        "id": "q31",
+        "number": 31,
+        "label": "是否愿意在对接会现场进行供给路演（5分钟）",
+        "required": false,
+        "type": "single",
+        "options": [
+          "愿意",
+          "不愿意"
+        ],
+        "section": 3
+      },
+      {
+        "id": "q32",
+        "number": 32,
+        "label": "是否愿意接受媒体采访或案例宣传",
+        "required": false,
+        "type": "single",
+        "options": [
+          "愿意",
+          "不愿意",
+          "需审核"
+        ],
+        "section": 3
+      },
+      {
+        "id": "q33",
+        "number": 33,
+        "label": "希望重点推广的产品/方案",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 3
+      },
+      {
+        "id": "q34",
+        "number": 34,
+        "label": "其他市场营销需求",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 3
+      },
+      {
+        "id": "q35",
+        "number": 35,
+        "label": "希望获得的合规经营协助（可多选）",
+        "required": false,
+        "type": "multi",
+        "options": [
+          "数据跨境与数据本地化",
+          "个人信息保护/隐私合规",
+          "AI伦理、算法备案与生成式AI合规",
+          "网络安全/等保/云服务合规",
+          "出口管制与经济制裁",
+          "知识产权/商标/专利",
+          "税务与转让定价",
+          "东盟国家公司注册/本地实体设立",
+          "签证与工作许可",
+          "劳动用工",
+          "合同、争议解决与仲裁",
+          "行业许可/认证",
+          "跨境支付/外汇",
+          "关税与原产地规则",
+          "反商业贿赂/ESG/供应链合规",
+          "其他（请注明）"
+        ],
+        "section": 4
+      },
+      {
+        "id": "q36",
+        "number": 36,
+        "label": "重点目标国家的合规问题",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 4
+      },
+      {
+        "id": "q37",
+        "number": 37,
+        "label": "是否需要组委会对接法律、税务、认证、翻译、云服务、支付等专业服务机构",
+        "required": false,
+        "type": "single",
+        "options": [
+          "是（请注明：______）",
+          "否"
+        ],
+        "section": 4
+      },
+      {
+        "id": "q38",
+        "number": 38,
+        "label": "是否希望参加合规培训/闭门辅导",
+        "required": false,
+        "type": "single",
+        "options": [
+          "是",
+          "否"
+        ],
+        "section": 4
+      },
+      {
+        "id": "q39",
+        "number": 39,
+        "label": "其他合规需求",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 4
+      },
+      {
+        "id": "q40",
+        "number": 40,
+        "label": "参会人员姓名/职务",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 5
+      },
+      {
+        "id": "q41",
+        "number": 41,
+        "label": "是否参加一对一精准配对洽谈",
+        "required": false,
+        "type": "single",
+        "options": [
+          "是",
+          "否"
+        ],
+        "section": 5
+      },
+      {
+        "id": "q42",
+        "number": 42,
+        "label": "期望洽谈时段/对象",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 5
+      },
+      {
+        "id": "q43",
+        "number": 43,
+        "label": "是否有推荐合作方或已接触的东盟需求方",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 5
+      },
+      {
+        "id": "q44",
+        "number": 44,
+        "label": "是否愿意参与中国—东盟AI合作案例集/推荐目录",
+        "required": false,
+        "type": "single",
+        "options": [
+          "愿意",
+          "不愿意",
+          "待定"
+        ],
+        "section": 5
+      },
+      {
+        "id": "q45",
+        "number": 45,
+        "label": "其他补充说明",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 5
+      }
+    ],
+    "sections": [
+      "基本信息",
+      "产品、服务与核心优势",
+      "市场营销支持",
+      "合规经营协助",
+      "参与意向与补充"
+    ],
+    "campaignBound": false,
+    "emailField": "q9",
+    "enabled": true
+  },
+  "demand": {
+    "id": "demand",
+    "version": "20260914-v1",
+    "title": "AI应用场景需求征集表（需求端）",
+    "fields": [
+      {
+        "id": "q1",
+        "number": 1,
+        "label": "机构/企业名称（ 中文）（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1,
+        "enLabel": "Organization/Enterprise Name (Chinese)",
+        "enOptions": []
+      },
+      {
+        "id": "q2",
+        "number": 2,
+        "label": "机构/企业名称（英文）",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 1,
+        "enLabel": "Organization/Enterprise Name (English)",
+        "enOptions": []
+      },
+      {
+        "id": "q3",
+        "number": 3,
+        "label": "所属国家（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1,
+        "enLabel": "Country",
+        "enOptions": []
+      },
+      {
+        "id": "q4",
+        "number": 4,
+        "label": "机构类型（必填）",
+        "required": true,
+        "type": "multi",
+        "options": [
+          "政府部门",
+          "国有企业",
+          "私营企业",
+          "高校/科研机构",
+          "商协会",
+          "其他（请注明）"
+        ],
+        "section": 1,
+        "enLabel": "Entity Type",
+        "enOptions": [
+          "Government Department",
+          "State-owned Enterprise",
+          "Private Enterprise",
+          "University /Research Institute",
+          "Chamber of Commerce & Industry Association",
+          "Others (pls specify):"
+        ]
+      },
+      {
+        "id": "q5",
+        "number": 5,
+        "label": "主营业务/职能（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1,
+        "enLabel": "Core Business/Institutional Functions",
+        "enOptions": []
+      },
+      {
+        "id": "q6",
+        "number": 6,
+        "label": "联系人（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1,
+        "enLabel": "Contact Person",
+        "enOptions": []
+      },
+      {
+        "id": "q7",
+        "number": 7,
+        "label": "职务",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 1,
+        "enLabel": "Job Title",
+        "enOptions": []
+      },
+      {
+        "id": "q8",
+        "number": 8,
+        "label": "电话/WhatsApp（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1,
+        "enLabel": "Phone / WhatsApp: _",
+        "enOptions": []
+      },
+      {
+        "id": "q9",
+        "number": 9,
+        "label": "邮箱（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 1,
+        "enLabel": "Email Address",
+        "enOptions": []
+      },
+      {
+        "id": "q10",
+        "number": 10,
+        "label": "您感兴趣的AI 应用领域（可多选）： 基础技术与基础设施",
+        "required": false,
+        "type": "multi",
+        "options": [
+          "多语言大模型与智能交互 适配东盟多国语言环境，多语种实时翻译、跨语言智能客服",
+          "AI基础层与出海基础设施 算力支撑、数据存储、AI 安全防护、跨境云服务 产业赋能（B 端应用）",
+          "工业AI 与智能制造 支撑制造业转型升级，智能工厂、 自动化质量检测等",
+          "跨境AI 商贸服务 赋能跨境电商、智能供应链管理、数字化通关等跨境贸易",
+          "智慧农业AI 种养殖全链路智能化，农产品数字化溯源体系",
+          "金融科技与智能风控 跨境支付、智能风险管控能力 公共服务与消费（G 端/C 端）",
+          "智慧城市与公共服务AI 交通调度、安全防控、政务数字化等领域",
+          "文旅消费智能化 数字文旅、个性化智能推荐服务",
+          "AIGC 与数字文化出海 游戏/动漫/影视 AI 创作工具， 内容本土化运营",
+          "其他（请注明）"
+        ],
+        "section": 2,
+        "enLabel": "Preferred AI Application Sectors (multiple selections allowed) Basic Technology & Infrastructure",
+        "enOptions": [
+          "Multilingual Large Models & Intelligent Interaction Adaptable to multilingual environments across ASEAN countries; real-time multilingual translation, cross-lingual intelligent customer service",
+          "AI Basic Layer & Infrastructure for AI Going Global Computing power support, data storage, AI cybersecurity protection, cross-border cloud services Industrial Empowerment (for Business)",
+          "Industrial AI & Intelligent Manufacturing Support manufacturing transformation and upgrading; smart factories, automated quality inspection, etc.",
+          "Cross-border AI Commerce & Trade Services Empower cross-border e-commerce, intelligent supply chain management, digital customs clearance and other cross-border trade",
+          "Smart Agricultural AI Full-cycle intelligent farming & breeding, digital traceability system for agricultural products",
+          "FinTech & Intelligent Risk Control Cross-border payment, intelligent risk management capabilities Smart Public Services & Consumption (for Government/Consumers)",
+          "Smart City & Public Service AI Traffic scheduling, security prevention & control, digital government, etc.",
+          "Intelligent Cultural Tourism Consumption Digital cultural tourism, personalized intelligent recommendation services",
+          "AIGC & Digital Cultural Overseas Expansion AI creation tools for games, animation, film & television, localized content operation",
+          "Others (specify):"
+        ]
+      },
+      {
+        "id": "q11",
+        "number": 11,
+        "label": "具体应用场景描述（请详细说明当前面临的痛点或希望实现的目标）（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 2,
+        "enLabel": "Detailed Description of Target Application Scenarios (Please elaborate on existing pain points or expected goals)",
+        "enOptions": []
+      },
+      {
+        "id": "q12",
+        "number": 12,
+        "label": "对技术方案的核心要求（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 2,
+        "enLabel": "Core Requirements for Technical Solutions",
+        "enOptions": []
+      },
+      {
+        "id": "q13",
+        "number": 13,
+        "label": "预期预算范围（必填）",
+        "required": true,
+        "type": "single",
+        "options": [
+          "10 万美元以下",
+          "10 万-50 万美元",
+          "50 万-100 万美元",
+          "100 万美元以上",
+          "待定"
+        ],
+        "section": 2,
+        "enLabel": "Budget Range",
+        "enOptions": [
+          "Below USD 100,000",
+          "USD 100,000 – 500,000",
+          "USD 500,000 – 1,000,000",
+          "Above USD 1,000,000",
+          "To Be Confirmed"
+        ]
+      },
+      {
+        "id": "q14",
+        "number": 14,
+        "label": "期望的合作模式（必填）",
+        "required": true,
+        "type": "multi",
+        "options": [
+          "直接采购/设备进口",
+          "技术合作/联合开发",
+          "项目总包（EPC）",
+          "投资/合资",
+          "授权代理",
+          "其他（请注明）"
+        ],
+        "section": 2,
+        "enLabel": "Preferred Cooperation Modes",
+        "enOptions": [
+          "Direct Procurement / Equipment Import",
+          "Technical Cooperation / Joint R&D",
+          "EPC General Contracting",
+          "Investment / Joint Venture",
+          "Authorized Agency",
+          "Others (specify):"
+        ]
+      },
+      {
+        "id": "q15",
+        "number": 15,
+        "label": "期望实施时间（必填）",
+        "required": true,
+        "type": "single",
+        "options": [
+          "3 个月内",
+          "3-6 个月",
+          "6-12 个月",
+          "1 年以上",
+          "待定"
+        ],
+        "section": 3,
+        "enLabel": "Expected Implementation Timeline",
+        "enOptions": [
+          "Within 3 months",
+          "3 – 6 months",
+          "6 – 12 months",
+          "Over 1 year",
+          "To Be Confirmed"
+        ]
+      },
+      {
+        "id": "q16",
+        "number": 16,
+        "label": "是否有明确的决策时间表（必填）",
+        "required": true,
+        "type": "single",
+        "options": [
+          "有，需在 年 月前确定方案",
+          "暂无，先做前期调研"
+        ],
+        "section": 3,
+        "enLabel": "Do you have clear decision-making timeline?",
+        "enOptions": [
+          "Yes, scheme to be finalized before (Month) (Year)",
+          "No, preliminary research only at this stage"
+        ]
+      },
+      {
+        "id": "q17",
+        "number": 17,
+        "label": "是否有推荐的合作方或已有初步接触的中国AI 企业（必填）",
+        "required": true,
+        "type": "text",
+        "options": [],
+        "section": 3,
+        "enLabel": "Are there any recommended partners or Chinese AI enterprises you have already contacted?",
+        "enOptions": []
+      },
+      {
+        "id": "q18",
+        "number": 18,
+        "label": "其他补充说明",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 4,
+        "enLabel": "Other supplementary information (optional)",
+        "enOptions": []
+      }
+    ],
+    "sections": [
+      "基本信息",
+      "应用场景需求",
+      "实施计划",
+      "其他信息"
+    ],
+    "campaignBound": false,
+    "emailField": "q9",
+    "enabled": true
+  },
+  "salon": {
+    "id": "salon",
+    "version": "20260923-v1",
+    "title": "2026中国—东盟AI大咖沙龙 · 参会反馈与需求调研问卷",
+    "description": "尊敬的参会嘉宾：感谢您出席“2026中国—东盟AI大咖沙龙”。为持续优化活动质量，并为您提供更精准的后续资源对接服务，诚邀您填写本问卷。您的反馈对我们非常重要。特别说明：本问卷所收集的公司名称、姓名、联系方式等信息，仅用于活动改进与后续合作对接，我们将严格保密，不会向任何第三方披露。",
+    "successMessage": "感谢您的宝贵时间！我们将根据您的反馈，为您优先匹配后续资源与活动邀请。",
+    "consentText": "我同意将所填信息用于活动改进与后续合作对接，联系信息不公开展示。",
+    "campaignBound": false,
+    "enabled": true,
+    "requireAnswer": true,
+    "sections": [
+      "基本信息",
+      "对本次沙龙的反馈",
+      "未来活动需求",
+      "出海东盟意愿与需求"
+    ],
+    "fields": [
+      {
+        "id": "q1",
+        "number": 1,
+        "label": "公司/机构名称",
+        "type": "input",
+        "required": false,
+        "section": 1,
+        "options": []
+      },
+      {
+        "id": "q2",
+        "number": 2,
+        "label": "您的姓名",
+        "type": "input",
+        "required": false,
+        "section": 1,
+        "options": []
+      },
+      {
+        "id": "q3",
+        "number": 3,
+        "label": "职务",
+        "type": "input",
+        "required": false,
+        "section": 1,
+        "options": []
+      },
+      {
+        "id": "q4",
+        "number": 4,
+        "label": "联系方式（手机）",
+        "type": "tel",
+        "required": false,
+        "section": 1,
+        "options": []
+      },
+      {
+        "id": "q5",
+        "number": 5,
+        "label": "您所在企业/机构的行业类型",
+        "type": "single",
+        "required": false,
+        "section": 1,
+        "options": [
+          "制造业",
+          "信息技术/软件/人工智能",
+          "金融/投资",
+          "医疗健康",
+          "教育/培训",
+          "物流/供应链",
+          "农业",
+          "贸易/零售",
+          "政府/商协会/园区",
+          "其他"
+        ],
+        "noteLabel": "其他行业（选填）"
+      },
+      {
+        "id": "q6",
+        "number": 6,
+        "label": "您对哪位嘉宾的分享最感兴趣，希望进一步了解？（可多选）",
+        "type": "multi",
+        "required": false,
+        "section": 2,
+        "options": [
+          "梁家恩（云知声）",
+          "余凯（三六零数字安全）",
+          "李伟（趣链科技）",
+          "曹立坤（爱化身科技）",
+          "Pang Yin Kwee（Moonplay，马来西亚）",
+          "徐力（智港通科技）",
+          "赵昱博（GeoX Intelligence，新加坡）",
+          "范兆然（句子互动）",
+          "黄逸偲（中电金信研究院）",
+          "史巍（百度智能云）",
+          "其他"
+        ],
+        "noteLabel": "其他嘉宾或补充说明（选填）"
+      },
+      {
+        "id": "q7",
+        "number": 7,
+        "label": "您是否希望与嘉宾或企业建立后续联系？",
+        "type": "single",
+        "required": false,
+        "section": 2,
+        "options": [
+          "是",
+          "暂不需要"
+        ]
+      },
+      {
+        "id": "q8",
+        "number": 8,
+        "label": "您对本次活动的整体组织与安排是否满意？",
+        "type": "single",
+        "required": false,
+        "section": 2,
+        "options": [
+          "非常满意",
+          "比较满意",
+          "一般",
+          "有待改进"
+        ]
+      },
+      {
+        "id": "q9",
+        "number": 9,
+        "label": "您对活动组织、环节设置、时间安排、现场服务等方面有什么意见或建议？",
+        "type": "text",
+        "required": false,
+        "section": 2,
+        "options": []
+      },
+      {
+        "id": "q10",
+        "number": 10,
+        "label": "未来若举办更多分享会/对接会，您希望重点关注哪些内容？（可多选）",
+        "type": "multi",
+        "required": false,
+        "section": 3,
+        "options": [
+          "智慧农业",
+          "智慧医疗",
+          "智慧教育",
+          "智慧物流",
+          "智慧城市",
+          "智慧金融",
+          "AI技术底座与大模型",
+          "AI安全与数据合规",
+          "跨境投融资与资本运作",
+          "出海合规与落地实务",
+          "跨境数据流动与治理",
+          "东盟国别市场专场（如印尼、越南、泰国等）",
+          "其他"
+        ],
+        "noteLabel": "其他内容或国别需求（选填）"
+      },
+      {
+        "id": "q11",
+        "number": 11,
+        "label": "您希望未来活动以什么形式开展？（可多选）",
+        "type": "multi",
+        "required": false,
+        "section": 3,
+        "options": [
+          "大型论坛/沙龙",
+          "小型闭门研讨会",
+          "企业考察团",
+          "一对一对接会",
+          "线上直播/课程",
+          "其他"
+        ],
+        "noteLabel": "其他活动形式（选填）"
+      },
+      {
+        "id": "q12",
+        "number": 12,
+        "label": "贵司未来是否有出海东盟的计划？",
+        "type": "single",
+        "required": false,
+        "section": 4,
+        "options": [
+          "已经有落地项目",
+          "计划1年内出海",
+          "计划1—3年内出海",
+          "正在观望/研究",
+          "暂无计划"
+        ]
+      },
+      {
+        "id": "q13",
+        "number": 13,
+        "label": "您对哪些东盟国家有交流意愿或合作需求？（可多选）",
+        "type": "multi",
+        "required": false,
+        "section": 4,
+        "options": [
+          "新加坡",
+          "印度尼西亚",
+          "马来西亚",
+          "泰国",
+          "越南",
+          "菲律宾",
+          "柬埔寨",
+          "老挝",
+          "缅甸",
+          "文莱",
+          "东帝汶"
+        ]
+      },
+      {
+        "id": "q14",
+        "number": 14,
+        "label": "您希望获得哪些方面的东盟对接支持？（可多选）",
+        "type": "multi",
+        "required": false,
+        "section": 4,
+        "options": [
+          "寻找当地客户/买家",
+          "寻找渠道/合作伙伴",
+          "寻找投资/融资机会",
+          "政策与合规咨询",
+          "项目落地服务",
+          "参加东盟考察团",
+          "其他"
+        ],
+        "noteLabel": "其他对接支持（选填）"
+      },
+      {
+        "id": "q15",
+        "number": 15,
+        "label": "您对后续东盟交流活动还有什么具体建议或需求？",
+        "type": "text",
+        "required": false,
+        "section": 4,
+        "options": []
+      }
+    ]
+  },
+  "singapore": {
+    "id": "singapore",
+    "version": "20260915-v1",
+    "title": "11月新加坡AI分论坛·路演意向登记",
+    "description": "感谢关注“首届新加坡-中国东盟人工智能产业链应用与投融资分论坛”。请留下您的意向，我们会后3个工作日内专人对接。信息仅用于本次论坛跟进。",
+    "successMessage": "提交成功，我们会后3个工作日内联系您",
+    "consentText": "我同意将所填信息仅用于本次论坛跟进，联系信息不公开展示。",
+    "campaignBound": false,
+    "enabled": true,
+    "sections": [
+      "意向信息"
+    ],
+    "fields": [
+      {
+        "id": "q1",
+        "number": 1,
+        "label": "公司名称",
+        "required": true,
+        "type": "input",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q2",
+        "number": 2,
+        "label": "联系人",
+        "required": true,
+        "type": "input",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q3",
+        "number": 3,
+        "label": "联系电话（手机号）",
+        "required": true,
+        "type": "tel",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q4",
+        "number": 4,
+        "label": "职务",
+        "required": false,
+        "type": "input",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q5",
+        "number": 5,
+        "label": "微信/邮箱",
+        "required": false,
+        "type": "input",
+        "options": [],
+        "section": 1
+      },
+      {
+        "id": "q6",
+        "number": 6,
+        "label": "备注（希望对接的方向、人数、特殊需求等）",
+        "required": false,
+        "type": "text",
+        "options": [],
+        "section": 1
+      }
+    ]
+  },
+  "general-demand": {
+    "id": "general-demand",
+    "version": "20261015-general-v1",
+    "title": "我有采购/需求",
+    "description": "面向各行业的采购、产品与服务合作，不限于AI。标注必填的题目需填写，其余可选填。请勿提交无关个人信息或商业秘密。",
+    "sections": [
+      "基础信息 Basic Info",
+      "采购与合作需求 Procurement & Cooperation",
+      "项目实施计划 Implementation Plan",
+      "补充信息 Remarks"
+    ],
+    "fields": [
+      {
+        "id": "company",
+        "label": "企业/机构中文名称",
+        "enLabel": "Organization Name (Chinese)",
+        "section": 1,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 1
+      },
+      {
+        "id": "companyEn",
+        "label": "企业/机构英文名称",
+        "enLabel": "Organization Name (English)",
+        "section": 1,
+        "required": false,
+        "type": "input",
+        "options": [],
+        "number": 2
+      },
+      {
+        "id": "country",
+        "label": "所属国家/地区",
+        "enLabel": "Country / Region",
+        "section": 1,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 3
+      },
+      {
+        "id": "entity",
+        "label": "机构类型",
+        "enLabel": "Entity Type",
+        "section": 1,
+        "required": true,
+        "type": "single",
+        "options": [
+          "政府部门",
+          "国有企业",
+          "民营企业",
+          "高校科研院所",
+          "商协会",
+          "其他"
+        ],
+        "noteLabel": "选择其他时，请说明机构类型",
+        "number": 4
+      },
+      {
+        "id": "business",
+        "label": "主营业务/机构职能",
+        "enLabel": "Core Business / Institutional Function",
+        "section": 1,
+        "required": true,
+        "type": "text",
+        "options": [],
+        "number": 5
+      },
+      {
+        "id": "contact",
+        "label": "联系人姓名",
+        "enLabel": "Contact Person",
+        "section": 1,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 6
+      },
+      {
+        "id": "position",
+        "label": "职务",
+        "enLabel": "Job Title",
+        "section": 1,
+        "required": false,
+        "type": "input",
+        "options": [],
+        "number": 7
+      },
+      {
+        "id": "phone",
+        "label": "联系电话（可填WhatsApp）",
+        "enLabel": "Phone / WhatsApp",
+        "section": 1,
+        "required": true,
+        "type": "tel",
+        "options": [],
+        "number": 8
+      },
+      {
+        "id": "email",
+        "label": "电子邮箱",
+        "enLabel": "Email Address",
+        "section": 1,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 9
+      },
+      {
+        "id": "industry",
+        "label": "需求所属行业领域（可多选）",
+        "enLabel": "Target Industry",
+        "section": 2,
+        "required": true,
+        "type": "multi",
+        "options": [
+          "农业及农产品",
+          "制造业/工业",
+          "商贸物流跨境电商",
+          "基建工程",
+          "金融服务",
+          "文旅会展",
+          "公共政务服务",
+          "医疗健康",
+          "能源环保",
+          "数字信息软硬件",
+          "其他行业"
+        ],
+        "noteLabel": "选择其他行业时，请补充行业名称",
+        "number": 10
+      },
+      {
+        "id": "demandType",
+        "label": "需求类型（可多选）",
+        "enLabel": "Demand Type",
+        "section": 2,
+        "required": true,
+        "type": "multi",
+        "options": [
+          "产品采购进口",
+          "技术服务",
+          "项目建设",
+          "联合研发合作",
+          "供应链配套",
+          "投资/合资合作",
+          "代理授权",
+          "其他"
+        ],
+        "noteLabel": "选择其他时，请说明需求类型",
+        "number": 11
+      },
+      {
+        "id": "description",
+        "label": "具体需求描述",
+        "enLabel": "Existing pain points, expected goals, required products or services",
+        "section": 2,
+        "required": true,
+        "type": "text",
+        "options": [],
+        "number": 12
+      },
+      {
+        "id": "requirements",
+        "label": "对产品/服务/合作方的核心要求",
+        "enLabel": "Core Requirements for Products, Services or Partners",
+        "section": 2,
+        "required": true,
+        "type": "text",
+        "options": [],
+        "number": 13
+      },
+      {
+        "id": "budget",
+        "label": "项目预算范围",
+        "enLabel": "Budget Range",
+        "section": 2,
+        "required": true,
+        "type": "single",
+        "options": [
+          "10万美元以下",
+          "10–50万美元",
+          "50–100万美元",
+          "100万美元以上",
+          "暂未确定"
+        ],
+        "number": 14
+      },
+      {
+        "id": "cooperation",
+        "label": "期望合作模式",
+        "enLabel": "Preferred Cooperation Mode",
+        "section": 2,
+        "required": true,
+        "type": "single",
+        "options": [
+          "直接采购/设备进口",
+          "技术服务/联合开发",
+          "项目总包EPC",
+          "投资合资",
+          "授权代理",
+          "其他"
+        ],
+        "noteLabel": "选择其他时，请说明合作模式",
+        "number": 15
+      },
+      {
+        "id": "timeline",
+        "label": "希望项目落地/执行时间",
+        "enLabel": "Expected Implementation Timeline",
+        "section": 3,
+        "required": true,
+        "type": "single",
+        "options": [
+          "3个月内",
+          "3–6个月",
+          "6–12个月",
+          "1年以上",
+          "待定"
+        ],
+        "number": 16
+      },
+      {
+        "id": "decision",
+        "label": "是否有明确方案决策时间",
+        "enLabel": "Clear Decision-making Timeline?",
+        "section": 3,
+        "required": false,
+        "type": "single",
+        "options": [
+          "是",
+          "否，仅做前期调研"
+        ],
+        "noteLabel": "选择是时，请填写计划确定方案的年月",
+        "number": 17
+      },
+      {
+        "id": "partners",
+        "label": "是否已有意向或初步接触过的中方合作企业",
+        "enLabel": "Any Chinese partners you have contacted?",
+        "section": 3,
+        "required": false,
+        "type": "single",
+        "options": [
+          "无",
+          "有"
+        ],
+        "noteLabel": "选择有时，请填写企业名称",
+        "number": 18
+      },
+      {
+        "id": "remarks",
+        "label": "其他补充说明",
+        "enLabel": "Other comments",
+        "section": 4,
+        "required": false,
+        "type": "text",
+        "options": [],
+        "number": 19
+      }
+    ],
+    "emailField": "email",
+    "enabled": true,
+    "campaignBound": false,
+    "general": true,
+    "attachment": false,
+    "consentText": "我确认有权提交企业及联系人信息，同意用于供需对接和后续联系，不公开展示。",
+    "successMessage": "提交成功。工作人员将在15个工作日内完成供需初步匹配并与您联系。"
+  },
+  "general-supply": {
+    "id": "general-supply",
+    "version": "20261015-general-v1",
+    "title": "我有产品/服务",
+    "description": "面向各行业的采购、产品与服务合作，不限于AI。标注必填的题目需填写，其余可选填。请勿提交无关个人信息或商业秘密。",
+    "sections": [
+      "基础信息 Basic Info",
+      "产品与服务供给 Products & Services",
+      "商务与落地计划 Business & Implementation",
+      "补充信息 Remarks"
+    ],
+    "fields": [
+      {
+        "id": "company",
+        "label": "企业/机构中文名称",
+        "enLabel": "Organization Name (Chinese)",
+        "section": 1,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 1
+      },
+      {
+        "id": "companyEn",
+        "label": "企业/机构英文名称",
+        "enLabel": "Organization Name (English)",
+        "section": 1,
+        "required": false,
+        "type": "input",
+        "options": [],
+        "number": 2
+      },
+      {
+        "id": "country",
+        "label": "所属国家/地区",
+        "enLabel": "Country / Region",
+        "section": 1,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 3
+      },
+      {
+        "id": "entity",
+        "label": "机构类型",
+        "enLabel": "Entity Type",
+        "section": 1,
+        "required": true,
+        "type": "single",
+        "options": [
+          "政府部门",
+          "国有企业",
+          "民营企业",
+          "高校科研院所",
+          "商协会",
+          "其他"
+        ],
+        "noteLabel": "选择其他时，请说明机构类型",
+        "number": 4
+      },
+      {
+        "id": "business",
+        "label": "主营业务/机构职能",
+        "enLabel": "Core Business / Institutional Function",
+        "section": 1,
+        "required": true,
+        "type": "text",
+        "options": [],
+        "number": 5
+      },
+      {
+        "id": "contact",
+        "label": "联系人姓名",
+        "enLabel": "Contact Person",
+        "section": 1,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 6
+      },
+      {
+        "id": "position",
+        "label": "职务",
+        "enLabel": "Job Title",
+        "section": 1,
+        "required": false,
+        "type": "input",
+        "options": [],
+        "number": 7
+      },
+      {
+        "id": "phone",
+        "label": "联系电话（可填WhatsApp）",
+        "enLabel": "Phone / WhatsApp",
+        "section": 1,
+        "required": true,
+        "type": "tel",
+        "options": [],
+        "number": 8
+      },
+      {
+        "id": "email",
+        "label": "电子邮箱",
+        "enLabel": "Email Address",
+        "section": 1,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 9
+      },
+      {
+        "id": "industry",
+        "label": "供给所属行业领域（可多选）",
+        "enLabel": "Supply Industry",
+        "section": 2,
+        "required": true,
+        "type": "multi",
+        "options": [
+          "农业及农产品",
+          "制造业/工业",
+          "商贸物流跨境电商",
+          "基建工程",
+          "金融服务",
+          "文旅会展",
+          "公共政务服务",
+          "医疗健康",
+          "能源环保",
+          "数字信息软硬件",
+          "其他行业"
+        ],
+        "noteLabel": "选择其他行业时，请补充行业名称",
+        "number": 10
+      },
+      {
+        "id": "supplyType",
+        "label": "供给类型（可多选）",
+        "enLabel": "Supply Type",
+        "section": 2,
+        "required": true,
+        "type": "multi",
+        "options": [
+          "实物产品输出",
+          "技术输出",
+          "工程总包服务",
+          "技术开发/定制服务",
+          "供应链配套服务",
+          "合资合作输出",
+          "代理渠道合作",
+          "其他"
+        ],
+        "noteLabel": "选择其他时，请说明供给类型",
+        "number": 11
+      },
+      {
+        "id": "product",
+        "label": "产品/服务名称",
+        "enLabel": "Name of Products / Services",
+        "section": 2,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 12
+      },
+      {
+        "id": "description",
+        "label": "产品/服务详细介绍",
+        "enLabel": "Core strengths, problems to be solved and main application scenarios",
+        "section": 2,
+        "required": true,
+        "type": "text",
+        "options": [],
+        "number": 13
+      },
+      {
+        "id": "advantages",
+        "label": "核心竞争优势",
+        "enLabel": "Core Competitive Advantages",
+        "section": 2,
+        "required": true,
+        "type": "text",
+        "options": [],
+        "number": 14
+      },
+      {
+        "id": "cooperation",
+        "label": "可适配的合作模式（可多选）",
+        "enLabel": "Available Cooperation Modes",
+        "section": 2,
+        "required": true,
+        "type": "multi",
+        "options": [
+          "直接供货/产品出口",
+          "技术服务/定制开发",
+          "项目总包EPC",
+          "投资/合资",
+          "授权代理",
+          "其他"
+        ],
+        "noteLabel": "选择其他时，请说明合作模式",
+        "number": 15
+      },
+      {
+        "id": "market",
+        "label": "目标合作市场",
+        "enLabel": "Target Cooperation Market",
+        "section": 2,
+        "required": true,
+        "type": "input",
+        "options": [],
+        "number": 16
+      },
+      {
+        "id": "timeline",
+        "label": "可对接项目交付周期",
+        "enLabel": "Available Delivery Cycle",
+        "section": 3,
+        "required": true,
+        "type": "single",
+        "options": [
+          "3个月内",
+          "3–6个月",
+          "6–12个月",
+          "1年以上",
+          "视项目情况确定"
+        ],
+        "number": 17
+      },
+      {
+        "id": "budget",
+        "label": "参考报价区间",
+        "enLabel": "Reference Price Range",
+        "section": 3,
+        "required": false,
+        "type": "single",
+        "options": [
+          "10万美元以下",
+          "10–50万美元",
+          "50–100万美元",
+          "100万美元以上",
+          "按项目核算"
+        ],
+        "number": 18
+      },
+      {
+        "id": "cases",
+        "label": "是否有海外落地案例",
+        "enLabel": "Overseas Project Cases?",
+        "section": 3,
+        "required": false,
+        "type": "single",
+        "options": [
+          "是",
+          "否"
+        ],
+        "noteLabel": "选择是时，请简述海外落地案例",
+        "number": 19
+      },
+      {
+        "id": "partners",
+        "label": "是否已有意向对接的境外合作方",
+        "enLabel": "Any targeted overseas partners?",
+        "section": 3,
+        "required": false,
+        "type": "single",
+        "options": [
+          "无",
+          "有"
+        ],
+        "noteLabel": "选择有时，请填写合作方名称",
+        "number": 20
+      },
+      {
+        "id": "remarks",
+        "label": "其他补充说明",
+        "enLabel": "Other comments",
+        "section": 4,
+        "required": false,
+        "type": "text",
+        "options": [],
+        "number": 21
+      }
+    ],
+    "emailField": "email",
+    "enabled": true,
+    "campaignBound": false,
+    "general": true,
+    "attachment": true,
+    "consentText": "我确认有权提交企业及联系人信息，同意用于供需对接和后续联系，不公开展示。",
+    "successMessage": "提交成功。工作人员将在15个工作日内完成供需初步匹配并与您联系。"
+  }
+}

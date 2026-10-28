@@ -31,8 +31,10 @@
     </view>
     <view wx:if="{{mode === 'list'}}">
     <view class="section-title serif">我的反馈</view>
-    <button wx:for="{{tickets}}" wx:key="id" class="card feedback-item" data-id="{{item.id}}" bindtap="navigateTicket" disabled="{{busy}}"><view>{{item.title}}<text wx:if="{{item.unread}}" class="feedback-unread"> · 有新回复</text></view><view class="muted">{{item.statusLabel}} · {{item.createdLabel}}</view><view class="footnote">查看问题与回复 ›</view></button>
-    <view wx:if="{{!tickets.length}}" class="footnote">暂无反馈记录。</view>
+    <input class="feedback-input feedback-search" value="{{query}}" placeholder="搜索我的问题标题" aria-label="搜索我的反馈" maxlength="60" bindinput="changeQuery" />
+    <button wx:for="{{visibleTickets}}" wx:key="id" class="card feedback-item" data-id="{{item.id}}" bindtap="navigateTicket" disabled="{{busy}}"><view>{{item.title}}<text wx:if="{{item.unread}}" class="feedback-unread"> · 有新回复</text></view><view class="muted">{{item.statusLabel}} · {{item.createdLabel}}</view><view class="footnote">查看问题与回复 ›</view></button>
+    <view wx:if="{{!visibleTickets.length}}" class="footnote">{{query ? '没有匹配的问题。' : '暂无反馈记录。'}}</view>
+    <view wx:if="{{query && nextCursor}}" class="footnote">搜索当前已加载的记录；可加载更早反馈继续查找。</view>
     <button wx:if="{{nextCursor}}" class="secondary-action" bindtap="loadMore" disabled="{{busy}}">加载更早反馈</button>
     </view>
     <button wx:if="{{mode === 'detail'}}" class="secondary-action" bindtap="backToList">返回上一页</button>

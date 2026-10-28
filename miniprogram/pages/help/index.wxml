@@ -1,0 +1,5 @@
+<view class="page"><view class="heading"><view class="page-title serif">帮助与反馈</view><view class="subtitle">了解入会流程，查找办理说明。</view></view>
+  <view wx:if="{{error}}" class="card">{{error}}</view>
+  <view wx:for="{{questions}}" wx:key="question" class="card faq"><button class="faq-question" data-index="{{index}}" bindtap="toggle">{{item.question}} <text>{{expanded===index?'−':'+'}}</text></button><view wx:if="{{expanded===index}}" class="faq-answer">{{item.answer}}</view></view>
+  <view class="card"><view class="section-title">联系俱乐部</view><view class="subtitle">服务邮箱：57230431@qq.com。账号、申请、付款或售后遇到问题，可登录后提交反馈并查看回复。涉及付款请提供订单编号；处理方式以会员服务协议及核实结果为准。</view><button class="primary-action" bindtap="openFeedback">提交问题与查看回复</button><button class="secondary-action" bindtap="openGuide">阅读完整入会指南</button><button class="text-action" data-id="terms" bindtap="openLegal">会员服务协议 ›</button><button class="text-action" data-id="privacy" bindtap="openLegal">隐私政策 ›</button></view>
+</view>

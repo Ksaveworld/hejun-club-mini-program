@@ -1,0 +1,27 @@
+.intro-logo { display: block; width: 280rpx; margin-bottom: 28rpx; }
+.intro-hero { position: relative; overflow: hidden; border-radius: 20rpx; background: #164c3d; color: #fff; }
+.intro-art { position: absolute; width: 100%; height: 100%; opacity: .24; }
+.intro-hero-copy { position: relative; padding: 40rpx 30rpx; }
+.intro-hero .page-title { margin: 26rpx 0; font-size: 42rpx; line-height: 1.55; }
+.intro-eyebrow { color: #92783f; font-size: 23rpx; letter-spacing: 2rpx; }
+.intro-hero .intro-eyebrow { color: #ecdeb6; letter-spacing: 0; }
+.intro-hero-note { color: #e8eee8; font-size: 25rpx; }
+.intro-lead { margin-top: 34rpx; font-size: 34rpx; line-height: 1.65; }
+.intro-paragraph { margin-top: 18rpx; line-height: 1.9; }
+.intro-section-heading { margin: 48rpx 0 24rpx; }
+.intro-section-heading .section-title { margin-top: 8rpx; }
+.intro-service { margin-bottom: 20rpx; border: 1rpx solid #e2e7df; }
+.intro-service-top { display: flex; align-items: center; gap: 18rpx; }
+.intro-number { color: #a58b49; font-size: 24rpx; }
+.intro-tagline { margin-top: 10rpx; font-weight: 500; }
+.intro-service .intro-paragraph { font-size: 26rpx; }
+.intro-step + .intro-step, .intro-plan + .intro-plan { padding-top: 26rpx; margin-top: 26rpx; border-top: 1rpx solid #e5e9e2; }
+.intro-step-title { font-size: 30rpx; font-weight: 600; }
+.intro-step .muted, .intro-plan .muted { margin-top: 10rpx; font-size: 26rpx; line-height: 1.9; }
+.intro-steps .secondary-action { margin-top: 28rpx; }
+.intro-plan-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8rpx; }
+.intro-price { font-size: 27rpx; color: #816b36; }
+.intro-status { margin-top: 12rpx; padding: 10rpx 14rpx; border-radius: 8rpx; background: #fbf2d9; color: #725d2c; font-size: 24rpx; }
+.intro-memberships { margin-bottom: 24rpx; }
+.intro-contact { margin: 36rpx 0 24rpx; background: #edf2ec; }
+.intro-phone { min-height: 80rpx; padding: 16rpx 0; color: #287963; font-size: 28rpx; }

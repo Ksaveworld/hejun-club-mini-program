@@ -1,0 +1,15 @@
+.survey-field { margin: 32rpx 0; padding: 24rpx; background: white; border-radius: 16rpx; line-height: 1.7; }
+.survey-field label { display: block; margin: 18rpx 0; }
+.survey-field textarea { width: 100%; min-height: 90rpx; box-sizing: border-box; padding: 16rpx; margin-top: 16rpx; background: #f6f7f3; }
+.survey-error { color: #a32d2d; padding: 24rpx 0; }
+.survey-field input { width: 100%; box-sizing: border-box; padding: 16rpx; margin-top: 16rpx; background: #f6f7f3; min-height: 80rpx; }
+
+.survey-entry {display:block;width:100%;box-sizing:border-box;text-align:left;white-space:normal;margin:24rpx 0;padding:28rpx;background:#fff;border:1rpx solid #dce6df;border-radius:20rpx;line-height:1.6;color:#194f43;}
+.survey-entry::after{border:0;}
+.survey-entry-label{font-size:24rpx;color:#7b877f;}
+.survey-entry-title{font-size:32rpx;margin:10rpx 0;}
+.survey-entry-description{font-size:26rpx;color:#61756b;}
+
+.survey-pagination{display:flex;justify-content:space-between;gap:24rpx;margin:32rpx 0;padding-bottom:env(safe-area-inset-bottom);}
+.survey-pagination button{width:44%;min-height:88rpx;box-sizing:border-box;padding:18rpx 12rpx;border:1rpx solid #dce3dc;border-radius:12rpx;background:#fff;font-size:30rpx;line-height:1.6;margin:0;color:#194f43;}
+.survey-pagination .survey-next{margin-left:auto;background:#194f43;color:#fff;}

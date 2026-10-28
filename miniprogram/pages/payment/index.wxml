@@ -1,0 +1,44 @@
+<import src="../../templates/legal.wxml" />
+<view class="page payment-page">
+  <view class="page-title serif">微信支付</view>
+  <view wx:if="{{error}}" class="notice error">{{error}}</view>
+  <view wx:if="{{message}}" class="notice">{{message}}</view>
+  <view wx:if="{{loading}}">正在读取订单与支付结果…</view>
+  <view wx:if="{{order}}" class="card">
+    <view>订单编号：{{order.id}}</view><button bindtap="copyOrder" loading="{{clipboardBusy}}" disabled="{{clipboardBusy || showClipboardPrivacy || busy}}">复制订单编号</button>
+    <view wx:if="{{showClipboardPrivacy}}" class="card">
+      <view>复制订单编号前请确认</view>
+      <view>仅在你主动复制时，将订单编号写入剪切板，方便查询与联系客服；不读取或上传原有剪切板内容。暂不授权仍可查看订单。</view>
+      <button bindtap="openClipboardPrivacy">阅读{{privacyContractName}}</button>
+      <button id="order-clipboard-privacy" data-privacy-request="{{clipboardRequestId}}" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreeClipboardPrivacy">同意并复制订单编号</button>
+      <button bindtap="cancelClipboardPrivacy">暂不授权</button>
+    </view>
+    <view>会员档位：{{order.planName}}</view><view wx:if="{{order.isOrganization}}">申请类型：{{order.applicationTypeLabel}}</view>
+    <view>申请人：{{order.form.name}} · {{order.form.phone}}</view><view class="amount">{{order.isOrganization ? '预申请 · 暂不收费' : '¥' + amountLabel}}</view>
+    <view wx:if="{{order.transactionKind === 'renewal'}}">本次为同档续费，核实到账后延长{{order.renewal.termLabel}}。原有效期至 {{order.previousExpiryLabel}}。</view>
+    <view wx:if="{{order.cancellation.paymentReconciliationRequired}}">该订单已收到付款，需联系工作人员核对。请勿重复付款，会员资格以核对结果为准。</view>
+    <view wx:elif="{{order.status === 'cancelled'}}">订单已取消，不能继续付款。原申请与订单记录已保留。</view>
+    <view wx:elif="{{order.hasAftercare}}"><view>{{order.aftercareMessage}}</view><view>退款金额：¥{{order.refundAmountLabel}}</view><view>退款完成时间：{{order.refundCompletedLabel}}</view></view>
+    <view wx:elif="{{order.status === 'paid'}}">支付已核实，请返回“我的”查看会员权益。</view>
+    <view wx:if="{{!enabled && order.status === 'pending'}}">微信支付正在配置，暂未开放。你的订单已保存。</view>
+  </view>
+  <view wx:if="{{hasMemberNextStep}}" class="card member-next-step">
+    <view class="section-title serif">{{memberNextStep.title}}</view><view>{{memberNextStep.introduction}}</view><view>{{memberNextStep.assessment}}</view>
+    <button class="secondary-action" bindtap="openEnterprise">填写企业需求（可选）</button>
+  </view>
+  <view wx:if="{{enabled && order.status === 'pending' && !order.cancellation.paymentReconciliationRequired && order.planId !== 'organization'}}">
+    <view wx:if="{{legal && !legalAccepted}}">
+      <template is="legal-fields" data="{{legal,policy,hongKong,busy}}" />
+      <checkbox-group data-id="details" bindchange="agreeLegal"><label><checkbox value="yes" checked="{{details}}" disabled="{{busy}}" />我确认联系资料真实、所选方案与金额无误</label></checkbox-group>
+      <button class="primary-action" bindtap="acceptLegal" disabled="{{busy}}" loading="{{busy}}">确认订单与协议</button>
+    </view>
+    <view wx:else class="card">
+      <view>点击后使用微信收银台付款，核实到账后自动开通会员权益。</view>
+      <view class="notice">如已扣款，请先刷新支付结果，勿重复付款。</view>
+      <button class="primary-action" bindtap="payWechat" disabled="{{busy || clipboardBusy || showClipboardPrivacy}}" loading="{{busy}}">{{order.paymentAttempted ? '重新办理付款' : '微信支付 ¥' + amountLabel}}</button>
+    </view>
+  </view>
+  <button bindtap="load" disabled="{{loading || busy}}">刷新支付结果</button>
+  <button wx:if="{{!order && !loading}}" bindtap="openLogin">微信登录</button>
+  <button wx:if="{{order}}" bindtap="openHelp">联系工作人员</button>
+</view>

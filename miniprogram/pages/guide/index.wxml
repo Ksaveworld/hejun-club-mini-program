@@ -1,0 +1,18 @@
+<view class="page">
+  <view wx:if="{{selected}}"><view class="subtitle">会员指南</view><view class="page-title serif">{{selected.title}}</view><view class="subtitle">{{selected.summary}}</view><view class="card guide-body"><view wx:for="{{selected.paragraphs}}" wx:key="*this" class="paragraph">{{item}}</view></view></view>
+  <view wx:else class="card">暂时找不到这篇指南，请选择下方指南。</view>
+  <view wx:if="{{choiceGuide}}">
+    <view wx:for="{{plans}}" wx:key="id" class="card guide-body">
+      <view class="section-title serif">{{item.name}}</view>
+      <view class="paragraph">{{item.priceReady ? '¥' + item.priceLabel + '/年' : '当前年费待确认'}}{{item.isOrganization ? '（参考年费，预申请不收费）' : ''}}</view>
+      <view class="paragraph">适合：{{item.audience}}</view>
+      <view class="paragraph">核心权益：</view><view wx:for="{{item.benefits}}" wx:for-item="benefit" wx:key="*this" class="paragraph">· {{benefit}}</view>
+      <view class="paragraph">{{item.closing}}</view><view class="paragraph muted">{{item.rule}}</view>
+      <view wx:if="{{item.serviceNote}}" class="paragraph muted">{{item.serviceNote}}</view>
+    </view>
+    <view wx:if="{{plansError}}" class="footnote">{{plansError}}</view>
+    <view class="footnote">活动、匹配与名录机会由运营按具体条件安排。</view>
+  </view>
+  <button class="primary-action" bindtap="openMembers">查看会员权益</button><button class="secondary-action" bindtap="openHelp">查看常见问题</button>
+  <view class="section-title">其他入会指南</view><button wx:for="{{guides}}" wx:key="id" class="guide-link" data-id="{{item.id}}" bindtap="openGuide">{{item.title}} ›</button>
+</view>

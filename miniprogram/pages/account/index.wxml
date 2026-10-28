@@ -1,19 +1,75 @@
 <view class="page account-page">
-  <view class="heading"><view class="page-title serif">我的俱乐部</view><view class="subtitle">我的会籍、办理进度与服务记录</view></view>
-  <view wx:if="{{error}}" class="account-error">{{error}}<button class="text-action" bindtap="refreshAccount" disabled="{{loading}}">重试</button></view>
+  <view class="heading"><view class="page-title">我的俱乐部</view><view class="subtitle">我的会籍、办理进度与服务记录</view></view>
+  <view wx:if="{{error}}" class="account-error">{{error}}<button class="text-action" bindtap="retryAccount" disabled="{{loading || busy}}">{{logoutCleanupPending ? '重试退出清理' : '重试'}}</button></view>
   <view wx:if="{{loading}}" class="account-loading">正在更新我的状态…</view>
   <view wx:if="{{loggedIn}}">
-    <view class="profile-card card"><view class="profile-avatar serif">会</view><view class="profile-copy"><view class="profile-name">{{user.username}}</view><view class="profile-note">{{membership && membership.active ? '俱乐部会员' : '已登录'}}</view></view></view>
-    <view wx:if="{{journey}}" class="membership-card journey-card"><view class="membership-title">当前状态</view><view class="membership-status serif">{{journey.title}}</view><view wx:if="{{expiryLabel}}" class="membership-expiry">会籍有效期至 {{expiryLabel}}</view><view class="journey-note">{{journey.note}}</view><button class="journey-action" bindtap="openJourney" disabled="{{loading || busy}}">{{journey.action}} ›</button></view>
+    <view class="profile-card"><view class="profile-avatar" aria-hidden="true"><image wx:if="{{profileAvatar}}" class="profile-photo" src="{{profileAvatar}}" mode="aspectFill" /><block wx:else><view class="avatar-head"></view><view class="avatar-shoulders"></view></block></view><view class="profile-copy"><view class="profile-name">{{profileNickname || displayLabel}}</view><view class="profile-note">{{reviewAccess ? '审核只读账号' : membership && membership.active ? '俱乐部会员' : '已登录 · 了解会员权益与服务'}}</view></view></view>
+    <button wx:if="{{!reviewAccess}}" class="profile-edit" bindtap="openProfile" disabled="{{loading || busy}}">{{profileNickname ? '修改头像与昵称' : '首次完善头像与昵称'}} ›</button>
+    <button class="membership-card" bindtap="openMembers" disabled="{{loading || busy}}">
+      <image class="membership-art" src="/assets/ui/club-membership-guilloche-v1.jpg" mode="aspectFill" aria-hidden="true" />
+      <view class="membership-content"><view class="membership-title">俱乐部会籍</view><view class="membership-status">{{membershipLabel}}</view><view class="membership-expiry">{{reviewAccess ? '限时只读授权 · 不代表正式会籍' : expiryLabel ? (membership.active ? '有效期至 ' : '已于以下日期到期：') + expiryLabel : '查看会员权益与入会方式'}}<text class="pass-arrow">›</text></view></view>
+    </button>
+    <view wx:if="{{reviewAccess}}" class="card source-card"><view class="section-title">{{reviewLabel}}</view><view class="footnote">授权期限：{{reviewStartsLabel}} 至 {{reviewExpiryLabel}}（当前设备时间）</view><view class="footnote">{{reviewNotice}}</view><view class="footnote">这份限时访问授权不代表已付款、正式会员期限或可提现余额。</view></view>
+    <view wx:if="{{journey}}" class="card journey-card"><view class="journey-title">办理与服务进度</view><view class="journey-status">{{journey.title}}</view><view class="journey-note">{{journey.note}}</view><button class="journey-action" bindtap="openJourney" disabled="{{loading || busy}}">{{journey.action}} ›</button></view>
     <view wx:if="{{journeyError}}" class="account-error">{{journeyError}}</view>
-    <view class="account-menu">
-      <button class="account-menu-item" bindtap="openOrders"><text>申请与订单</text><text class="arrow">›</text></button>
-      <button class="account-menu-item" bindtap="openMembers"><text>会籍与权益说明</text><text class="arrow">›</text></button>
-      <button class="account-menu-item posts-entry" bindtap="openPosts"><text>我的投稿</text><text class="arrow">›</text></button>
-      <button class="account-menu-item invite-entry" bindtap="openInvite"><text>邀请与奖励</text><text class="arrow">›</text></button>
-      <button class="account-menu-item feedback-entry" bindtap="openFeedback"><text>帮助与反馈<text wx:if="{{unreadFeedback}}"> · {{unreadFeedback}} 条新回复</text></text><text class="arrow">›</text></button>
+    <view class="menu-group"><view class="menu-heading">我的服务</view><view class="account-menu">
+      <button class="account-menu-item" bindtap="openOrders"><text class="menu-label">申请与订单</text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openMembers"><text class="menu-label">会籍与权益说明</text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openCommunity"><text class="menu-label">会员交流</text><text class="arrow">›</text></button>
+      <button class="account-menu-item posts-entry" bindtap="openPosts"><text class="menu-label">我的投稿</text><text class="arrow">›</text></button>
+    </view></view>
+    <view class="menu-group"><view class="menu-heading">邀请与奖励</view><view class="account-menu">
+      <button class="account-menu-item invite-entry" bindtap="openInvite"><text class="menu-label">邀请与奖励</text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openRewards"><text class="menu-label">奖励流水与提现进度</text><text class="arrow">›</text></button>
+    </view></view>
+    <view class="menu-group"><view class="menu-heading">帮助与反馈</view><view class="account-menu">
+      <button class="account-menu-item feedback-entry" bindtap="openFeedback"><text class="menu-label">问题与回复<text wx:if="{{unreadFeedback}}"> · {{unreadFeedback}} 条新回复</text></text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openHelp"><text class="menu-label">常见问题与入会指南</text><text class="arrow">›</text></button>
+    </view></view>
+    <view class="card source-card reminder-card"><view class="section-title">会籍到期提醒</view>
+      <view wx:if="{{reviewAccess}}" class="footnote">审核访问截止时间显示在上方。此账号未取得正式会员会籍，不发起微信订阅或正式会员到期提醒。</view>
+      <view wx:elif="{{reminders && !reminders.enabled}}" class="footnote">{{reminders.reason}}</view>
+      <view wx:elif="{{reminders && reminders.enabled}}"><view class="footnote">你可以主动选择微信订阅。一次同意仅对应一次消息权限，30、15、7、3、1天提醒仍取决于实际授权与微信结果；未订阅也可查看本页会籍状态。</view>
+        <view class="footnote">提醒用途：{{reminders.purposeText}}</view><button wx:if="{{!reminderPending}}" class="secondary-action" disabled="{{busy || loading || reminderBusy}}" loading="{{reminderBusy}}" bindtap="subscribeReminder">选择微信到期提醒</button></view>
+      <view wx:else class="footnote">提醒状态暂未读取；会籍有效期仍以本页显示为准。</view>
+      <view wx:if="{{reminderError}}" class="account-error">{{reminderError}}</view><view wx:if="{{reminderMessage}}" class="footnote">{{reminderMessage}}</view>
+      <button wx:if="{{reminderPending}}" class="secondary-action" disabled="{{busy || loading || reminderBusy}}" bindtap="retryReminderChoice">用原记录重试保存选择</button>
+      <view wx:for="{{reminders.tasks}}" wx:key="id" class="footnote"><view>到期前 {{item.offsetDays}} 天 · {{item.dueLabel}}</view><view>{{item.statusLabel}}</view><view wx:if="{{item.reason}}">{{item.reason}}</view></view>
     </view>
+    <view wx:if="{{reviewAccess}}" class="card source-card"><view class="section-title">推荐及资金功能范围</view><view class="footnote">审核只读账号不生成经营推荐码，不登记真实推荐来源，不获得奖励或提现资格。相关入口仍保留，点击会说明当前体验限制。</view></view>
+    <view wx:elif="{{user}}" class="card source-card"><view class="section-title">我的推荐信息</view><view class="source-title">我的推荐码</view><view class="source-code">{{user.referralCode || '尚未生成'}}</view><view class="source-title">入会推荐来源</view><view class="source-code">{{user.sourceCode || '未指定 · 默认值待配置'}}</view><view class="source-title">来源状态</view><view class="source-code">{{sourceState}}</view><view class="footnote">推荐关系不代表已取得奖励资格，奖励明细及提现尚未开放。</view><view class="footnote">手机验证：{{user.phoneVerified ? '已验证' : '未验证'}}</view></view>
+    <button wx:if="{{membership.active && membership.planId === 'star'}}" class="secondary-action" bindtap="openExclusiveContacts">星级专属服务联系人</button>
     <button class="logout-action" loading="{{busy}}" disabled="{{loading || busy}}" bindtap="logout">退出当前账号</button>
   </view>
-  <view wx:elif="{{!loading}}" class="guest-card card"><view class="guest-title serif">欢迎来到俱乐部</view><view class="guest-copy">先了解会员权益。登录后可办理入会，并找回自己的申请和服务记录。</view><button class="primary-action" bindtap="openMembers">了解会员权益</button><button class="guest-members" bindtap="openLogin">登录，查看我的记录 ›</button><button class="guest-members" bindtap="openFeedback">帮助与反馈</button></view>
+  <view wx:elif="{{!loading}}" class="guest-card">
+    <view class="profile-card"><view class="profile-avatar" aria-hidden="true"><view class="avatar-head"></view><view class="avatar-shoulders"></view></view><view class="profile-copy"><view class="profile-name">访客浏览</view><view class="profile-note">欢迎来到俱乐部 · 了解会员权益与服务</view></view></view>
+    <view class="membership-card guest-pass">
+      <image class="membership-art" src="/assets/ui/club-membership-guilloche-v1.jpg" mode="aspectFill" aria-hidden="true" />
+      <view class="membership-content">
+        <view class="membership-title">俱乐部会籍</view>
+        <view class="membership-status">游客 · 尚未开通会员</view>
+        <button class="guest-benefits" bindtap="openMembers">了解会员权益<text class="pass-arrow">›</text></button>
+      </view>
+    </view>
+    <view class="menu-group"><view class="account-menu">
+      <button class="account-menu-item" bindtap="openLogin"><text class="menu-label">登录，查看我的记录</text><text class="arrow">›</text></button>
+    </view></view>
+    <view class="menu-group"><view class="menu-heading">我的服务</view><view class="account-menu">
+      <button class="account-menu-item" bindtap="openLogin"><text class="menu-label">申请与订单</text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openMembers"><text class="menu-label">会籍与权益说明</text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openLogin"><text class="menu-label">会员交流</text><text class="arrow">›</text></button>
+      <button class="account-menu-item posts-entry" bindtap="openLogin"><text class="menu-label">我的投稿</text><text class="arrow">›</text></button>
+    </view></view>
+    <view class="menu-group"><view class="menu-heading">邀请与奖励</view><view class="account-menu">
+      <button class="account-menu-item invite-entry" bindtap="openLogin"><text class="menu-label">邀请与奖励</text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openLogin"><text class="menu-label">奖励流水与提现进度</text><text class="arrow">›</text></button>
+    </view></view>
+    <view class="menu-group"><view class="menu-heading">帮助与反馈</view><view class="account-menu">
+      <button class="account-menu-item feedback-entry" bindtap="openLogin"><text class="menu-label">问题与回复</text><text class="arrow">›</text></button>
+      <button class="account-menu-item" bindtap="openHelp"><text class="menu-label">常见问题与入会指南</text><text class="arrow">›</text></button>
+    </view></view>
+    <view class="card source-card"><view class="section-title">会籍到期提醒</view><view class="footnote">登录后查看会籍有效期和提醒状态。</view></view>
+    <view class="card source-card"><view class="section-title">我的推荐信息</view><view class="footnote">登录后查看本人的推荐码和来源状态。</view></view>
+    <view class="guest-copy">先了解会员权益。登录后可办理入会，并找回自己的申请和服务记录。</view>
+  </view>
 </view>

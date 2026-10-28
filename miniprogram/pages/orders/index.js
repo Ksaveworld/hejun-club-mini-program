@@ -1,15 +1,17 @@
 const { returnToPrevious } = require('../../utils/navigation');
 const { api, hasSession, sessionStamp, isCurrentSession, money, statusLabels } = require('../../utils/api');
-const { plans } = require('../../data/content');
+const { orderMembership, orderAftercare, memberNextStep } = require('../../utils/membership-display');
+const { chineseDateTime } = require('../../utils/display-time');
 
 function sessionExpired(error) { return error && (error.status === 401 || error.statusCode === 401); }
-function dateLabel(value) { return value ? new Date(value).toLocaleString() : ''; }
+function dateLabel(value) { return value ? chineseDateTime(value) : ''; }
 function formatOrder(order) {
-  const plan = plans.find(item => item.id === order.planId);
-  return Object.assign({}, order, {
-    planName: plan ? plan.name : '会员订单', amountLabel: money(order.amountCents),
+  return Object.assign({}, order, orderMembership(order), orderAftercare(order), {
+    amountLabel: money(order.amountCents),
+    hasMemberNextStep: orderAftercare(order).hasMemberNextStep && !order.cancellation?.paymentReconciliationRequired,
+    refundCompletedLabel: dateLabel(order.aftercare?.refundCompletedAt),
     actualPaidLabel: order.actualPaidCents === null || order.actualPaidCents === undefined ? '' : money(order.actualPaidCents),
-    statusLabel: statusLabels[order.status] || order.status, createdLabel: dateLabel(order.createdAt),
+    statusLabel: statusLabels[order.status] || order.status, createdLabel: chineseDateTime(order.createdAt),
     paidLabel: dateLabel(order.paidAt), expiryLabel: dateLabel(order.expiresAt), reviewedLabel: dateLabel(order.reviewedAt),
     canCancel: ['pending', 'review'].includes(order.status)
   });
@@ -18,8 +20,8 @@ function formatOrder(order) {
 Page({
   onPageScroll(event) { if(!this.data.loading && !this._restoringScroll) this._scrollTop=event.scrollTop; },
   restoreListPosition() { if(!this.data.detailMode && wx.nextTick && this._scrollTop) { this._restoringScroll=true;wx.nextTick(()=>{ if(!this._unloaded)wx.pageScrollTo({scrollTop:this._scrollTop,duration:0});this._restoringScroll=false; }); } },
-  data: { detailMode: false, moreOpen: false, loggedIn: false, orders: [], selectedId: '', selectedOrder: null, loading: false, detailLoading: false, busy: false, error: '', message: '' },
-  onLoad(options) { this.setData({ detailMode: !!options.id, selectedId: options.id || '' }); },
+  data: { memberNextStep, detailMode: false, moreOpen: false, loggedIn: false, orders: [], selectedId: '', selectedOrder: null, loading: false, detailLoading: false, busy: false, cancelUncertain: false, error: '', message: '' },
+  onLoad(options) { this._routeOrderId = options.id || ''; this.setData({ detailMode: !!this._routeOrderId, selectedId: this._routeOrderId }); },
   async onPullDownRefresh() { try { await this.refreshOrders(); } finally { wx.stopPullDownRefresh(); } },
   openOrder(event) {
     if (this.data.loading || !this._orderStamp || !isCurrentSession(this._orderStamp)) return;
@@ -33,12 +35,16 @@ Page({
   },
   toggleMore() { this.setData({ moreOpen: !this.data.moreOpen }); },
   openHelp() { if (this.data.selectedOrder && this._orderStamp && isCurrentSession(this._orderStamp)) wx.navigateTo({url:'/pages/feedback/index?mode=new&relatedOrderId='+encodeURIComponent(this.data.selectedOrder.id)}); },
+  openPayment(){if(!this.data.cancelUncertain && !this.data.busy && !this.data.loading && ['pending','paid'].includes(this.data.selectedOrder?.status) && !this.data.selectedOrder?.cancellation?.paymentReconciliationRequired && this._orderStamp && isCurrentSession(this._orderStamp))wx.navigateTo({url:'/pages/payment/index?id='+encodeURIComponent(this.data.selectedOrder.id)});},
+  openEnterprise(){if(this.data.selectedOrder?.hasMemberNextStep && hasSession() && this._orderStamp && isCurrentSession(this._orderStamp))wx.navigateTo({url:'/pages/enterprise-intake/index'});},
   backToRecords() { returnToPrevious(this,'/pages/orders/index'); },
   onUnload() { this._unloaded = true; },
   onShow() { this.refreshOrders(); },
   clearOrders() {
     this._orderStamp = null;
-    this.setData({ loggedIn: hasSession(), orders: [], selectedId: '', selectedOrder: null, message: '' });
+    // Keep the public route ID so returning from login can reread the same
+    // order. Contact data and actions stay empty until the server authorizes it.
+    this.setData({ loggedIn: hasSession(), orders: [], selectedId: this.data.detailMode ? this._routeOrderId || '' : '', selectedOrder: null, cancelUncertain: false, message: '' });
   },
   assertContext(stamp) {
     if (this._unloaded || !hasSession() || !stamp || !isCurrentSession(stamp)) {
@@ -47,8 +53,9 @@ Page({
   },
   showFailure(error, fallback) {
     if (this._unloaded) return;
-    if (sessionExpired(error) || error.code === 'CONTEXT_CHANGED') this.clearOrders();
-    this.setData({ error: sessionExpired(error) ? '登录已过期，请重新登录后查看订单。' : (error.message || fallback) });
+    const expired = sessionExpired(error) || !hasSession();
+    if (expired || error.code === 'CONTEXT_CHANGED') this.clearOrders();
+    this.setData({ error: expired ? '登录已过期，请重新登录后查看订单。' : (error.message || fallback) });
   },
   async refreshOrders() {
     if (this._unloaded) return;
@@ -58,6 +65,7 @@ Page({
       this.clearOrders(); return;
     }
     const stamp = sessionStamp();
+    const uncertainSnapshot = this.data.cancelUncertain ? { orders: this.data.orders, selectedOrder: this.data.selectedOrder } : null;
     this._orderStamp = stamp;
     this.setData({ loggedIn: true, loading: true, error: '', message: '', orders: [], selectedOrder: null });
     try {
@@ -70,8 +78,13 @@ Page({
         this.assertContext(stamp);
         this.setData({ selectedOrder: formatOrder(detail.order) });
       }
+      this.setData({ cancelUncertain: false });
     } catch (error) {
       this.showFailure(error, '暂时无法读取订单，请重试。');
+      if (uncertainSnapshot && !this._unloaded && hasSession() && isCurrentSession(stamp) && error.code !== 'CONTEXT_CHANGED'
+        && (error.status === undefined || error.status >= 500)) {
+        this.setData({ ...uncertainSnapshot, cancelUncertain: true, error: '订单状态暂时读取失败，取消结果仍未确认。请稍后刷新；以下为上次读取的订单。' });
+      }
     } finally { if (!this._unloaded) this.setData({ loading: false }); }
   },
   async toggleOrder(event) {
@@ -96,7 +109,7 @@ Page({
   },
   async cancelOrder() {
     const order = this.data.selectedOrder;
-    if (!order || !order.canCancel || this.data.busy || this.data.loading || this.data.detailLoading) return;
+    if (!order || !order.canCancel || this.data.cancelUncertain || this.data.busy || this.data.loading || this.data.detailLoading) return;
     this.setData({ busy: true, error: '', message: '' });
     const stamp = this._orderStamp;
     let sent = false;
@@ -112,12 +125,19 @@ Page({
       const response = await api('/orders/' + encodeURIComponent(order.id) + '/cancel', {});
       this.assertContext(stamp);
       const updated = formatOrder(response.order);
-      this.setData({ selectedOrder: updated, orders: this.data.orders.map(item => item.id === updated.id ? updated : item), message: '订单已取消，原记录已保留。' });
+      this.setData({ selectedOrder: updated, orders: this.data.orders.map(item => item.id === updated.id ? updated : item) });
+      if (updated.status !== 'cancelled') throw Object.assign(new Error('订单未取消，请核对当前订单状态。'), {status:409});
+      this.setData({ selectedId: '', selectedOrder: null, moreOpen: false, cancelUncertain: false, message: '订单已取消，原记录已保留。' });
+      if (this.data.detailMode) {
+        this._routeOrderId = '';
+        this.setData({detailMode:false});
+        wx.redirectTo({url:'/pages/orders/index'});
+      }
     } catch (error) {
       this.showFailure(error, '取消未完成，请刷新订单状态后重试。');
-      if (!this._unloaded && sent && isCurrentSession(stamp) && (error.status === undefined || error.status >= 500)) {
-        this.setData({ orders: [], selectedOrder: null, message: '',
-          error: '取消请求已发出，但结果暂未确认。请刷新订单状态后再操作。' });
+      if (!this._unloaded && sent && hasSession() && isCurrentSession(stamp) && (error.status === undefined || error.status >= 500)) {
+        this.setData({ cancelUncertain: true, message: '',
+          error: '取消请求已发出，但结果暂未确认。原订单已保留，请先刷新状态；核实前不要付款或再次取消。' });
       }
     }
     finally { if (!this._unloaded) this.setData({ busy: false }); }

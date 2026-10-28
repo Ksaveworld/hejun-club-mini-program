@@ -3,7 +3,7 @@ import { documentInfo } from './article-documents.mjs';
 import { audit, transaction } from './db.mjs';
 import { requireRule, textField, validateKey, membership, plans, digest, nowISO } from './domain.mjs';
 
-function accessPolicy(value = { visibility: 'unconfigured', planIds: [] }) {
+export function accessPolicy(value = { visibility: 'unconfigured', planIds: [] }) {
   requireRule(value && typeof value === 'object' && !Array.isArray(value), '请明确内容阅读范围');
   requireRule(['unconfigured', 'public', 'plans'].includes(value.visibility), '阅读范围不正确');
   requireRule(Array.isArray(value.planIds) && value.planIds.every(id => Object.hasOwn(plans, id)), '会员档位不正确');
@@ -18,6 +18,7 @@ function content(input) {
   return { title: textField(input.title, '标题', 80, true), summary: textField(input.summary ?? '', '摘要', 180),
     body: textField(input.body ?? '', '正文', 4000), category: input.category, access: accessPolicy(input.access) };
 }
+export { content as prepareArticleContent };
 function adminView(db,row) {
   return { id: row.id, title: row.title, summary: row.summary, body: row.body, category: row.category,
     access: JSON.parse(row.access_json), status: row.status, revision: row.revision,
@@ -77,7 +78,7 @@ export function transitionArticle(db, actor, id, action, revision) {
     return adminView(db,db.prepare('SELECT * FROM articles WHERE id=?').get(id));
   });
 }
-function canRead(row, actor, member) {
+export function canRead(row, actor, member) {
   if (row.status !== 'published') return false;
   let access;
   try { access = accessPolicy(JSON.parse(row.access_json)); } catch { return false; }
@@ -98,16 +99,20 @@ export function requireFullArticle(db,actor,id){
 export function requireArticlePreview(db,id){
   requireRule(canPreview(db,db.prepare('SELECT * FROM articles WHERE id=?').get(id)),'试看不存在或已撤下',404);
 }
+function canSeeReportCatalog(db,row){
+  if(row?.status!=='published'||!documentInfo(db,row.id))return false;
+  try{return accessPolicy(JSON.parse(row.access_json)).visibility==='plans';}catch{return false;}
+}
 export function listReadableArticles(db, actor) {
   const member = actor ? membership(db, actor.id) : null;
   const rows = db.prepare("SELECT id,title,summary,category,published_at,status,access_json FROM articles WHERE status='published' ORDER BY published_at DESC,id").all()
-    .filter(row => canRead(row, actor, member)||canPreview(db,row));
+    .filter(row => canRead(row, actor, member)||canPreview(db,row)||canSeeReportCatalog(db,row));
   return { articles: rows.slice(0, 100).map(row=>({...summary(row),fullAccess:canRead(row,actor,member),document:documentInfo(db,row.id)})), hasMore: rows.length > 100 };
 }
 export function readArticle(db, actor, id) {
   const row = db.prepare('SELECT * FROM articles WHERE id=?').get(id);
   const member = actor ? membership(db, actor.id) : null;
   const fullAccess=row&&canRead(row,actor,member);
-  requireRule(row && (fullAccess||canPreview(db,row)), '内容不存在或当前不可阅读', 404);
+  requireRule(row && (fullAccess||canPreview(db,row)||canSeeReportCatalog(db,row)), '内容不存在或当前不可阅读', 404);
   return { ...summary(row), body: fullAccess?row.body:'', fullAccess:!!fullAccess, document:documentInfo(db,row.id) };
 }

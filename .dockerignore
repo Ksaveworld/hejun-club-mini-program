@@ -1,0 +1,15 @@
+**/private
+**/backups
+**/.env*
+**/*.sqlite*
+**/*.db
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+node_modules
+work
+docs
+.git
+*.zip
+bundle-manifest.json

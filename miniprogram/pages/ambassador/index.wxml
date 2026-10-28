@@ -1,0 +1,7 @@
+<view class="page"><view class="page-title serif">申请成为推荐大使</view><view class="subtitle">连接更多跨境同行，留下推荐意向。</view><view wx:if="{{error}}" class="error">{{error}}</view>
+ <view wx:if="{{application}}" class="card"><view class="section-title">{{application.status==='pending'?'申请已收到，待联系':'已有跟进记录'}}</view><view>联系信息：{{application.contact}}</view><view wx:if="{{application.staffNote}}">跟进说明：{{application.staffNote}}</view><view class="subtitle">申请编号：{{application.id}}</view></view>
+ <view wx:elif="{{ready && canApply}}" class="card"><view>联系微信或电话</view><input data-field="contact" value="{{contact}}" bindinput="change" maxlength="100" disabled="{{busy}}" placeholder="方便运营联系您的方式"/><view>推荐意向（选填）</view><textarea data-field="introduction" value="{{introduction}}" bindinput="change" maxlength="500" disabled="{{busy}}"/><checkbox-group bindchange="consent"><label><checkbox checked="{{consent}}" disabled="{{busy}}"/>同意保存申请信息，以便运营人员联系</label></checkbox-group><button class="primary-action" disabled="{{busy}}" loading="{{busy}}" bindtap="submit">提交大使申请</button></view>
+ <view wx:elif="{{ready}}" class="card">有效付费会员可以申请。<button bindtap="openMembers">查看会员权益</button></view>
+ <button wx:if="{{error && !ready}}" bindtap="openLogin">前往登录</button>
+ <view class="subtitle">本次为申请登记，尚未开始计奖。奖励与结算以正式开放时的规则为准。</view>
+</view>

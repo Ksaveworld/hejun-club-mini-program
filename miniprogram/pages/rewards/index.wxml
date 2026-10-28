@@ -1,0 +1,44 @@
+<view class="page rewards-page">
+  <view class="heading"><view class="page-title serif">奖励与提现</view><view class="subtitle">自己的奖励流水和提现办理进度</view></view>
+  <view wx:if="{{error}}" class="notice error">{{error}}</view>
+  <view wx:if="{{message}}" class="notice">{{message}}</view>
+  <view wx:if="{{loading}}" class="notice">正在核对奖励记录…</view>
+  <view wx:if="{{!loggedIn && !loading}}" class="card"><view>请先登录，查看自己的奖励与提现记录。</view><button class="primary-action" bindtap="openLogin">登录后查看</button></view>
+  <block wx:if="{{loggedIn}}">
+    <view wx:if="{{!enabled}}" class="card"><view class="section-title">奖励规则待确认</view><view>{{reason || '客户确认奖励规则和办理人员后，开放计奖及提现。推荐关系不会自动变成可提现奖励。'}}</view></view>
+    <view wx:if="{{balance}}" class="card"><view class="balance-main"><text>可申请提现</text><view class="page-title">¥{{balance.availableCents}}</view></view><view class="balance-row"><text>待确认</text><text>¥{{balance.pendingCents}}</text></view><view class="balance-row"><text>提现处理中</text><text>¥{{balance.reservedCents}}</text></view><view class="balance-row"><text>已实际打款</text><text>¥{{balance.paidCents}}</text></view><view class="balance-row"><text>待冲抵</text><text>¥{{balance.debtCents}}</text></view></view>
+    <view class="card">
+      <view class="section-title">本人月账单</view>
+      <picker wx:if="{{enabled}}" mode="date" fields="month" value="{{statementMonth}}" start="1970-01" end="{{statementEnd}}" bindchange="changeMonth" disabled="{{loading || busy}}"><view class="recipient">{{statementMonth}} · 北京时间 ›</view></picker>
+      <view wx:if="{{statementLoading}}" class="footnote">正在核对本月流水…</view>
+      <view wx:if="{{statementReason}}" class="footnote">{{statementReason}}</view>
+      <view wx:if="{{statementError}}" class="notice error">{{statementError}}</view>
+      <block wx:if="{{statement}}">
+        <view class="footnote">{{statement.provisional ? '本月尚未结束，以下为截至当前的预览。' : '按该月份已记录的本人流水查询。'}} 截至 {{statement.asOfLabel}}（北京时间）。</view>
+        <view class="balance-row"><text>期初账面净额</text><text>¥{{statement.openingLabel}}</text></view>
+        <view class="balance-row"><text>本月新增奖励</text><text>＋¥{{statement.totalsLabels.earnedCents}}</text></view>
+        <view class="balance-row"><text>本月奖励冲回</text><text>－¥{{statement.totalsLabels.reversedCents}}</text></view>
+        <view class="balance-row"><text>本月实际转出</text><text>－¥{{statement.totalsLabels.paidCents}}</text></view>
+        <view class="balance-row"><text>期末账面净额</text><text>¥{{statement.closingLabel}}</text></view>
+        <view class="balance-row"><text>本月申请提现（非转出）</text><text>¥{{statement.totalsLabels.requestedCents}}</text></view>
+        <view class="balance-row"><text>期末待确认</text><text>¥{{statement.closingLabels.pendingCents}}</text></view>
+        <view class="balance-row"><text>期末已确认冻结</text><text>¥{{statement.closingLabels.frozenCents}}</text></view>
+        <view class="balance-row"><text>期末提现占用</text><text>¥{{statement.closingLabels.reservedCents}}</text></view>
+        <view class="balance-row"><text>期末可申请</text><text>¥{{statement.closingLabels.withdrawableCents}}</text></view>
+        <view class="balance-row"><text>期末待核对负债</text><text>¥{{statement.closingLabels.debtCents}}</text></view>
+        <view class="balance-row"><text>俱乐部承担手续费</text><text>¥{{statement.totalsLabels.feesCoveredByClubCents}}</text></view>
+        <view wx:for="{{statement.explanations}}" wx:key="*this" class="footnote">{{item}}</view>
+        <view class="footnote">对账时间要求：{{statement.statementDueDate}}前；打款时间要求：{{statement.payoutDueDate}}前。时间要求不代表已审批、已转出或已到账。</view>
+        <view wx:for="{{statement.entries}}" wx:key="id" class="record"><view class="balance-row"><text>{{item.typeLabel}}</text><text wx:if="{{item.amountLabel}}">¥{{item.amountLabel}}</text></view><view class="footnote">记账：{{item.timeLabel}}</view><view wx:if="{{item.paidAtLabel}}" class="footnote">实际转出：{{item.paidAtLabel}}</view><view wx:if="{{item.reason}}" class="footnote">{{item.reason}}</view></view>
+        <view wx:if="{{!statement.entries.length}}" class="footnote">该月没有本人账本流水；期初及期末仍按实际账本核对。</view>
+      </block>
+      <button wx:if="{{enabled}}" class="secondary-action" bindtap="retryStatement" disabled="{{loading || busy || statementLoading}}">{{statementError ? '重试月账单' : '刷新月账单'}}</button>
+    </view>
+    <view wx:if="{{hasPending}}" class="card"><view>有一笔提交结果待确认，先查询或重试原申请。</view><button class="secondary-action" bindtap="retryPending" loading="{{busy}}" disabled="{{busy || loading}}">重试原申请</button></view>
+    <view wx:elif="{{canWithdraw}}" class="card"><view class="section-title">申请提现</view><view class="footnote">¥{{minLabel}}起提。财务审核后由秘书长审批，再登记实际打款结果。</view><input type="digit" value="{{amount}}" bindinput="changeAmount" placeholder="请输入提现金额" disabled="{{busy}}" maxlength="11"/><picker value="{{recipientIndex}}" range="{{recipients}}" range-key="maskedLabel" bindchange="changeRecipient" disabled="{{busy}}"><view class="recipient">{{recipients[recipientIndex].maskedLabel}} ›</view></picker><checkbox-group bindchange="changeConsent"><label><checkbox value="agree" checked="{{consent}}" disabled="{{busy}}"/>我确认已登记的收款方式，并了解审批不代表到账。</label></checkbox-group><button class="primary-action" bindtap="submit" loading="{{busy}}" disabled="{{busy || loading}}">提交提现申请</button></view>
+    <view wx:elif="{{enabled && !hasPending}}" class="footnote">达到提现门槛且客户已登记收款方式后可申请；已有申请仍按下方进度办理。</view>
+    <view class="card"><view class="section-title">提现进度</view><view wx:for="{{withdrawals}}" wx:key="id" class="record"><view class="balance-row"><text>¥{{item.amountLabel}}</text><text>{{item.statusLabel}}</text></view><view wx:if="{{item.reason}}">{{item.reason}}</view><view class="footnote">{{item.id}}</view></view><view wx:if="{{!withdrawals.length && enabled}}" class="footnote">暂无提现申请。</view></view>
+    <view class="card"><view class="section-title">奖励流水</view><view wx:for="{{entries}}" wx:key="id" class="record"><view class="balance-row"><text>¥{{item.amountLabel}}</text><text>{{item.statusLabel}}</text></view><view class="footnote">{{item.orderId}}</view></view><view wx:if="{{!entries.length && enabled}}" class="footnote">暂无奖励记录。仅根据已核实付款与批准规则记账。</view></view>
+  </block>
+  <button class="secondary-action" bindtap="refresh" disabled="{{loading || busy}}">刷新记录</button><button class="text-action" bindtap="openFeedback">对奖励或提现有疑问</button>
+</view>

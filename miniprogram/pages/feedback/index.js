@@ -9,7 +9,7 @@ Page({
   restoreListPosition() { if(this.data.mode==='list' && wx.nextTick && this._scrollTop) { this._restoringScroll=true;wx.nextTick(()=>{ if(!this._unloaded)wx.pageScrollTo({scrollTop:this._scrollTop,duration:0});this._restoringScroll=false; }); } },
   data: { mode: 'list', ticketId: '', relatedOrderId: '', followup: '', loggedIn: false, ready: false, loading: false, busy: false, title: '', body: '', category: 'other',
     categories: ['账号问题', '订单问题', '内容问题', '其他问题'], categoryIndex: 3,
-    tickets: [], selected: null, nextCursor: null, error: '', message: '', draftNote: '' },
+    tickets: [], visibleTickets: [], query: '', selected: null, nextCursor: null, error: '', message: '', draftNote: '' },
   onLoad(options = {}) { this._generation = 0; this._draft = { title: '', body: '', category: options.relatedOrderId ? 'order' : 'other', categoryIndex: options.relatedOrderId ? 1 : 3 }; this.setData({mode: ['new','detail'].includes(options.mode) ? options.mode : 'list', ticketId: options.id || '', relatedOrderId: options.relatedOrderId || ''}); },
   async onPullDownRefresh() { try { await this.refresh(); } finally { wx.stopPullDownRefresh(); } },
   newFeedback() { wx.navigateTo({url:'/pages/feedback/index?mode=new'}); },
@@ -18,13 +18,19 @@ Page({
     const id=event.currentTarget.dataset.id; if(this.data.tickets.some(t=>t.id===id)) wx.navigateTo({url:'/pages/feedback/index?mode=detail&id='+encodeURIComponent(id)});
   },
   backToList() { returnToPrevious(this,'/pages/feedback/index'); },
+  filterTickets(tickets, query = this.data.query) { return tickets.filter(ticket => (ticket.title + ' ' + (ticket.summary || '')).includes(query.trim())); },
+  changeQuery(event) {
+    if (this.data.mode !== 'list' || !this.data.ready || !this.current(this._stamp, this._generation)) return;
+    this._query = event.detail.value; this._queryStamp = this._stamp;
+    this.setData({ query: this._query, visibleTickets: this.filterTickets(this.data.tickets, this._query) });
+  },
   changeFollowup(event) { if(!this.data.busy && this.data.ready && this.current(this._stamp,this._generation)) { this._replyDraft=event.detail.value; this.setData({followup:event.detail.value}); this.saveReplyDraft(); } },
   onShow() { this._visible = true; return this.refresh(); },
   onHide() { this._visible = false; this.clear(); },
   onUnload() { this._unloaded = true; this._generation++; this._draft = {}; },
   clear() {
     this._generation++; this._stamp = null;
-    this.setData({ ready: false, loggedIn: hasSession(), loading: false, busy: false, title: '', body: '', followup: '', tickets: [], selected: null, nextCursor: null });
+    this.setData({ ready: false, loggedIn: hasSession(), loading: false, busy: false, title: '', body: '', followup: '', tickets: [], visibleTickets: [], query: '', selected: null, nextCursor: null });
   },
   current(stamp, generation) {
     return !this._unloaded && this._visible && hasSession() && this._generation === generation && isCurrentSession(stamp);
@@ -37,6 +43,7 @@ Page({
       this._draft = { title: '', body: '', category: 'other', categoryIndex: 3 }; this._key = ''; this._payload = ''; this._replyDraft = ''; this._replyKey = ''; this._replyPayload = ''; this.setData({relatedOrderId:''});
     }
     this._owner = session.user.id; this._scope = stamp.scope;
+    if (!this._queryStamp || !isCurrentSession(this._queryStamp)) { this._query = ''; this._queryStamp = null; }
     const ownerKey = stamp.scope + ':' + session.user.id;
     if (this.data.mode === 'new' && this._draftLoadedFor !== ownerKey) {
       this._draftLoadedFor = ownerKey;
@@ -49,7 +56,7 @@ Page({
       const saved = drafts.read(stamp.scope, session.user.id, 'feedback:reply:' + this.data.ticketId);
       if (saved) { this._replyDraft = saved.body || ''; this._replyKey = saved.key || ''; this._replyPayload = saved.payload || ''; }
     }
-    this.setData(Object.assign({ loggedIn: true, followup: this._replyDraft || '' }, this._draft));
+    this.setData(Object.assign({ loggedIn: true, followup: this._replyDraft || '', query: this._query || '' }, this._draft));
   },
   failure(error, generation) {
     if (this._unloaded || !this._visible || generation !== this._generation) return;
@@ -69,7 +76,8 @@ Page({
         return;
       }
       const result = await api('/feedback'); this.assert(stamp, generation);
-      this._stamp = stamp; this.setData({ ready: true, tickets: result.tickets.map(format), nextCursor: result.nextCursor });
+      const tickets = result.tickets.map(format);
+      this._stamp = stamp; this.setData({ ready: true, tickets, visibleTickets: this.filterTickets(tickets), nextCursor: result.nextCursor });
       this.restoreListPosition();
     } catch (error) { this.failure(error, generation); }
     finally { if (!this._unloaded && generation === this._generation) this.setData({ loading: false }); }
@@ -162,7 +170,8 @@ Page({
     if (!this.data.nextCursor || !this.data.ready || this.data.busy || this.data.loading) return;
     const stamp = this._stamp, generation = this._generation; this.setData({ busy: true });
     try { this.assert(stamp, generation); const result = await api('/feedback/before/' + this.data.nextCursor); this.assert(stamp, generation);
-      this.setData({ tickets: this.data.tickets.concat(result.tickets.map(format)), nextCursor: result.nextCursor }); }
+      const tickets = this.data.tickets.concat(result.tickets.map(format));
+      this.setData({ tickets, visibleTickets: this.filterTickets(tickets), nextCursor: result.nextCursor }); }
     catch (error) { this.failure(error, generation); }
     finally { if (!this._unloaded && generation === this._generation) this.setData({ busy: false }); }
   },

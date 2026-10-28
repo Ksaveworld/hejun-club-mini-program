@@ -1,6 +1,12 @@
 function normalizeCode(value) {
   return typeof value === 'string' && /^[a-z0-9]{6}$/i.test(value) ? value.toUpperCase() : '';
 }
+function sceneReferral(value) {
+  if(typeof value!=='string'||value.length>96)return '';
+  let scene;try{scene=decodeURIComponent(value);}catch{return '';}
+  // Official mini-program codes carry a short scene string, not a trusted URL.
+  return normalizeCode(scene)||normalizeCode(/^(?:ref|referral)=([a-z0-9]{6})$/i.exec(scene)?.[1]);
+}
 function contextChanged() {
   const error = new Error('账号或测试环境已变化，请刷新后继续。');
   error.code = 'CONTEXT_CHANGED';
@@ -31,7 +37,7 @@ function createReferralContext({ getScope, read, write, remove }) {
   }
   function capture(query = {}) {
     ensure();
-    for (const value of [query.referral, query.ref]) {
+    for (const value of [query.referral, query.ref, sceneReferral(query.scene)]) {
       const code = normalizeCode(value);
       if (code && !state.codes.includes(code) && state.codes.length < 20) state.codes.push(code);
     }

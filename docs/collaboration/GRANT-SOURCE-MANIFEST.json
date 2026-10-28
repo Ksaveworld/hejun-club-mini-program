@@ -1,0 +1,1862 @@
+{
+  "sourceCommit": "0e154da7df054329f5f6074e4acb99c1647fa742",
+  "integrationBase": "121f13af9d5634b38e2591de7dfa46390f877bfc",
+  "candidateCommit": "f9153aaf300bc3795744503af6d152c6f40cb302",
+  "files": [
+    {
+      "path": ".dockerignore",
+      "gitBlob": "a265ad910fa80856b866e970bd0a44b11d8b4d7d",
+      "source": "integration"
+    },
+    {
+      "path": ".gitattributes",
+      "gitBlob": "dddb7d783b234ac0fbb0669987c5e8586d3df291",
+      "source": "integration"
+    },
+    {
+      "path": ".gitignore",
+      "gitBlob": "33507e359430fd49e5c22fdc81422b1ba1f62a76",
+      "source": "integration"
+    },
+    {
+      "path": "Dockerfile",
+      "gitBlob": "bce5b577fb9d772c036caef04a3f8b92556ae4ef",
+      "source": "integration"
+    },
+    {
+      "path": "docs/collaboration/GRANT-01-康莹后端任务书.md",
+      "gitBlob": "dfcabb764d5e0f63207c80377879ee29b0ad6809",
+      "source": "integration"
+    },
+    {
+      "path": "docs/tasks/GRANT-00.md",
+      "gitBlob": "f29239df4331388ba8a4564823769717a186cdb8",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/.gitignore",
+      "gitBlob": "1173af9682335dbacd62ed65a219363e5ddc9714",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/README.md",
+      "gitBlob": "2c814bc8135a989d69bd7d9031361e8ec92dc953",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/app.js",
+      "gitBlob": "f09cc541de5a2fe71f3aa68f8626c3478f56070d",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/app.json",
+      "gitBlob": "ce000b4e7e566ff14df72ac5d4c89cd38917752f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/app.wxss",
+      "gitBlob": "b18c2275238e23c464364dfe8b53e9ef68cf5bed",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/cabc-official-logo.png",
+      "gitBlob": "be8282938d2defc566f655a8ff17f177e1a18586",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/AllApplication-outline.png",
+      "gitBlob": "e666917ae63f08d36f4aeb2a0710d877ad4f5ef1",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/AllApplication-selected.png",
+      "gitBlob": "db891320206ffcf55df23e686b5cfd83b1c1ad50",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/BookOpen-duotone.png",
+      "gitBlob": "c91fe55629e0ae1e2c4a987c0fa96c53778d0421",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/Edit-duotone.png",
+      "gitBlob": "e74dac7c02858b3c50a58b0221990139b4550798",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/Home-outline.png",
+      "gitBlob": "c13c6042d50fc43a882b516708b7cad6e9c7ccc9",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/Home-selected.png",
+      "gitBlob": "33810358478d635ca44badef54d3eda3397a5181",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/LICENSE-IconPark",
+      "gitBlob": "f3c33bf9d35d28cfd70153878a3a7f3590e63a28",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/Order-duotone.png",
+      "gitBlob": "d8b4f85d2f036de41db2ccb90988436a7d84bffc",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/People-outline.png",
+      "gitBlob": "adea90752cbedc862a538a166d66d79fa3002fd1",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/People-selected.png",
+      "gitBlob": "fc338554da9e552b877c220a6222b41210cf2d37",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/PeoplesTwo-duotone.png",
+      "gitBlob": "5017b116fa245a489efca34c732ffdef7b96ca75",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/README-services.md",
+      "gitBlob": "959f64128ef082594ce377d6e538241f5f8cd900",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/README.md",
+      "gitBlob": "4ded9de918e53974ed0487911bcc6b228f3d6003",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/club-hero-embossed-v1.jpg",
+      "gitBlob": "f318f916a36051c29ed4ae9a7bd60431446d440b",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/club-membership-guilloche-v1.jpg",
+      "gitBlob": "21b2795d82e0f887131582e60e7c8caa6b47218b",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/services-BuildingTwo-duotone.png",
+      "gitBlob": "ff29ea40bfa737975d8bebbf21635c86d57bbcce",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/services-NewspaperFolding-duotone.png",
+      "gitBlob": "9b0a38d9207fbe8c58742cb570378c14b6b62239",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/services-Search-outline.png",
+      "gitBlob": "6a3ba70e143700ca7f7819f9fb6b8d507f0273e5",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/services-Slide-duotone.png",
+      "gitBlob": "35b9224f080ed3e6df1c726dcb309dc393d45d1a",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/assets/ui/services-Translate-duotone.png",
+      "gitBlob": "1f97698125ed155bf8a04ac5e92a1d7d18fed49d",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/config.js",
+      "gitBlob": "7f4d25d56a03e805942dfcc02a8a239d3970d75d",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/data/activity-originals.js",
+      "gitBlob": "f34cefaa8a983243119503c6040d62c00718b4e1",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/data/activity-recaps.js",
+      "gitBlob": "4210d09598792525b03214fb33af26d93bdd5e41",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/data/campaign.json",
+      "gitBlob": "6e83935206c2282225239e1f2d3a01ad4010c42a",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/data/content.js",
+      "gitBlob": "dcb66ca68da2ab1c698b074581fc1c7fd65ff004",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/data/guides.js",
+      "gitBlob": "30b13eab8e21c829ae3285b8c7b80f7756f89abc",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/data/landing-support.js",
+      "gitBlob": "5f112531ebe8edc50fd4307f469c7e0945489b86",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/data/service-directory.js",
+      "gitBlob": "fa60a66632c3f3f8ace6b7cb85c10459d21aedce",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/data/service-directory.json",
+      "gitBlob": "7df84b1b311010cc2cdf7b05572817ace043c4ec",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/data/surveys.json",
+      "gitBlob": "e0fcc585244fb0c302de9524f95b04ffd4672f41",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/account/index.js",
+      "gitBlob": "d980a70331967202b1f02c6c20e0df723de59ca3",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/account/index.json",
+      "gitBlob": "fd6e692b9d175b54eb59a6f4b3147f30d5148026",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/account/index.wxml",
+      "gitBlob": "a625081d07e60a46070ec3352239027a7b926055",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/account/index.wxss",
+      "gitBlob": "ab3e5a89fbc1bed567a321de06482955995428f9",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/activities/index.js",
+      "gitBlob": "f7025c82136fe2df9f327f6bd8a9b490786d894f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/activities/index.json",
+      "gitBlob": "2c6e5eb5622ffcd2d451dbe1eabc1d05f332c8d9",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/activities/index.wxml",
+      "gitBlob": "132e996a8063518d54983032dcd929a0b979f1ac",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/activities/index.wxss",
+      "gitBlob": "7bf1ebed091a7fea5b9c828ceefe6f1399cdff64",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/ambassador/index.js",
+      "gitBlob": "7f9fb8b6c17aa7b4efc24e1c92072623649ab6dd",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/ambassador/index.json",
+      "gitBlob": "4852532e0557d16325ce16968239658bb801dc43",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/ambassador/index.wxml",
+      "gitBlob": "d9d20f0fd5d612ddb574dc985dc0c1862072baa1",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/ambassador/index.wxss",
+      "gitBlob": "1772f3aaa15b54d573256c617ede41a09f5cea5f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/applications/index.js",
+      "gitBlob": "188aee66b20d784521d6491226fee932be076d35",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/applications/index.json",
+      "gitBlob": "1e012b2976c306332f4cdc676d8b7d9088e593b0",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/applications/index.wxml",
+      "gitBlob": "473d02aef00b0c9b5edeab3a7e55e7cefca11a07",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/applications/index.wxss",
+      "gitBlob": "605804b57459e28472a8477ea35a49a4ff0dbbc0",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/articles/index.js",
+      "gitBlob": "0880a4b24ec46e63a61e14c9034778a7240d8941",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/articles/index.json",
+      "gitBlob": "9b9b5b7d4b04d157a345b3aadd917af6136dad0b",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/articles/index.wxml",
+      "gitBlob": "364ec15a7b663d6c2d5cef19bf945da6d5b2d7fc",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/articles/index.wxss",
+      "gitBlob": "bf5fb34e98c24520d90d53a9f5d1e7730d218f79",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/club-intro/index.js",
+      "gitBlob": "abd15518b91599c6a9101a0a96743f5733582187",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/club-intro/index.json",
+      "gitBlob": "46e7dbfdf7230661a422d3544a355dc0cc9fb704",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/club-intro/index.wxml",
+      "gitBlob": "3c378cb9daea099b9c22221f9bbb4847183d795d",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/club-intro/index.wxss",
+      "gitBlob": "69a0f8f88322c25c7c7854f304f6222b6b125bf5",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/directory/index.js",
+      "gitBlob": "b765e476ea56ebc4964ad7145eb7385c8320d571",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/directory/index.json",
+      "gitBlob": "3d1af8ad835cc2c1bf214979f4620e9ba942c5ae",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/directory/index.wxml",
+      "gitBlob": "502c3ffdfebced0a37ecfc9744d76b1c37b103c3",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/directory/index.wxss",
+      "gitBlob": "557fcf81829b5f7ecfe5ab9dc9885bfe3fe2b1de",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/enterprise-intake/index.js",
+      "gitBlob": "936ee8776103596ca566610a4e0333bdbb36259e",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/enterprise-intake/index.json",
+      "gitBlob": "e7db5e601c6b0acd9ea60fe8972d40a12550f325",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/enterprise-intake/index.wxml",
+      "gitBlob": "39904151e8a510e9442f1b900670f5b5824bdd02",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/enterprise-intake/index.wxss",
+      "gitBlob": "4d9de3c05a3cf0d1a05373b8c1db259d92a1649f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/enterprises/index.js",
+      "gitBlob": "8188a91775cc8e899444a4c4b8f715b36f44750c",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/enterprises/index.json",
+      "gitBlob": "1f3b854b4e667b222fd41e7a9c05d1b28512bc45",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/enterprises/index.wxml",
+      "gitBlob": "1338113c13818a350b764a7125b8582896893acd",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/enterprises/index.wxss",
+      "gitBlob": "4547d18982442ae485eabbb3ac6489ae0774d802",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/exclusive-contacts/index.js",
+      "gitBlob": "29f392c08c98c5293adbc74f21eb92c42e7d5424",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/exclusive-contacts/index.json",
+      "gitBlob": "f17f53ff5167fe88f925329cdb97c73a15e314b8",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/exclusive-contacts/index.wxml",
+      "gitBlob": "f39a341c6c4ad0e8e7b71846003fbad138788689",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/exclusive-contacts/index.wxss",
+      "gitBlob": "d658a4b58eb96b1cd3f3a1f91fa44409f8d5eeb7",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/feedback/index.js",
+      "gitBlob": "4f322d2ab42e6ed15ebdbb4e69c11f05ee9e6971",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/feedback/index.json",
+      "gitBlob": "3c2fd34e77d282b50d9a460fd01122b8b518c836",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/feedback/index.wxml",
+      "gitBlob": "31c093ce735b7f4cde966a1898e39d35aea6ff22",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/feedback/index.wxss",
+      "gitBlob": "d770a22c60793d4db21d93ce779f3dd019260da8",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/guide/index.js",
+      "gitBlob": "9d191feb2e313f52e292fd4673518f6004d46808",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/guide/index.json",
+      "gitBlob": "ba0a2b75acc2acfaf897e90af6d71d2810fdf5c1",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/guide/index.wxml",
+      "gitBlob": "9272f63b3f39465aca0e58739656d110c49950d6",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/guide/index.wxss",
+      "gitBlob": "5f1e8afc0fe045f11906bb4e1da77d6f0a087bb3",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/help/index.js",
+      "gitBlob": "914cf5d593ea077d15dc02316f6d6586edc6cff5",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/help/index.json",
+      "gitBlob": "92d52cdd88d39d316ffdd3cc121d75c977509aeb",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/help/index.wxml",
+      "gitBlob": "601adad19d438441e50002c24005520f11d0e492",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/help/index.wxss",
+      "gitBlob": "28c685e33270648914f06914e00bd2f139ad3126",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/home/index.js",
+      "gitBlob": "4e0778aeb019b3d1bd6848bda690756abff1e384",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/home/index.json",
+      "gitBlob": "c21c014c1dfcc1bd2cce01e3407601b116066157",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/home/index.wxml",
+      "gitBlob": "d2af8bd163f58c646987afd36d29de3d3dcbfd50",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/home/index.wxss",
+      "gitBlob": "fecc56b76291b2789755e049be22e3e881591af7",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/invite/index.js",
+      "gitBlob": "b89848e45be14d75a2f3b97b54ce69cb5d93f9b1",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/invite/index.json",
+      "gitBlob": "7f0272ba8ecf8051d70b97b7f3e14374fc67ff98",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/invite/index.wxml",
+      "gitBlob": "400530fffae42dc842081654573b082e9abd25bc",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/invite/index.wxss",
+      "gitBlob": "6354507ba6c2954f08aae795cc09a52bb5e873eb",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/join/index.js",
+      "gitBlob": "8e5fd955dc41304b8d1530816340aaa6cda73c0c",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/join/index.json",
+      "gitBlob": "479ea167226f6f22ec37149863f007ba4eed148b",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/join/index.wxml",
+      "gitBlob": "bab677e2000a4c515d5e9dd34a4c33dca47cad39",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/join/index.wxss",
+      "gitBlob": "935807e3889c9b1a01d67a8817e8b9624f067f18",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/login/index.js",
+      "gitBlob": "1b877bc3ead530370026b409e4f01698602819ee",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/login/index.json",
+      "gitBlob": "67828bd71b7d0b4559936c94951b680e3ebe1602",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/login/index.wxml",
+      "gitBlob": "7d896a36c2c4e626dbe05de03b93eb4634c98cc0",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/login/index.wxss",
+      "gitBlob": "1d8a82d49d54791c667c699bd09125ba991decb3",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/members/index.js",
+      "gitBlob": "def1895d62a77a28af25305f21c3ee300674ca1c",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/members/index.json",
+      "gitBlob": "5331a313c7cf8981ac5240f4960944aded91b5eb",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/members/index.wxml",
+      "gitBlob": "3094da7b269c039311b2c2d57391147955cccb4c",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/members/index.wxss",
+      "gitBlob": "cbf08e39a1bfc7e2819eae9ba6d5585f99c23dac",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/orders/index.js",
+      "gitBlob": "6fae7f64774287b5cf413d74a986c26583e8839d",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/orders/index.json",
+      "gitBlob": "d588e0268a13e9bad7f1ff40904fa1698b745992",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/orders/index.wxml",
+      "gitBlob": "3b6072bac4bc14ffed12024f0549db07de0850c4",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/orders/index.wxss",
+      "gitBlob": "6feca23a4923ed7a64c8455fb5900ea63349807c",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/payment/index.js",
+      "gitBlob": "834b75f3caec5d16f1748aaee8c43c56489095b1",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/payment/index.json",
+      "gitBlob": "f1197eaf26ba456f894c39fac49fea93b47f7b64",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/payment/index.wxml",
+      "gitBlob": "2d30ef121a876953b210e8a80008e340be515494",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/payment/index.wxss",
+      "gitBlob": "78ad3486845f15934ab4ca9a4bc400b79d8c3ae4",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/posts/index.js",
+      "gitBlob": "dc3b05777cd8593e7d6ac9619416613ecc01ec75",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/posts/index.json",
+      "gitBlob": "7c03bdf269e2cb43a72a41e7a5ac65955dc3b3a1",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/posts/index.wxml",
+      "gitBlob": "cc1b8697298b9e0169aaab6e1e274ae4cdb9408f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/posts/index.wxss",
+      "gitBlob": "ccbaacf353281540ee1367f07bfb25fa7c27b389",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/profile/index.js",
+      "gitBlob": "e00f5ef388b7714ca72926e98c90b519e278eace",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/profile/index.json",
+      "gitBlob": "6861d19baba101f837c878ad1077dc3305d67e0f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/profile/index.wxml",
+      "gitBlob": "91a092ad90834d919799bace16fea3469f97c69a",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/profile/index.wxss",
+      "gitBlob": "03c0dd2993cac5327a615f66a828cce515a706a4",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/rewards/index.js",
+      "gitBlob": "2f396da462f31d49b221fb47007e2abcdf8b619f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/rewards/index.json",
+      "gitBlob": "76099caffb297b48ab0973a7676599064ab05d57",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/rewards/index.wxml",
+      "gitBlob": "75e8c2cb0eea4233af34d6210d26a05d167975fe",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/rewards/index.wxss",
+      "gitBlob": "c78794da9bfbcb07653bb2c0d7171792dd2b1c3b",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/service-detail/index.js",
+      "gitBlob": "7a79c74c229307c61c22748fe377164e75a91a24",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/service-detail/index.json",
+      "gitBlob": "69ef927fb752a4f33749614f223f62a5d0b42e81",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/service-detail/index.wxml",
+      "gitBlob": "93771f3dc1baa21d4006afffd5047379bf460132",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/service-detail/index.wxss",
+      "gitBlob": "4c5325e0a07d600f5f041a71d5108ca694f8d566",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/services/index.js",
+      "gitBlob": "5cd3e8f23024747aad95a918d4f3533f0e3a806b",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/services/index.json",
+      "gitBlob": "e98712fd43bc04d0f292913422b699f59bdacc6f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/services/index.wxml",
+      "gitBlob": "0b8a2431f126e31be11c3e84ddbc5637d0b3a9d5",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/services/index.wxss",
+      "gitBlob": "6a9661255692024727e256bbdc527934a7bcfaa5",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/surveys/index.js",
+      "gitBlob": "814ebc4a3cb08fdc61b29419c0efc7c7340dff6a",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/surveys/index.json",
+      "gitBlob": "74ec8d40b9947f6126eafbb4c3e1c4d54f06195f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/surveys/index.wxml",
+      "gitBlob": "6e45f5a86d922762bed1e9fb41879e2d49bf5e53",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/pages/surveys/index.wxss",
+      "gitBlob": "71ef48730c27ac3f2b941f8c1296ee89eb4b2e0c",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/project.config.json",
+      "gitBlob": "2cc620987fdea45b864badc24e57db25d5f678a0",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/sitemap.json",
+      "gitBlob": "c2130d37d4c3dcf5d6b77d6dc9e5c5db99ed10d5",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/templates/legal.wxml",
+      "gitBlob": "dd62e8ff4ba9b443b515c808eebe398432a55909",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/api.js",
+      "gitBlob": "88c2cc2e23e62bdcffb0f93cc648e36a63e9514a",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/application-materials.js",
+      "gitBlob": "1c7e852d1d136193d5bc244bf71124e7a6d325de",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/article-catalog.js",
+      "gitBlob": "39d5b83c3bce92e4e61fc5ae4b141650ceddd8ae",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/article-display.js",
+      "gitBlob": "379f31405223894b705704c1be9782ee3d1558b9",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/directory.js",
+      "gitBlob": "db74d8abeda00ffd70f92cfc33c7a3adff8225e8",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/display-time.js",
+      "gitBlob": "dbcbb0c1839e9214ec6196eddd6e028119e86cfb",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/drafts.js",
+      "gitBlob": "449237b17105edf61592e2d4915ca7476dc24965",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/enterprise-form.js",
+      "gitBlob": "6c4290cd4b66df21bf1aa95110c6d8424581da4a",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/invite-art.js",
+      "gitBlob": "24180c11ad1b85da2be66eeb1334a1edf42cfac7",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/invite-code.js",
+      "gitBlob": "051daa3e83f614d45e2de9cfd0a5713c4e8f1af7",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/legal.js",
+      "gitBlob": "841a80651ce20369ee08ba4f9d9c52233462536f",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/member-journey.js",
+      "gitBlob": "db4a9b8548ee4ccd4fd9933638ee9e36d27470f4",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/membership-display.js",
+      "gitBlob": "c4ee1028de6045d07b090456e46764acf6c395cb",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/navigation.js",
+      "gitBlob": "0cd33a4355f4f12636cf5bf442dd52b5703352a5",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/official-article.js",
+      "gitBlob": "5e79dc0fac0a24e219384e7bce4411d5917b780b",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/profile-avatar.js",
+      "gitBlob": "41827f626b99ba5f58ee79c9bb9a47893d4993d9",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/public-documents.js",
+      "gitBlob": "d8d98a8632bc0fe609f20c2694f6bad6ed114186",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/referral.js",
+      "gitBlob": "57ed504571e41089bda10e60ea2b3d41faad85ad",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/review-access.js",
+      "gitBlob": "d6f8b65d56791a429d036307f016315343e33795",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/survey-upload.js",
+      "gitBlob": "2b162fb172c9c355a38c09c803fe38a55dfff38e",
+      "source": "integration"
+    },
+    {
+      "path": "miniprogram/utils/user-display.js",
+      "gitBlob": "0da77fd7a581cda7a4275ea4d49b7e31f8e4d926",
+      "source": "integration"
+    },
+    {
+      "path": "ops/index.html",
+      "gitBlob": "b341c9e8442b8da7859172f25180669836b97d6a",
+      "source": "integration"
+    },
+    {
+      "path": "package-lock.json",
+      "gitBlob": "73a38c9767f20406d4638b13c3e0c7bb4d14b066",
+      "source": "integration"
+    },
+    {
+      "path": "package.json",
+      "gitBlob": "cc30952a3ddb0348db1e19f69f4d6cc1685b3daf",
+      "source": "integration"
+    },
+    {
+      "path": "public/forms/enterprise-template-20260923.docx",
+      "gitBlob": "3d6e87cf8387137475a9693d03673173873a4da5",
+      "source": "integration"
+    },
+    {
+      "path": "public/forms/enterprise-template-20260923.pdf",
+      "gitBlob": "139e3d5f7444e1968d48d6b008fb14df36830f55",
+      "source": "integration"
+    },
+    {
+      "path": "public/forms/organization-application-20261013.docx",
+      "gitBlob": "5c31d81e371d11d1c39a596d0684b58f5e10b2e7",
+      "source": "integration"
+    },
+    {
+      "path": "public/forms/partner-application-20261013.docx",
+      "gitBlob": "0893745cdc33596c6d47e93c8f736cefcbe40494",
+      "source": "integration"
+    },
+    {
+      "path": "public/images/asean-harbor-mobile.webp",
+      "gitBlob": "45e1799a7491a65607e334abd081e36a4b96a08a",
+      "source": "integration"
+    },
+    {
+      "path": "public/images/asean-harbor.webp",
+      "gitBlob": "7b40c06b6721702c5d99bf3db1bf5cc14699f7eb",
+      "source": "integration"
+    },
+    {
+      "path": "public/images/cabc-official-logo.png",
+      "gitBlob": "be8282938d2defc566f655a8ff17f177e1a18586",
+      "source": "integration"
+    },
+    {
+      "path": "public/images/caexpo-2026-schedule.jpg",
+      "gitBlob": "c8f9051a47a655f17d15e8f552c9495a463dd387",
+      "source": "integration"
+    },
+    {
+      "path": "public/images/club-hero-embossed-v1.png",
+      "gitBlob": "15f6bd3956c95758f111dbe89cf4d7c42957cd78",
+      "source": "integration"
+    },
+    {
+      "path": "public/images/club-membership-guilloche-v1.png",
+      "gitBlob": "e8ee5b4d20aa029ea3b2b9a1e07bfe053221451b",
+      "source": "integration"
+    },
+    {
+      "path": "public/images/club-wechat-collection.jpg",
+      "gitBlob": "d128f498c3ea63574cc16b0924af8daf7a85eff5",
+      "source": "integration"
+    },
+    {
+      "path": "public/legal/index.html",
+      "gitBlob": "44e8e2e4eb574c0b7f5bbffeef2278b8996eea83",
+      "source": "integration"
+    },
+    {
+      "path": "public/legal/privacy-20260914-b6d24f2ee8ab.pdf",
+      "gitBlob": "77e6f4aaaa2f23883a62bac4a2c8d60a4964f875",
+      "source": "integration"
+    },
+    {
+      "path": "public/legal/privacy-native-20261002-v1.pdf",
+      "gitBlob": "a6e843b9e5a3bccfa8c059d71dab3b8546840e66",
+      "source": "integration"
+    },
+    {
+      "path": "public/legal/privacy-web-20260915-v1.html",
+      "gitBlob": "f5702de7e1c94626c0c34ad81ca1c1c54bf92226",
+      "source": "integration"
+    },
+    {
+      "path": "public/legal/privacy-web-20260915-v1.pdf",
+      "gitBlob": "c405c4e138da196d416024b3f00f762063d99541",
+      "source": "integration"
+    },
+    {
+      "path": "public/legal/terms-20260914-1fc2f2a08976.pdf",
+      "gitBlob": "5892c85d0d0a0226d2c5f4ba732e4cd162b2e839",
+      "source": "integration"
+    },
+    {
+      "path": "public/legal/terms-native-20261002-v1.pdf",
+      "gitBlob": "f09530103e1104453b0d75d8d6a8ffb4732fcd57",
+      "source": "integration"
+    },
+    {
+      "path": "public/legal/terms-web-20260915-v1.html",
+      "gitBlob": "6b698f4ebff3078dc614ecd50fb7f19a86f9fc89",
+      "source": "integration"
+    },
+    {
+      "path": "public/legal/terms-web-20260915-v1.pdf",
+      "gitBlob": "d0345637cda0910f603e03c28c1a734c91973699",
+      "source": "integration"
+    },
+    {
+      "path": "scripts/dev-local.mjs",
+      "gitBlob": "77159422b13b270542b44986564924c13af75062",
+      "source": "integration"
+    },
+    {
+      "path": "scripts/sync-native-data.mjs",
+      "gitBlob": "520a7a57a5d2cc8863a5300a181340b82bbea7f2",
+      "source": "integration"
+    },
+    {
+      "path": "server/activities.mjs",
+      "gitBlob": "691c16fc49715adc0ef6a948e7fb0544268c1ae8",
+      "source": "integration"
+    },
+    {
+      "path": "server/ambassadors.mjs",
+      "gitBlob": "f280d0194c4194a5e2907bfd8cad0a9aabadac1b",
+      "source": "integration"
+    },
+    {
+      "path": "server/app.mjs",
+      "gitBlob": "b6eb848c66535d58c2c81f760a1557c35df8c1b0",
+      "source": "integration"
+    },
+    {
+      "path": "server/application-materials.mjs",
+      "gitBlob": "90160b1c46da1d96b0a85bfc6148f2c420cb825f",
+      "source": "integration"
+    },
+    {
+      "path": "server/application-materials.test.mjs",
+      "gitBlob": "57bad779faadd5ba6497468fe813c05e300c74c8",
+      "source": "integration"
+    },
+    {
+      "path": "server/article-documents.mjs",
+      "gitBlob": "475438d787bc3821afd0043d39aea0cfe899b103",
+      "source": "integration"
+    },
+    {
+      "path": "server/article-placement-extra.mjs",
+      "gitBlob": "f082d602c99a4064ecd7c5e3eb47218ce3853c77",
+      "source": "integration"
+    },
+    {
+      "path": "server/articles.mjs",
+      "gitBlob": "efdf6491b2ebed54a193bc7bd86cbad846b5ffdd",
+      "source": "integration"
+    },
+    {
+      "path": "server/audit-query.mjs",
+      "gitBlob": "556476c59b4c57d2670138b2bf07ecda4935fe84",
+      "source": "integration"
+    },
+    {
+      "path": "server/batch2-content.mjs",
+      "gitBlob": "eaa551b49d3bb4aa7cfff5fdf05ac5fbb9d2a0d2",
+      "source": "integration"
+    },
+    {
+      "path": "server/campaign.mjs",
+      "gitBlob": "77c5cb7591ecbbd8705c915e4452c3c9d30a91e6",
+      "source": "integration"
+    },
+    {
+      "path": "server/cloud-static.mjs",
+      "gitBlob": "969fb50fc27ebc243be6688a53759de949e3f389",
+      "source": "integration"
+    },
+    {
+      "path": "server/cloudrun-config.mjs",
+      "gitBlob": "38317978a9a40848d8ca6c3dd9a3d846b902f2ec",
+      "source": "integration"
+    },
+    {
+      "path": "server/cloudrun-index.mjs",
+      "gitBlob": "e0d8b7eacdf39db200f1a59101ff9edc3854a908",
+      "source": "integration"
+    },
+    {
+      "path": "server/cloudrun-report-incremental.mjs",
+      "gitBlob": "45e4b61f3718719ce3eea6293604e5953875dcb7",
+      "source": "integration"
+    },
+    {
+      "path": "server/collaboration/access.mjs",
+      "gitBlob": "c887335ec6f1bb2798b42c1f253839ad5da4f8c4",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "server/collaboration/common.mjs",
+      "gitBlob": "f5665e7788739a885509ca2530cb7d669507cc74",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "server/collaboration/entitlements.mjs",
+      "gitBlob": "73e2884b7247248f6f7bd567cc939e78e9bc32fd",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "server/collaboration/grants.mjs",
+      "gitBlob": "007a219378c912fedb53169f0b7a6e838550c35c",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "server/collaboration/member-boundary.mjs",
+      "gitBlob": "215c3b6d6dbdbd9d4ca61481ca770c87e3c5299d",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "server/collaboration/migration-support.mjs",
+      "gitBlob": "0cf97f4fa036cb93153ef5cef128d02998bb8614",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "server/collaboration/migration.mjs",
+      "gitBlob": "fc449cbf8455d6a822c1a14ea3ec23fab79051fd",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "server/collaboration/schema.sql",
+      "gitBlob": "229adb45ff774f5872c5fd3b7027a560b22f52da",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "server/db.mjs",
+      "gitBlob": "0b3ab70f720948100eda0eb3392111787a6edf1a",
+      "source": "integration"
+    },
+    {
+      "path": "server/domain.mjs",
+      "gitBlob": "1baf70d638dfc1319a17a0e1ae30a247d33137d0",
+      "source": "integration"
+    },
+    {
+      "path": "server/enterprise-intake.mjs",
+      "gitBlob": "673ebea13eb0d46ca26531268bb4b91105d7a0d4",
+      "source": "integration"
+    },
+    {
+      "path": "server/enterprise-upload.mjs",
+      "gitBlob": "43f3d0bec725c7f2426bbfc3704ad99941d756e6",
+      "source": "integration"
+    },
+    {
+      "path": "server/exclusive-contacts.mjs",
+      "gitBlob": "103ee6cc1524cb8f37697efc10d10fad077f74bd",
+      "source": "integration"
+    },
+    {
+      "path": "server/feedback.mjs",
+      "gitBlob": "e6c2fb1e09a2d8aa3e923f9a3d83304f56c1c5c3",
+      "source": "integration"
+    },
+    {
+      "path": "server/index.mjs",
+      "gitBlob": "1b885184e98becad62e42341d9f6a1b6b0d8cd41",
+      "source": "integration"
+    },
+    {
+      "path": "server/lan-index.mjs",
+      "gitBlob": "9344960444937db7b365434f59b9e942b6bc9f85",
+      "source": "integration"
+    },
+    {
+      "path": "server/lan-network.mjs",
+      "gitBlob": "c25e6bbe52663aefe15891fceef0b8a82823bed0",
+      "source": "integration"
+    },
+    {
+      "path": "server/legal-consents.mjs",
+      "gitBlob": "b31c6c083ffe79a93c63d0fe2a15848f2f1156af",
+      "source": "integration"
+    },
+    {
+      "path": "server/legal-release.mjs",
+      "gitBlob": "fa681ad9f2f4caded656e01b2c977855d0c46e32",
+      "source": "integration"
+    },
+    {
+      "path": "server/manual-payments.mjs",
+      "gitBlob": "224c5ed0403a73e034e2f354d9f012dca673ab5e",
+      "source": "integration"
+    },
+    {
+      "path": "server/migrations/postgres/001-baseline.sql",
+      "gitBlob": "cd846dba0988b1597dbcf782aff5c65190ca3324",
+      "source": "integration"
+    },
+    {
+      "path": "server/migrations/postgres/002-virtual-payment.sql",
+      "gitBlob": "d608779d27dc791ec2f8f88b7c4bbbb268b7f42d",
+      "source": "integration"
+    },
+    {
+      "path": "server/migrations/postgres/003-reward-ledger.sql",
+      "gitBlob": "87f930bdeb3f86389b1d6698d879d6b41ff93d83",
+      "source": "integration"
+    },
+    {
+      "path": "server/migrations/postgres/004-post-versions.sql",
+      "gitBlob": "bd55ee90e819cf43830b69596a872d1a2476cd64",
+      "source": "integration"
+    },
+    {
+      "path": "server/migrations/postgres/005-same-plan-renewal.sql",
+      "gitBlob": "0fe7f8bab3c78a2332afe03bd680afc58a119027",
+      "source": "integration"
+    },
+    {
+      "path": "server/migrations/postgres/006-membership-reminders.sql",
+      "gitBlob": "508804b1b0c99cd8ca2439cd5b726e559e343cca",
+      "source": "integration"
+    },
+    {
+      "path": "server/migrations/postgres/007-review-access.sql",
+      "gitBlob": "47b855f482ec9c5b8d67b56a150477f50e9952d2",
+      "source": "integration"
+    },
+    {
+      "path": "server/migrations/postgres/014-batch2-content.sql",
+      "gitBlob": "9795903eba2271d39cfd76ffe7535da10366e599",
+      "source": "integration"
+    },
+    {
+      "path": "server/native-auth.mjs",
+      "gitBlob": "2a0776fd5c15b4e69a1947583999c7f475fd84f3",
+      "source": "integration"
+    },
+    {
+      "path": "server/native-invite-code.mjs",
+      "gitBlob": "ba4985dbcde9eced414ccf9137c6764431663c14",
+      "source": "integration"
+    },
+    {
+      "path": "server/native-payments.mjs",
+      "gitBlob": "c0d3ea1fb377d9cdc78d8282de3d38ff97387ee6",
+      "source": "integration"
+    },
+    {
+      "path": "server/native-transfer.mjs",
+      "gitBlob": "f0d18ebb3921d65455495fc842fb79014af8b953",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-admin-setup.mjs",
+      "gitBlob": "a58d8168855351b6c73144351b2974e48c5dbffc",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-admin.mjs",
+      "gitBlob": "25a5133a20941001723dde284b2cd5d8d35578d1",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-app.mjs",
+      "gitBlob": "1e1564b09761fab2290e28be233b67eca05ea765",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-content.mjs",
+      "gitBlob": "5ee2fd53635b1d33e3a7f2ef294c3738e7d07a45",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-core.mjs",
+      "gitBlob": "0fef563c04764cbcdc0058a96368302c9bcbf430",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-feature-runtime.mjs",
+      "gitBlob": "d7d96e6a43331f88d299e72a88f85c6e0a1892f4",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-forms.mjs",
+      "gitBlob": "f967b70c10916a94280b424c4620b0c593ab25bd",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-fresh.mjs",
+      "gitBlob": "1d732b8f4501476e4afaadd0ed088a2d5cabf5ec",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-index.mjs",
+      "gitBlob": "163f66cbb6f9d9929c2c2a2df2f63231c1991e23",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-manual-aftercare.mjs",
+      "gitBlob": "4e4173ce59fdfd7d4afd1b54da74c6868dcee8ff",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-profile-runtime.mjs",
+      "gitBlob": "927281300b5a6b9f6426cd9bac2af53a70ef02b6",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-profile.mjs",
+      "gitBlob": "3d8277b5e139145d685eb94cbd5ac7c8ea3ec291",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-published-content.mjs",
+      "gitBlob": "1cb872cb3df03c29d8dec3a47b4f5cb16eab374e",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-rate-limit.mjs",
+      "gitBlob": "7f6b009ae0af57ba38d8e75c7f8a8279089f5cb2",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-reminders.mjs",
+      "gitBlob": "f54680627b339527abd734ef140fd1725b8e1017",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-renewals.mjs",
+      "gitBlob": "fe9f0cad4f95b1cac331cf0f9f633868a38304cb",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-report-incremental.mjs",
+      "gitBlob": "2e8b0da531c8abc8846dfccb2687993b274b53d1",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-report-store.mjs",
+      "gitBlob": "c6237a9db04555c9eff91920f8058e2c8f78040e",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-review-access.mjs",
+      "gitBlob": "f1b7fcbd909e58a377ee3cb694735d46c991fdf8",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-review-runtime.mjs",
+      "gitBlob": "af651214450e12dae108599b503372c0a404c5fc",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-review-setup.mjs",
+      "gitBlob": "263ea8a60073033054822cefd5a43523c02de453",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-reward-runtime.mjs",
+      "gitBlob": "074cbdb70d316b1ab77c6cf26d462fc98c2afc79",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-rewards.mjs",
+      "gitBlob": "072956c159f35dcbf6ba9fa76ef26319d158e7d3",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-runtime.mjs",
+      "gitBlob": "3e74cde280f3c5208e7f0f6f33689a17119700eb",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-support.mjs",
+      "gitBlob": "47c1587f1796ba1a7c979f08af4a757490f75347",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres-virtual-payment.mjs",
+      "gitBlob": "7716d4a8c91f4170e4a52752306c727f991981ff",
+      "source": "integration"
+    },
+    {
+      "path": "server/postgres.mjs",
+      "gitBlob": "2b96e00be25ba7ba2b10654b67dbc8a7b06bc17d",
+      "source": "integration"
+    },
+    {
+      "path": "server/posts.mjs",
+      "gitBlob": "9a93bc040fb11aee09e2d72bdbfdb9eb5f48d16e",
+      "source": "integration"
+    },
+    {
+      "path": "server/public-documents.mjs",
+      "gitBlob": "0de3b5f13201a2f9e19d9be3a4a8b29a06ae1b2c",
+      "source": "integration"
+    },
+    {
+      "path": "server/remote-index.mjs",
+      "gitBlob": "002a905999886d0b463234804208f5ee09e58885",
+      "source": "integration"
+    },
+    {
+      "path": "server/remote-policy.mjs",
+      "gitBlob": "a69a25f5c93fa95c192c29ec01a885828c3b6be0",
+      "source": "integration"
+    },
+    {
+      "path": "server/report-upload-session.mjs",
+      "gitBlob": "b6e1716c52b8814333c08d6c1688d9eb26934c4e",
+      "source": "integration"
+    },
+    {
+      "path": "server/resources.mjs",
+      "gitBlob": "e25ce8a4420677ba399702de6d8aa0a53fe3e227",
+      "source": "integration"
+    },
+    {
+      "path": "server/review-access-scope.mjs",
+      "gitBlob": "518f826c8534bb72db593a7c0eac2590fa98b9fc",
+      "source": "integration"
+    },
+    {
+      "path": "server/reward-ledger.mjs",
+      "gitBlob": "d7accf62e4a1a4e0f230afff4629941c191c2338",
+      "source": "integration"
+    },
+    {
+      "path": "server/source-diagnostics.mjs",
+      "gitBlob": "ce9e7db62c8130170ecf57cc00c5c81ac900a671",
+      "source": "integration"
+    },
+    {
+      "path": "server/survey-material.mjs",
+      "gitBlob": "cce294b5d73e6cd15c6354886eddcab22c799d09",
+      "source": "integration"
+    },
+    {
+      "path": "server/surveys.mjs",
+      "gitBlob": "1263e3171555b08c47cd77a93d2093d1253d76f0",
+      "source": "integration"
+    },
+    {
+      "path": "server/web-index.mjs",
+      "gitBlob": "50ece98e660108cdd96cde25fa9ef12dee15e371",
+      "source": "integration"
+    },
+    {
+      "path": "server/web-policy.mjs",
+      "gitBlob": "bede6275df245ff3d274bed9257ebfd54dcc10d3",
+      "source": "integration"
+    },
+    {
+      "path": "server/web-wechat.mjs",
+      "gitBlob": "a5f369257b93d834278e5d6d09a7ba0e6323f321",
+      "source": "integration"
+    },
+    {
+      "path": "server/wechat-pay-verification.mjs",
+      "gitBlob": "c5542c8661385105091989f2500f0ad8f05c5ac2",
+      "source": "integration"
+    },
+    {
+      "path": "server/wechat-pay.mjs",
+      "gitBlob": "caa6015e0e2ac91246bd62ddf5d81f93a3cfc3f0",
+      "source": "integration"
+    },
+    {
+      "path": "server/wechat-reminders.mjs",
+      "gitBlob": "acf64b04c65bd7eb5fde1efbd99eae2f88dcb313",
+      "source": "integration"
+    },
+    {
+      "path": "server/wechat-virtual-pay.mjs",
+      "gitBlob": "28b6192244ab8c0ebd1ae2e36bd8c963ffee8f18",
+      "source": "integration"
+    },
+    {
+      "path": "server/wechat.mjs",
+      "gitBlob": "7808f2ce4c93787ca033a65189f8b6160b77667f",
+      "source": "integration"
+    },
+    {
+      "path": "shared/enterprise-fields.json",
+      "gitBlob": "6d2e79e54651192dd26e96e918fd192846528694",
+      "source": "integration"
+    },
+    {
+      "path": "src/Activities.tsx",
+      "gitBlob": "095161dd5918d6c71498ebd14afc529cda83104f",
+      "source": "integration"
+    },
+    {
+      "path": "src/Admin.tsx",
+      "gitBlob": "98a19ef468cb45c30997406cdd658c5504e5d6e5",
+      "source": "integration"
+    },
+    {
+      "path": "src/AdminApplicationMaterials.tsx",
+      "gitBlob": "21243431373e6e511bf58b1fa9b1aafa5f7be4fa",
+      "source": "integration"
+    },
+    {
+      "path": "src/AdminArticles.tsx",
+      "gitBlob": "0c97643610a79ab7fd31b5b9b9c07f2e324c2180",
+      "source": "integration"
+    },
+    {
+      "path": "src/AdminAudit.tsx",
+      "gitBlob": "1d1a99e83ec41df7c675e453dc5abe0204dbb4d2",
+      "source": "integration"
+    },
+    {
+      "path": "src/AdminFeedback.tsx",
+      "gitBlob": "8bd5d3f7cd490eb5b3dad0381dc55bc93fbfc415",
+      "source": "integration"
+    },
+    {
+      "path": "src/AdminServices.tsx",
+      "gitBlob": "6ee96aa90527067027ee6c2209b78b688cd2c5b6",
+      "source": "integration"
+    },
+    {
+      "path": "src/Ambassadors.tsx",
+      "gitBlob": "833919867dc311e35585d80bdbc7098252051327",
+      "source": "integration"
+    },
+    {
+      "path": "src/App.tsx",
+      "gitBlob": "4e88ce6499b6cf434bc124367327cf269a001c0e",
+      "source": "integration"
+    },
+    {
+      "path": "src/Campaign.tsx",
+      "gitBlob": "88be4ffb5e4c54e6659196b666e7eb93e9c9fa23",
+      "source": "integration"
+    },
+    {
+      "path": "src/CloudOperations.tsx",
+      "gitBlob": "c2ef559a30b1bcc21c876db15757a57f4c347c17",
+      "source": "integration"
+    },
+    {
+      "path": "src/ClubIcon.tsx",
+      "gitBlob": "02e53738dd64b0c9c776d1ab22593334e97f080e",
+      "source": "integration"
+    },
+    {
+      "path": "src/ClubPages.tsx",
+      "gitBlob": "79aff997849fd4e8e1dd765566349e2180fe45ca",
+      "source": "integration"
+    },
+    {
+      "path": "src/ClubPresentationPage.tsx",
+      "gitBlob": "a1f9569f276c95d35fb884f84abc84d6dfc9bddb",
+      "source": "integration"
+    },
+    {
+      "path": "src/Directory.tsx",
+      "gitBlob": "0bf8ab6a69428b4ea56ad4386ea16543a58cf490",
+      "source": "integration"
+    },
+    {
+      "path": "src/EnterpriseIntake.tsx",
+      "gitBlob": "466fbafe4c124e4d9c6f16c2993927aa59d587cf",
+      "source": "integration"
+    },
+    {
+      "path": "src/EnterpriseOperations.tsx",
+      "gitBlob": "e110db0d7c3d3ef8373478be1cfe5344a0479bd8",
+      "source": "integration"
+    },
+    {
+      "path": "src/HomeActivities.tsx",
+      "gitBlob": "449062f1648b77bbbdff18e4127b5d4deec3ba8e",
+      "source": "integration"
+    },
+    {
+      "path": "src/Legal.tsx",
+      "gitBlob": "749d695cedc2eee972798147d2c444bab877679f",
+      "source": "integration"
+    },
+    {
+      "path": "src/ManualAftercare.tsx",
+      "gitBlob": "52db3f642256c16513ce02fdc6ffac54d7c2fea2",
+      "source": "integration"
+    },
+    {
+      "path": "src/ManualPayments.tsx",
+      "gitBlob": "b5a8034297330fed4d6876cedb5557ae16046b9d",
+      "source": "integration"
+    },
+    {
+      "path": "src/MemberPages.tsx",
+      "gitBlob": "572492fc86255132fced2841d59286251bc987c6",
+      "source": "integration"
+    },
+    {
+      "path": "src/NativeTransfer.tsx",
+      "gitBlob": "43577bb6ead0a6c798c135ee4352d25b7f008ab2",
+      "source": "integration"
+    },
+    {
+      "path": "src/PostRevisionOperations.tsx",
+      "gitBlob": "b37036b39a1185fb9edcb2ea3aa261b69982031e",
+      "source": "integration"
+    },
+    {
+      "path": "src/RewardOperations.tsx",
+      "gitBlob": "2808bb262fc0ac6eebb9b80a906aee7014021a44",
+      "source": "integration"
+    },
+    {
+      "path": "src/Surveys.tsx",
+      "gitBlob": "4eeec8c94d61dbd4a9d6f577a105d1b56cc9577c",
+      "source": "integration"
+    },
+    {
+      "path": "src/WebApp.tsx",
+      "gitBlob": "a22940c05da9474cf5b2e8bd674fbd6691dbb791",
+      "source": "integration"
+    },
+    {
+      "path": "src/WebContent.tsx",
+      "gitBlob": "bb4d91f0f75f80921aa6a50bd508e082bcc54e6d",
+      "source": "integration"
+    },
+    {
+      "path": "src/WebJoin.tsx",
+      "gitBlob": "add3744617ce9160da9879f07587ecafce290161",
+      "source": "integration"
+    },
+    {
+      "path": "src/WechatLogin.tsx",
+      "gitBlob": "05fbc1803b55b1e3dd3507842324f54aecc09a77",
+      "source": "integration"
+    },
+    {
+      "path": "src/admin-articles.css",
+      "gitBlob": "d89cfbdbc7518607abc36a5e579e6c8d9c8161ac",
+      "source": "integration"
+    },
+    {
+      "path": "src/admin-export.ts",
+      "gitBlob": "8c02040e85bf020a30b51edcc59364c100734b0b",
+      "source": "integration"
+    },
+    {
+      "path": "src/admin.css",
+      "gitBlob": "65db5cc4c82f7b73053079eceb6eb39756424536",
+      "source": "integration"
+    },
+    {
+      "path": "src/api.ts",
+      "gitBlob": "e6a24cd70d15efa800bb51d3e4015c613c1a3f50",
+      "source": "integration"
+    },
+    {
+      "path": "src/brand-refresh.css",
+      "gitBlob": "678e8b5a2497cb1beee73388425caa227b162f9f",
+      "source": "integration"
+    },
+    {
+      "path": "src/business.css",
+      "gitBlob": "7054552db28a6c0be6b3b36bb600824931e1044a",
+      "source": "integration"
+    },
+    {
+      "path": "src/campaign.css",
+      "gitBlob": "edde106d6e469b9b930a03c08937430d7da82ee3",
+      "source": "integration"
+    },
+    {
+      "path": "src/club-fonts.css",
+      "gitBlob": "05dc32d2e3e4500b4288c559798c63a0260c8698",
+      "source": "integration"
+    },
+    {
+      "path": "src/club-refinement.css",
+      "gitBlob": "3bce462bd2f7de8b98803e470524d08b0282181b",
+      "source": "integration"
+    },
+    {
+      "path": "src/club-ui.css",
+      "gitBlob": "e38670a8f3dfb5e3509dde97af03085f2fdcf7e9",
+      "source": "integration"
+    },
+    {
+      "path": "src/data.ts",
+      "gitBlob": "5a7f2343c9fffaf06b4a26295f5661138bf47a52",
+      "source": "integration"
+    },
+    {
+      "path": "src/directory.css",
+      "gitBlob": "3bc08985362fd1d7181e8743a045e5db5ae7c472",
+      "source": "integration"
+    },
+    {
+      "path": "src/enterprise-data.ts",
+      "gitBlob": "ce615814bce874dac3e057416bcf813690a0608c",
+      "source": "integration"
+    },
+    {
+      "path": "src/enterprise-export.ts",
+      "gitBlob": "bebc1467e54e7b61cb84f60fdf61d2f963371950",
+      "source": "integration"
+    },
+    {
+      "path": "src/home-activities.css",
+      "gitBlob": "fb69502b6737f3b7353a6294aa9b9500609249b9",
+      "source": "integration"
+    },
+    {
+      "path": "src/main.tsx",
+      "gitBlob": "5e920ec1d727fad5748490be10a98bb69e35b98d",
+      "source": "integration"
+    },
+    {
+      "path": "src/manual-payments.css",
+      "gitBlob": "4dfcaebd8ea4250a2eaa45dc4110d6c45a9dbdb8",
+      "source": "integration"
+    },
+    {
+      "path": "src/member-app.css",
+      "gitBlob": "a72585f9fc3b3e89a86a8de41fa62486db632478",
+      "source": "integration"
+    },
+    {
+      "path": "src/operations-workspace.css",
+      "gitBlob": "209aeb8b119572abd7ef8b9beaf1f9552d083df2",
+      "source": "integration"
+    },
+    {
+      "path": "src/presentation.ts",
+      "gitBlob": "1e527b5028be25b3a70d68f09d7587eaf81c6854",
+      "source": "integration"
+    },
+    {
+      "path": "src/reward-operations-state.ts",
+      "gitBlob": "978f573bb6ba2bfa8f34d4f1a6e0359244d49d50",
+      "source": "integration"
+    },
+    {
+      "path": "src/store.ts",
+      "gitBlob": "900ee8cbd96e2dd95d4527c2075788b5e457ec54",
+      "source": "integration"
+    },
+    {
+      "path": "src/styles.css",
+      "gitBlob": "dd44299fec9e8e2fd0af47179b76df7629767e41",
+      "source": "integration"
+    },
+    {
+      "path": "src/survey-export.ts",
+      "gitBlob": "8d9f3bc1d3420101be5828ecd75a23ae4bfe42ae",
+      "source": "integration"
+    },
+    {
+      "path": "src/types.ts",
+      "gitBlob": "6e2f4719f68b88284adaa6ae32ea84679433b2c2",
+      "source": "integration"
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "gitBlob": "7d0ff9efa9d6b0fd823a2f371308a9f92c7771c1",
+      "source": "integration"
+    },
+    {
+      "path": "src/web-app.css",
+      "gitBlob": "e7953a4d6a243544d0261be570eff7cb4794421e",
+      "source": "integration"
+    },
+    {
+      "path": "src/web-env.ts",
+      "gitBlob": "fddfd4b87236c641aba9d11783a598036e3baac7",
+      "source": "integration"
+    },
+    {
+      "path": "src/web-main.tsx",
+      "gitBlob": "1d61bfde8382f9449673a7a0e6f58ba644f41214",
+      "source": "integration"
+    },
+    {
+      "path": "tests/collaboration/fixture.mjs",
+      "gitBlob": "f8603e19043fa9e7bee345705a2a70b193c67e41",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "tests/collaboration/grants.test.mjs",
+      "gitBlob": "6f3b31fcb90394d561ba798ee75ab808783ccb67",
+      "source": "k3-candidate"
+    },
+    {
+      "path": "tests/fixtures/report-pdf.mjs",
+      "gitBlob": "8b3ca28d1c9c0f9b9b1860447c7675956bb3271b",
+      "source": "integration"
+    },
+    {
+      "path": "tests/native/article-display.test.mjs",
+      "gitBlob": "48d6dedad06ef99536b10c265fd98b20b74df1a7",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/activities.test.mjs",
+      "gitBlob": "03c57686e49fc7a959121950e9d3b035b5b94886",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/article-display-scope.test.mjs",
+      "gitBlob": "3ef3a2758fbb3dbd124b2420286b83c29db33e99",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/helpers/sqlite-schema.mjs",
+      "gitBlob": "e39488be79e8b135167a877d0d356f7c171a6d5a",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/postgres-content.test.mjs",
+      "gitBlob": "a5d406857eff94335d37785fc0f7c4011aaa9645",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/postgres-core.test.mjs",
+      "gitBlob": "03dcfa4cae91a92b656a060bc754ff2d536b49e6",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/postgres-features-http.test.mjs",
+      "gitBlob": "122c90d061de480bf072670e1c9cd214cc1d674b",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/postgres-forms.test.mjs",
+      "gitBlob": "b1203bf6d38e0e66e215599d4f8e4d4e09437bc0",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/postgres-operations-session.test.mjs",
+      "gitBlob": "f28692d58041caf70ecd5c018c5ca2d46bdf1771",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/postgres-rate-limit.test.mjs",
+      "gitBlob": "da565ec73444ec3eeb37465b6149db1642805c97",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/postgres-report-store.test.mjs",
+      "gitBlob": "9dd8e0f87277f42b2f6642cdaec1d45429c9550a",
+      "source": "integration"
+    },
+    {
+      "path": "tests/server/postgres-virtual-payment.test.mjs",
+      "gitBlob": "4d1024a6001c11aeff7dea4238207b791350227e",
+      "source": "integration"
+    },
+    {
+      "path": "tests/ui/catalog-selection.test.mjs",
+      "gitBlob": "08c55146604636eacd7474162f0b2d9e9ffd38ba",
+      "source": "integration"
+    },
+    {
+      "path": "tests/ui/draft-delete-recovery.test.mjs",
+      "gitBlob": "b9e181a441fa1e4f2d5a6c01d97697dbd6a92a55",
+      "source": "integration"
+    },
+    {
+      "path": "tests/ui/draft-save-recovery.test.mjs",
+      "gitBlob": "834ebb6a3280f3773d7cc22fe8676f4286c12a6a",
+      "source": "integration"
+    },
+    {
+      "path": "tests/ui/ops-content-pdf-closed-loop.test.mjs",
+      "gitBlob": "13b15b92f801330f21c18a73407a5926c689594d",
+      "source": "integration"
+    },
+    {
+      "path": "tests/ui/pdf-upload-recovery.test.mjs",
+      "gitBlob": "99a5d2966442b874d523c83e524ca67d2932bd1e",
+      "source": "integration"
+    },
+    {
+      "path": "tests/ui/publish-result-recovery.test.mjs",
+      "gitBlob": "6a4d336834406e9f93e253db71f2dc3d873211b1",
+      "source": "integration"
+    },
+    {
+      "path": "tsconfig.json",
+      "gitBlob": "730d5333d4e57dd4c1ec05bd273b7d9f9099b499",
+      "source": "integration"
+    },
+    {
+      "path": "vite.admin.config.ts",
+      "gitBlob": "8c888d32d44f3b1a578df3d6e1dc0baf14ad0291",
+      "source": "integration"
+    }
+  ]
+}

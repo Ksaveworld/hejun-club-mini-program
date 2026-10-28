@@ -9,15 +9,21 @@ export function documentInfo(db,id){
   return row?{filename:row.filename,bytes:row.byte_size,pages:row.pages,previewPages:preview?.pages||0}:null;
 }
 export async function sendArticleDocument(db,id,directory,req,res,preview=false){
-  const row=preview?db.prepare("SELECT p.sha256,p.byte_size,p.pages,'试看-'+d.filename AS filename FROM report_previews p JOIN article_documents d USING(article_id) WHERE p.article_id=?").get(id):db.prepare('SELECT * FROM article_documents WHERE article_id=?').get(id);
+  const row=preview?db.prepare("SELECT p.sha256,p.byte_size,p.pages,'试看-'||d.filename AS filename FROM report_previews p JOIN article_documents d USING(article_id) WHERE p.article_id=?").get(id):db.prepare('SELECT * FROM article_documents WHERE article_id=?').get(id);
+  return sendDocumentRow(row,directory,req,res);
+}
+// The caller must authorize the article and select the full/preview metadata first.
+export async function sendDocumentRow(row,directory,req,res){
   requireRule(row&&directory&&/^[a-f0-9]{64}$/.test(row.sha256),'报告原件不存在',404);
+  const etag='"'+row.sha256+'"';
+  requireRule(!req.headers['if-match']||req.headers['if-match']===etag,'报告已变化，请重新打开',412);
   let fd;
   try{fd=openSync(join(directory,row.sha256+'.pdf'),constants.O_RDONLY|(constants.O_NOFOLLOW||0));}catch{requireRule(false,'报告原件暂不可用',404);}
   try{
     const st=fstatSync(fd);requireRule(st.isFile()&&st.size===row.byte_size,'报告文件校验失败',503);
     const header=Buffer.alloc(5);readSync(fd,header,0,5,0);requireRule(header.toString()==='%PDF-','报告格式不正确',503);
     const headers={'Content-Type':'application/pdf','X-Content-Type-Options':'nosniff','Cache-Control':'private, no-store',
-      'Content-Security-Policy':"sandbox",'Referrer-Policy':'no-referrer','Accept-Ranges':'bytes',
+      'Content-Security-Policy':"sandbox",'Referrer-Policy':'no-referrer','Accept-Ranges':'bytes','ETag':etag,
       'Content-Disposition':(new URL(req.url,'http://localhost').searchParams.get('download')==='1'?'attachment':'inline')+`; filename="report.pdf"; filename*=UTF-8''`+encodeURIComponent(row.filename).replace(/'/g,'%27')};
     let start=0,end=st.size-1,status=200;
     if(req.headers.range){

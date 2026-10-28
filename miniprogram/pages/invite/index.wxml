@@ -1,4 +1,4 @@
-<view class="page">
+<view class="page"><button class="secondary-action" bindtap="openAmbassador">申请成为推荐大使 ›</button>
   <view class="heading"><view class="page-title serif">邀请与奖励</view><view class="subtitle">分享小程序卡片，推荐来源自动带入。</view></view>
   <view wx:if="{{error}}" class="invite-error">{{error}}</view>
   <view wx:if="{{message}}" class="invite-message">{{message}}</view>
@@ -9,11 +9,19 @@
     <button class="primary-action" open-type="share" disabled="{{loading || saving}}">分享小程序卡片</button>
     <view class="section-title serif">介绍图片</view>
     <image class="invite-poster-image" src="{{posterPath}}" mode="widthFix" />
-    <view class="footnote">此图片不含扫码入口，请与小程序卡片配合使用。推荐关系不代表已取得奖励资格。</view>
-    <button class="secondary-action" bindtap="savePoster" loading="{{saving}}" disabled="{{loading || saving}}">保存介绍图片</button>
+    <view wx:if="{{scanReady}}" class="footnote">可用微信扫描海报内的小程序码。新版发布前，开发或体验版本仅对获准体验人员开放。推荐关系不代表已取得奖励资格。</view>
+    <view wx:else class="footnote">扫码入口暂未生成，请与小程序卡片配合使用。推荐关系不代表已取得奖励资格。</view>
+    <button class="secondary-action" bindtap="savePoster" loading="{{saving}}" disabled="{{loading || saving || showPrivacy}}">保存介绍图片</button>
+    <view wx:if="{{showPrivacy}}" class="card">
+      <view class="section-title serif">保存图片前请确认</view>
+      <view>仅在你主动保存时，将本小程序生成的俱乐部邀请介绍图片写入手机相册，方便分享。暂不授权仍可分享小程序卡片。</view>
+      <button class="secondary-action" bindtap="openPosterPrivacy">阅读{{privacyContractName}}</button>
+      <button id="invite-poster-privacy" data-privacy-request="{{privacyRequestId}}" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePosterPrivacy">同意并保存图片</button>
+      <button class="secondary-action" bindtap="cancelPosterPrivacy">暂不授权</button>
+    </view>
   </view>
   <button wx:if="{{albumDenied}}" class="secondary-action" bindtap="openSettings">打开相册权限设置</button>
-  <button class="secondary-action retry-invite" bindtap="refresh" disabled="{{loading || saving}}">重新生成邀请图片</button>
+  <button class="secondary-action retry-invite" bindtap="refresh" disabled="{{loading || saving || showPrivacy}}">重新生成邀请图片</button>
   <button wx:if="{{!ready && !loading}}" class="text-action" bindtap="openLogin">前往登录</button>
   <canvas type="2d" id="invite-card" class="export-canvas card-canvas"></canvas>
   <canvas type="2d" id="invite-poster" class="export-canvas poster-canvas"></canvas>

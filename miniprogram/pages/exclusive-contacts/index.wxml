@@ -1,0 +1,22 @@
+<view class="page contacts-page">
+  <view class="heading">专属服务人员</view>
+  <view class="muted">人员介绍公开，联系方式仅有效星级会员可查看</view>
+  <view wx:if="{{loading}}" class="status">正在读取人员介绍…</view>
+  <view wx:if="{{error}}" class="error" role="alert">{{error}}</view>
+  <block wx:if="{{!contacts.length}}">
+    <view class="contact-card" wx:for="{{people}}" wx:key="role"><view class="contact-role">{{item.role}}</view><view class="contact-name">{{item.name}}</view></view>
+    <view wx:if="{{people.length}}" class="notice">联系方式仅向有效星级会员开放。</view>
+  </block>
+  <block wx:if="{{contacts.length}}">
+    <view class="service-time">服务时间：{{serviceTime}}</view>
+    <view class="contact-card" wx:for="{{contacts}}" wx:key="role">
+      <view class="contact-role">{{item.role}}</view>
+      <view class="contact-name">{{item.name}}</view>
+      <view class="contact-phone">{{item.phone}}</view>
+      <button class="call-button" data-index="{{index}}" bindtap="callContact">致电顾问</button>
+    </view>
+    <view class="notice">{{notice}}</view>
+  </block>
+  <button wx:if="{{!loading && !contacts.length && !error}}" class="membership-action" bindtap="openMembership">点击开通会员，服务触手可及</button>
+  <button wx:if="{{!loading && error}}" class="retry" bindtap="loadContacts">重新核对</button>
+</view>

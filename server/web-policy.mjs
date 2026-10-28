@@ -1,9 +1,11 @@
 import { BusinessError } from './domain.mjs';
 import { normalizedIp } from './remote-policy.mjs';
 export function createWebPolicy(config) {
-  if(config?.mode !== 'web-trial' || config.origin !== 'https://example.com') throw new Error('网页业务体验需要明确的 HTTPS 入口');
+  let origin;
+  try {origin=new URL(config?.origin);}catch{throw new Error('网页业务体验需要明确的 HTTPS 入口');}
+  if(config?.mode !== 'web-trial' || origin.protocol!=='https:' || origin.origin!==config.origin || origin.username || origin.password || !origin.hostname.includes('.')) throw new Error('网页业务体验需要明确的 HTTPS 入口');
   return {
-    hosts:['example.com'], origins:[config.origin], cookiePath:'/hejun-club/api',
+    hosts:[origin.host], origins:[config.origin], cookiePath:'/hejun-club/api',
     checkRequest(req,path) {
       if(normalizedIp(req.socket.remoteAddress)!=='127.0.0.1' || req.headers['x-forwarded-proto']!=='https' || !normalizedIp(req.headers['x-real-ip']))
         throw new BusinessError('仅接受本机 HTTPS 入口转发',403);

@@ -135,3 +135,5 @@
   .club-shell .club-plan-title h2 { font-size: 16px; }
   .club-shell .club-plan-price { font-size: 21px; }
 }
+
+.feedback-page .web-row,.feedback-page .web-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}.feedback-page .web-card{display:block;padding:20px;margin:16px 0;border:1px solid #dfe4de;border-radius:12px}.feedback-page .web-body{white-space:pre-wrap;overflow-wrap:anywhere}.feedback-page section{margin:20px 0}.feedback-page .field{margin:16px 0}

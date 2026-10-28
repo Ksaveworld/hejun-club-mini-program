@@ -1,0 +1,4 @@
+CREATE TABLE _club_content_placement(article_id TEXT PRIMARY KEY REFERENCES articles(id),section TEXT NOT NULL CHECK(section IN ('launch','landing','professional')),topic TEXT NOT NULL CHECK(topic IN ('unclassified','policy','practice')),updated_at TEXT NOT NULL);
+CREATE TABLE _club_public_enterprises(id TEXT PRIMARY KEY,name TEXT NOT NULL,summary TEXT NOT NULL,body TEXT NOT NULL,logo_data_url TEXT NOT NULL,publication_consent BOOLEAN NOT NULL DEFAULT FALSE,status TEXT NOT NULL CHECK(status IN ('draft','published')),revision BIGINT NOT NULL CHECK(revision>0),created_by TEXT NOT NULL REFERENCES users(id),updated_at TEXT NOT NULL,published_at TEXT);
+CREATE TABLE _club_batch2_receipts(actor_id TEXT NOT NULL REFERENCES users(id),idempotency_key TEXT NOT NULL,request_hash TEXT NOT NULL,result_json JSONB NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(actor_id,idempotency_key));
+INSERT INTO settings(key,value) VALUES('_club_batch2_migration','014-batch2-v1');

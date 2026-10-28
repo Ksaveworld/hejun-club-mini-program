@@ -1,5 +1,5 @@
 // Draw only public invitation text. Identity, contacts and credentials never enter the canvas.
-function drawInvite(canvas, kind, code) {
+function drawInvite(canvas, kind, code, inviteCodeImage) {
   if (!/^[A-Z0-9]{6}$/.test(code) || !['card', 'poster'].includes(kind)) throw new Error('推荐信息不正确，请刷新。');
   const width = 600, height = kind === 'card' ? 480 : 900;
   canvas.width = width; canvas.height = height;
@@ -17,6 +17,15 @@ function drawInvite(canvas, kind, code) {
     text('推荐码  ' + code, 22, 306);
     text('点击小程序卡片，查看会员介绍', 22, 371);
     text('开发内测 · 暂未开放支付', 18, 424, '#ced4bc');
+  } else if(inviteCodeImage) {
+    text('连接跨境视野', 36, 265, '#f8efce', 'serif');
+    text('了解服务与会员权益', 26, 322);
+    text('推荐码  ' + code, 24, 373);
+    ctx.fillStyle='#ffffff';ctx.fillRect(148,405,304,304);
+    ctx.drawImage(inviteCodeImage,160,417,280,280);
+    text('微信扫码，查看会员介绍',24,752);
+    text('推荐来源由服务器核验',20,792,'#ced4bc');
+    text('推荐关系不代表已取得奖励资格',17,841,'#ced4bc');
   } else {
     text('连接跨境视野', 36, 272, '#f8efce', 'serif');
     text('了解服务与会员权益', 26, 328);

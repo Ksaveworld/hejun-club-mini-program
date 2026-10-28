@@ -1,0 +1,25 @@
+.home-activities { margin: 22px 0 12px; min-width: 0; }
+.home-activities-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:11px; }
+.club-shell .home-activities-heading h2 { margin:0; font-family:var(--font-serif); font-size:20px; font-weight:600; letter-spacing:.08em; }
+.home-activities-heading > a { display:flex; align-items:center; gap:5px; color:#667568; font-size:12px; min-height:32px; }
+.home-activities-track { position:relative; display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; padding:3px 3px 5px; scroll-padding-left:3px; }
+.home-activities-track::-webkit-scrollbar { display:none; }
+.home-activities-track::after { content:''; flex:0 0 8%; }
+.home-activity { position:relative; isolation:isolate; flex:0 0 91%; min-width:0; min-height:192px; box-sizing:border-box; scroll-snap-align:start; padding:18px; border:1px solid #dce5dc; border-radius:16px; overflow:hidden; color:#254637; background:#edf3ec; text-decoration:none; }
+.home-activity-expo { background:#eaf0f6; border-color:#d8e2ed; color:#274963; }
+.home-activity-singapore { background:#f7f0df; border-color:#e9dfc5; color:#66512f; }
+.home-activity-meta { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11px; }
+.home-activity-tag { border:1px solid currentColor; border-radius:20px; padding:2px 7px; white-space:nowrap; font-size:10px; }
+.home-activity-art { position:absolute; right:-10px; bottom:8px; opacity:.1; z-index:-1; transform:rotate(-12deg); }
+.club-shell .home-activity h3 { font-family:var(--font-serif); font-size:23px; font-weight:600; line-height:1.5; margin:17px 0 5px; color:inherit; }
+.home-activity p { font-size:12px; line-height:1.7; margin:0; color:inherit; }
+.home-activity-action { display:inline-flex; align-items:center; gap:12px; font-size:12px; font-weight:600; margin-top:18px; }
+.home-activities-controls { display:flex; align-items:center; gap:8px; min-height:40px; }
+.home-activities-hint { font-size:10px; color:#758073; margin-right:auto; }
+.home-activities-dots,.home-activities-arrows { display:flex; align-items:center; }
+.club-shell .home-activities-controls button { display:grid; place-items:center; border:0; background:transparent; padding:0; width:30px; height:36px; color:#36523f; cursor:pointer; }
+.home-activities-dots button span { width:5px; height:5px; background:#c2cdbf; border-radius:5px; transition:width .15s; }
+.home-activities-dots button[aria-current] span { width:18px; background:#36523f; }
+.home-activities-arrows button:disabled { opacity:.3; cursor:default; }
+@media(max-width:360px) { .home-activity { padding:14px; } .club-shell .home-activity h3 { font-size:21px; } .home-activities-controls { gap:2px; } .club-shell .home-activities-controls button { width:26px; } }
+@media(prefers-reduced-motion:reduce) { .home-activities-dots button span { transition:none; } }

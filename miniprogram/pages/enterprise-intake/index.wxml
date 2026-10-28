@@ -1,0 +1,68 @@
+<view class="page">
+  <view class="page-title serif">企业信息收集与出海需求汇总表</view>
+  <view class="subtitle">中国—东盟经贸中心与和君国际 · 跨境企业家俱乐部</view>
+  <view wx:if="{{error}}" class="error">{{error}}</view>
+  <view wx:if="{{busy}}">正在处理，请保持页面打开…</view>
+  <view wx:if="{{busy && uploadProgress !== null}}" class="muted">{{uploadProgress < 100 ? '材料上传：' + uploadProgress + '%' : '材料已上传，正在保存资料…'}}</view>
+  <button wx:if="{{(!legalReady || !identityReady) && !busy}}" bindtap="load">重新读取</button>
+  <view class="draft-panel"><view>{{draftNote}}</view>
+    <button wx:if="{{identityReady && !loggedIn && !receipt}}" bindtap="openLogin" disabled="{{busy}}">先登录以保存文字草稿</button>
+    <button wx:if="{{identityReady && (draftSaved || draftDirty)}}" bindtap="discardDraft" disabled="{{busy}}">放弃本表单草稿</button>
+  </view>
+  <view wx:if="{{config.mode === 'closed'}}" class="card">企业资料收集暂未开放。此前已提交的资料仍保留。</view>
+  <view wx:if="{{receipt}}" class="card receipt"><view class="section-title">资料提交成功</view><view>关键统计信息与附件已一起保存，工作人员可在后台汇总和查看。请保存回执编号。</view><text selectable>回执编号：{{receipt}}</text><view>修订时请重新打开本页提交，注明原回执编号。原记录与文件会保留。</view></view>
+  <view wx:elif="{{config.mode === 'hybrid'}}">
+    <view class="card"><view class="section-title">为更好匹配服务，请完成：</view>
+      <view class="instruction">1. 下载Word版需求问卷，建议在电脑端用Word或WPS填写；如需同时提供产品服务介绍，请与填写后的问卷合并为一份PDF，再保存到微信聊天中提交。</view>
+      <button class="template-action" data-type="docx" bindtap="openDocument" disabled="{{busy}}">打开Word版需求问卷</button>
+      <view class="instruction">2. 在线填写下面关键信息，内容请与附件保持一致。</view>
+      <view class="instruction">3. 上传时，从微信聊天记录中选择填写好的Word或PDF文件，最大5MB。</view>
+      <view class="muted">已登录后，未提交的文字会在本机保留24小时；重新进入时可恢复。附件需要重新选择，同意选项需要重新确认。资料只有提交成功并取得回执后，才算交给运营。</view>
+    </view>
+    <view class="card"><view class="section-title">1. 在线填写关键统计信息</view><view>请如实填写下面关键信息。</view>
+      <view id="field-company" class="field">企业名称（必填）<input value="{{company}}" data-id="company" bindinput="change" maxlength="160" disabled="{{busy || !identityReady}}" /><view wx:if="{{fieldErrors.company}}" class="field-error">{{fieldErrors.company}}</view></view>
+      <view id="field-contact" class="field">联系人（必填）<input value="{{contact}}" data-id="contact" bindinput="change" maxlength="80" disabled="{{busy || !identityReady}}" /><view wx:if="{{fieldErrors.contact}}" class="field-error">{{fieldErrors.contact}}</view></view>
+      <view id="field-phone" class="field">联系电话（必填）<input type="text" value="{{phone}}" data-id="phone" bindinput="change" maxlength="30" disabled="{{busy || !identityReady}}" /><view wx:if="{{fieldErrors.phone}}" class="field-error">{{fieldErrors.phone}}</view></view>
+      <view wx:for="{{fields}}" wx:key="id" id="field-{{item.id}}" class="field">
+        <view>{{item.label}}（{{item.required ? '必填' : '选填'}}）{{item.maxChoices ? '（最多' + item.maxChoices + '项）' : ''}}</view>
+        <textarea wx:if="{{item.type === 'text'}}" value="{{item.value}}" data-id="{{item.id}}" bindinput="answer" maxlength="{{item.maxLength}}" disabled="{{busy || !identityReady}}" auto-height />
+        <input wx:elif="{{item.type === 'input'}}" value="{{item.value}}" data-id="{{item.id}}" bindinput="answer" maxlength="{{item.maxLength}}" disabled="{{busy || !identityReady}}" />
+        <checkbox-group wx:elif="{{item.type === 'multi'}}" data-id="{{item.id}}" bindchange="answer"><label wx:for="{{item.choices}}" wx:for-item="option" wx:key="value"><checkbox value="{{option.value}}" checked="{{option.checked}}" disabled="{{busy || !identityReady}}" />{{option.value}}</label></checkbox-group>
+        <radio-group wx:else data-id="{{item.id}}" bindchange="answer"><label wx:for="{{item.choices}}" wx:for-item="option" wx:key="value"><radio value="{{option.value}}" checked="{{option.checked}}" disabled="{{busy || !identityReady}}" />{{option.value}}</label></radio-group>
+        <view wx:if="{{item.error}}" class="field-error">{{item.error}}</view>
+      </view>
+      <view class="muted">选择“其他”时，请在说明或完整材料中补充。详细资质和服务模块评估保留在附件中，不自动提取统计。</view>
+      <view id="field-file" class="attachment-panel">
+        <view class="section-title">2. 选择完整材料</view>
+        <view class="upload-steps"><text>① 确认用途</text><text>② 选择文件</text><text>③ 提交取得回执</text></view>
+        <view class="upload-help">请先将填写好的需求问卷发送到微信聊天（如文件传输助手），再从聊天中选择。</view>
+        <view class="muted">支持 Word（.docx）或 PDF，最大 5MB。选择文件后仍需点击页面底部“提交企业资料”。</view>
+        <view class="file-confirmation">
+          <view class="confirmation-title">选择文件前，请确认用途</view>
+          <view class="upload-help">仅读取你主动选择的材料，用于企业需求内部评估与后续联系。选择文件不会立即上传。</view>
+          <checkbox-group bindchange="confirmFilePurpose"><label class="purpose-check"><checkbox value="purpose" color="#205447" checked="{{filePurposeAgreed}}" disabled="{{busy || !identityReady}}" /><text>我已了解并同意上述文件用途，确认选择的是本次要提交的企业材料。</text></label></checkbox-group>
+          <view wx:if="{{!filePurposeAgreed}}" class="confirmation-hint">请先勾选上方确认框，再选择文件</view>
+          <block wx:if="{{showPrivacy}}">
+            <button class="privacy-link" bindtap="openFilePrivacy">阅读{{privacyContractName}}</button>
+            <button class="attachment-action" id="enterprise-file-privacy" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreeFilePrivacy" disabled="{{!filePurposeAgreed || busy || !identityReady}}">同意并选择文件</button>
+            <button class="privacy-link" bindtap="cancelFilePrivacy">暂不选择，继续填写</button>
+          </block>
+          <button wx:else class="attachment-action" bindtap="chooseFile" disabled="{{busy || !filePurposeAgreed || !identityReady}}">{{file ? '重新选择文件' : '从微信聊天选择文件'}}</button>
+        </view>
+        <view wx:if="{{file}}" class="selected-file"><view class="file-status">已选择 · 尚未提交</view><view>{{file.name}}</view><view class="muted">大小：{{file.sizeLabel}}</view><button bindtap="removeFile" disabled="{{busy}}">移除附件</button></view>
+        <view wx:if="{{fileNotice}}" class="upload-help">{{fileNotice}}</view>
+        <view wx:if="{{fieldErrors.file}}" class="field-error">{{fieldErrors.file}}</view>
+      </view>
+      <view id="field-note" class="field">补交或其他说明（选填）<textarea value="{{note}}" data-id="note" bindinput="change" maxlength="1000" disabled="{{busy || !identityReady}}" placeholder="如为修订版，请填写原回执编号和修改内容" auto-height /><view wx:if="{{fieldErrors.note}}" class="field-error">{{fieldErrors.note}}</view></view>
+      <view>资料用于企业需求内部评估与后续联系，不公开展示。备案、对外匹配、名录展示等其他用途，按文件中的具体授权及后续确认办理，本次提交不会自动执行。</view>
+      <view wx:if="{{legal}}" class="field"><button wx:for="{{legal.documents}}" wx:key="id" data-type="legal" data-id="{{item.id}}" bindtap="openDocument">阅读《{{item.title}}》</button>
+        <view id="field-policy"><checkbox-group data-id="policy" bindchange="agree"><label><checkbox value="yes" checked="{{policy}}" disabled="{{busy || !identityReady}}" />我已阅读并同意会员服务协议和隐私政策</label></checkbox-group><view wx:if="{{fieldErrors.policy}}" class="field-error">{{fieldErrors.policy}}</view></view>
+        <view wx:if="{{legal.requireHongKongConsent !== false}}" id="field-hongKong"><checkbox-group data-id="hongKong" bindchange="agree"><label><checkbox value="yes" checked="{{hongKong}}" disabled="{{busy || !identityReady}}" />我单独同意上述隐私政策说明的香港服务器存储和处理安排，用于办理我选择的服务</label></checkbox-group><view wx:if="{{fieldErrors.hongKong}}" class="field-error">{{fieldErrors.hongKong}}</view></view>
+      </view>
+      <view id="field-consent"><checkbox-group data-id="consent" bindchange="agree"><label><checkbox value="yes" checked="{{consent}}" disabled="{{busy || !identityReady}}" />我确认有权提交本企业资料，并同意用于本次需求内部评估与后续联系。</label></checkbox-group><view wx:if="{{fieldErrors.consent}}" class="field-error">{{fieldErrors.consent}}</view></view>
+      <view class="muted">看到资料提交成功和回执编号，才表示字段与附件均已保存。上传时请保持页面打开。</view>
+      <view wx:if="{{validationSummary}}" class="field-error">{{validationSummary}}</view>
+      <button class="primary-action" bindtap="submit" disabled="{{busy || showPrivacy || !legalReady || !identityReady}}" loading="{{busy}}">提交企业资料</button>
+    </view>
+  </view>
+</view>

@@ -1,23 +1,32 @@
-<view class="page">
+<view class="page home-page">
   <view class="brand-row">
     <image class="brand-logo" src="/assets/cabc-official-logo.png" mode="widthFix" />
     <text class="brand-label">会员服务</text>
   </view>
-  <view class="hero">
-    <view class="hero-line hero-line-one"></view>
-    <view class="hero-line hero-line-two"></view>
+  <button class="hero" hover-class="tap-feedback" bindtap="openIntroduction" aria-label="了解中国—东盟跨境企业家俱乐部">
+    <image class="hero-art" src="/assets/ui/club-hero-embossed-v1.jpg" mode="aspectFill" aria-hidden="true" />
     <view class="hero-title serif">中国—东盟<view>跨境企业家俱乐部</view></view>
-    <view class="hero-subtitle">跨境知识 · 企业服务 · 交流参访</view>
+    <view class="hero-subtitle"><text>信任圈层</text><text>精准匹配</text><text>资源直通</text><text>同频共生</text></view>
+    <view class="hero-action">了解俱乐部 ›</view>
+  </button>
+
+  <view class="section">
+    <view class="section-heading"><text class="section-title serif">活动</text><button class="text-action" bindtap="openActivities">全部活动 ›</button></view>
+    <swiper class="activity-track" current="{{activeCard}}" bindchange="cardChanged" next-margin="36rpx" indicator-dots autoplay="{{false}}">
+      <swiper-item wx:for="{{activityCards}}" wx:key="id"><button class="activity-card activity-card-{{item.id}}" data-id="{{item.id}}" bindtap="openActivity"><image class="activity-art" src="/assets/ui/Order-duotone.png" mode="aspectFit" aria-hidden="true" /><view class="activity-meta"><text class="activity-label">{{item.label}}</text><text class="activity-tag">{{item.tag}}</text></view><view class="activity-title serif">{{item.title}}</view><view class="activity-copy">{{item.description}}</view><view class="activity-action">{{item.action}} ›</view></button></swiper-item>
+    </swiper>
+    <view class="activity-controls"><button data-step="-1" bindtap="moveCard" disabled="{{activeCard === 0}}">上一项</button><text>{{activeCard + 1}} / {{activityCards.length}}</text><button data-step="1" bindtap="moveCard" disabled="{{activeCard === activityCards.length - 1}}">下一项</button></view>
   </view>
   <view class="shortcuts">
     <button wx:for="{{shortcuts}}" wx:key="id" class="shortcut" hover-class="tap-feedback" data-service-id="{{item.id}}" bindtap="openServices">
-      <view class="shortcut-mark serif">{{item.mark}}</view>
-      <view>{{item.label}}</view>
+      <view class="shortcut-mark"><image class="shortcut-icon" src="/assets/ui/{{item.icon}}-duotone.png" mode="aspectFit" aria-hidden="true" /></view>
+      <view class="shortcut-label">{{item.label}}</view>
     </button>
   </view>
   <button wx:if="{{journey}}" class="journey-summary card" bindtap="openJourney"><view><view class="guide-title">{{journey.title}}</view><view class="guide-copy">{{journey.note}}</view></view><text class="arrow">›</text></button>
-  <view wx:if="{{articles.length || contentError}}" class="section">
+  <view wx:if="{{articles.length || contentError || loading}}" class="section">
     <view class="section-heading"><text class="section-title serif">精选阅读</text><button class="text-action" bindtap="openArticles">查看更多 ›</button></view>
+    <view wx:if="{{loading}}" class="content-loading">正在读取精选内容…</view>
     <button wx:if="{{contentError}}" class="text-action" bindtap="refresh">{{contentError}}</button>
     <button wx:for="{{articles}}" wx:key="id" class="editorial" data-id="{{item.id}}" bindtap="openArticle" hover-class="tap-feedback">
       <view class="editorial-kicker">{{item.category === 'knowledge' ? '知识与实务' : '行业资讯'}}</view>
@@ -33,4 +42,5 @@
   </view>
   <button class="membership-banner" hover-class="tap-feedback" bindtap="openMembers"><text>会员指南与权益</text><text class="arrow">›</text></button>
   <button class="all-services" hover-class="tap-feedback" bindtap="openServices">查看全部跨境服务 ›</button>
+  <button class="all-services" hover-class="tap-feedback" open-type="share">分享俱乐部</button>
 </view>

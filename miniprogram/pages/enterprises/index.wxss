@@ -1,0 +1,2 @@
+.logo{width:120rpx;height:120rpx;margin-bottom:20rpx}.enterprise{width:100%;margin-bottom:20rpx;text-align:left}.body{display:block;white-space:pre-wrap;line-height:1.8;margin-top:24rpx}
+.enterprise-intro{font-size:28rpx;line-height:1.9;color:#31564b;margin:24rpx 0 32rpx}.enterprise-empty{font-size:28rpx;line-height:1.9}

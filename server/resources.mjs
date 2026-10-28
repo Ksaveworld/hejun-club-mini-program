@@ -32,6 +32,7 @@ function content(input) {
   return { title: textField(input.title, '标题', 80, true), summary: textField(input.summary ?? '', '摘要', 180),
     body: textField(input.body ?? '', '正文', 4000), category: input.category, access: accessPolicy(input.access), action: resourceAction(input.action) };
 }
+export { content as prepareResourceContent, accessPolicy as resourceAccessPolicy, resourceAction };
 function adminView(row) {
   return { id: row.id, title: row.title, summary: row.summary, body: row.body, category: row.category,
     action: JSON.parse(row.action_json), access: JSON.parse(row.access_json), status: row.status, revision: row.revision,
@@ -90,7 +91,7 @@ export function transitionResource(db, actor, id, action, revision) {
     return adminView(db.prepare('SELECT * FROM service_resources WHERE id=?').get(id));
   });
 }
-function canRead(row, actor, member) {
+export function canRead(row, actor, member) {
   if (row.status !== 'published') return false;
   let access;
   try { access = accessPolicy(JSON.parse(row.access_json)); } catch { return false; }

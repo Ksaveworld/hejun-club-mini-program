@@ -39,3 +39,6 @@
 .empty-copy { margin: 18rpx 0 26rpx; color: #697970; font-size: 25rpx; }
 .refresh-orders { margin-top: 28rpx; }
 .orders-members { min-height: 92rpx; margin-top: 10rpx; padding: 24rpx; color: #287963; font-size: 26rpx; text-align: center; }
+.member-next-step > view + view { margin-top: 16rpx; }
+.member-next-step .secondary-action { margin-top: 20rpx; }
+.order-row-heading { flex-wrap: wrap; }

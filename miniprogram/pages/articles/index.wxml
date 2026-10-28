@@ -1,34 +1,80 @@
+<view wx:if="{{supportMode}}" class="page">
+  <view class="heading"><view class="page-title serif">{{supportSelected ? supportSelected.title : '落地配套'}}</view><view class="subtitle">落地指引：去哪选址、找谁对接、合作事项</view></view>
+  <view wx:if="{{loading}}" class="muted">正在读取资料…</view>
+  <view wx:if="{{error}}" class="error">{{error}}<button bindtap="refresh">重新读取</button></view>
+  <block wx:if="{{ready && supportSelected}}"><view wx:if="{{!filtered.length}}" class="card"><view class="section-title">资料待补充</view><view class="subtitle">{{supportSelected.summary}}</view></view><button wx:for="{{filtered}}" wx:key="id" class="card support-card" data-id="{{item.id}}" bindtap="navigateArticle"><view class="section-title">{{item.title}}</view><view class="subtitle">{{item.summary}}</view><view class="muted">{{item.document ? '查看 PDF 图文资料' : '查看资料'}} ›</view></button></block>
+  <block wx:elif="{{ready}}"><view class="muted">园区、商协会及合作信息汇总</view><button wx:for="{{supportTopics}}" wx:key="id" class="card support-card" data-id="{{item.id}}" bindtap="openSupport"><view class="section-title serif">{{item.title}}</view><view class="subtitle">{{item.summary}}</view><view class="muted">{{item.count ? '查看资料' : '资料待补充'}} ›</view></button></block>
+  <button wx:if="{{supportSelected}}" class="secondary-action" bindtap="backSupport">返回落地配套</button>
+</view>
+<block wx:else>
 <view class="page">
-  <view class="heading"><view class="page-title serif">{{detailId ? '阅读内容' : category === 'knowledge' ? '跨境知识库' : category === 'news' ? '行业资讯' : '资讯与知识'}}</view><view class="subtitle">{{detailId ? '' : '查找和阅读已开放的内容'}}</view></view>
+  <view class="heading"><view class="page-title serif">{{detailId ? '阅读内容' : fixedTopic === 'policy' ? '政策法规' : fixedTopic === 'practice' ? '经营实务' : '资讯报告'}}</view><view class="subtitle">{{detailId ? '' : fixedTopic === 'policy' ? '查规则、看文件' : fixedTopic === 'practice' ? '学案例、学实操' : '查找和阅读已开放的内容'}}</view></view>
+  <view wx:if="{{!detailId && fixedTopic === 'policy'}}" class="subtitle">查阅海外国别投资规则、出海合规政策与指南文件</view>
+  <view wx:if="{{!detailId && fixedTopic === 'practice'}}" class="subtitle">参考企业出海实战案例、跨境业务实操方法资料</view>
   <view class="toolbar"><button wx:if="{{error}}" class="text-action" bindtap="refresh" loading="{{loading}}">重新读取</button><button wx:if="{{!loggedIn}}" class="text-action" bindtap="openLogin">登录查看会员内容</button></view>
   <view wx:if="{{error}}" class="error" role="alert">{{error}}</view>
   <view wx:if="{{detailId && selected}}" class="card article-detail">
 
-    <view class="muted">{{selected.category === 'news' ? '资讯' : '知识'}}</view>
+    <view class="muted">{{selected.document ? '报告' : isRecap ? '活动回顾' : '资讯'}}</view>
     <view class="section-title serif">{{selected.title}}</view>
-    <text class="article-body" selectable>{{selected.body}}</text>
-    <view wx:if="{{selected.document}}">
-      <view class="muted">共 {{selected.document.pages}} 页 · {{selected.fullAccess ? '全文阅读' : '可试看前 '+selected.document.previewPages+' 页'}}</view>
-      <button class="primary-action" bindtap="readPdf" loading="{{downloading}}" disabled="{{downloading}}">{{selected.fullAccess ? '阅读 PDF 全文' : '阅读试看版'}}</button>
-      <view wx:if="{{!selected.fullAccess}}"><view class="footnote">有效的基础会员、星级会员及机构会员可阅读全文。</view><button class="secondary-action" bindtap="{{loggedIn ? 'openMembers' : 'openLogin'}}">{{loggedIn ? '了解会员权益' : '会员登录阅读全文'}}</button></view>
+    <view wx:if="{{isRecap && !selected.document}}" class="muted">本篇为往期活动报道，非当前报名通知。</view>
+
+    <button class="secondary-action" open-type="share">{{selected.document ? '分享报告介绍给朋友' : '分享文章给朋友'}}</button>
+    <view class="footnote">{{selected.document ? '分享的是报告介绍，全文阅读权限以对方会籍为准。' : selected.originalUrl ? '完整图文请点击下方按钮阅读公众号原文。' : '文章阅读范围以后台设置为准。'}}</view>
+    <view wx:if="{{selected.document}}"><view class="footnote">下方按钮打开 PDF 原有图文和排版，资料说明不是 PDF 全文。</view>
+      <view class="muted">共 {{selected.document.pages}} 页 · {{selected.fullAccess ? '全文阅读' : selected.document.previewPages > 0 ? '可试看前 '+selected.document.previewPages+' 页' : '本份资料未开放试看'}}</view>
+      <button wx:if="{{selected.fullAccess || selected.document.previewPages > 0}}" class="primary-action" bindtap="readPdf" loading="{{downloading}}" disabled="{{downloading}}">{{selected.fullAccess ? '打开 PDF 原件（含图片）' : '打开 PDF 试看（含图片）'}}</button>
+      <view wx:if="{{!selected.fullAccess}}"><view class="footnote">全文阅读以本份资料设置的会员档位和当前会籍状态为准。</view><button class="secondary-action" bindtap="{{loggedIn ? 'openMembers' : 'openLogin'}}">{{loggedIn ? '了解会员权益' : '会员登录阅读全文'}}</button></view>
     </view>
+    <view wx:if="{{selected.document}}" class="muted">资料说明</view>
+    <view wx:if="{{selected.originalUrl && !selected.document}}">
+      <button class="primary-action" bindtap="readOfficial">阅读公众号原文（含图文）</button>
+      <view wx:if="{{officialError}}" class="error">暂时无法打开公众号原文，可复制链接后在微信中打开。<button bindtap="copyOfficial">复制公众号原文链接</button></view>
+      <view class="muted">文章简介（非公众号全文）</view>
+    </view>
+    <text class="article-body" selectable>{{selected.body}}</text>
   </view>
   <view wx:if="{{!detailId}}">
+  <view wx:if="{{section !== 'all' && !fixedTopic}}" class="footnote">当前板块：{{section === 'launch' ? '出海启航' : section === 'landing' ? '落地加速' : '专业护航'}}<button class="text-action" bindtap="showAllSections">查看全部板块资料</button></view>
   <input class="search-input" value="{{query}}" bindinput="search" placeholder="搜索标题、摘要" maxlength="50" confirm-type="search" />
-  <view class="categories">
+  <view wx:if="{{!fixedTopic}}" class="categories">
     <button class="category {{category === 'all' ? 'active' : ''}}" data-category="all" bindtap="chooseCategory">全部</button>
     <button class="category {{category === 'news' ? 'active' : ''}}" data-category="news" bindtap="chooseCategory">资讯</button>
-    <button class="category {{category === 'knowledge' ? 'active' : ''}}" data-category="knowledge" bindtap="chooseCategory">知识</button>
+    <button class="category {{category === 'knowledge' ? 'active' : ''}}" data-category="knowledge" bindtap="chooseCategory">报告</button>
+  </view>
+  <block wx:if="{{section === 'landing' && !fixedTopic}}">
+  <view class="topic-label muted">资料主题</view>
+  <view class="categories topics">
+    <button class="category {{topic === 'all' ? 'active' : ''}}" data-topic="all" bindtap="chooseTopic">全部主题</button>
+    <button class="category {{topic === 'policy' ? 'active' : ''}}" data-topic="policy" bindtap="chooseTopic">政策法规</button>
+    <button class="category {{topic === 'practice' ? 'active' : ''}}" data-topic="practice" bindtap="chooseTopic">经营实务</button>
+  </view>
+  <view wx:if="{{topic !== 'all'}}" class="footnote">按运营设置的主题展示；旧资料尚未设置主题时，按标题中的明确标识筛选。其他资料可在“全部主题”中查找。</view>
+  </block>
+  <view wx:if="{{fixedTopic === 'policy'}}" class="categories topics">
+    <button class="category {{!policyCategory ? 'active' : ''}}" data-value="" bindtap="choosePolicyCategory">全部分类</button>
+    <button class="category {{policyCategory === 'investment' ? 'active' : ''}}" data-value="investment" bindtap="choosePolicyCategory">国别投资规则</button>
+    <button class="category {{policyCategory === 'compliance' ? 'active' : ''}}" data-value="compliance" bindtap="choosePolicyCategory">出海合规政策</button>
+    <button class="category {{policyCategory === 'guides' ? 'active' : ''}}" data-value="guides" bindtap="choosePolicyCategory">合规指南文库</button>
+  </view>
+  <view wx:if="{{fixedTopic === 'practice'}}" class="categories topics">
+    <button class="category {{!practiceCategory ? 'active' : ''}}" data-value="" bindtap="choosePracticeCategory">全部分类</button>
+    <button class="category {{practiceCategory === 'cases' ? 'active' : ''}}" data-value="cases" bindtap="choosePracticeCategory">出海实战案例</button>
+    <button class="category {{practiceCategory === 'methods' ? 'active' : ''}}" data-value="methods" bindtap="choosePracticeCategory">跨境实操方法</button>
+    <button class="category {{practiceCategory === 'library' ? 'active' : ''}}" data-value="library" bindtap="choosePracticeCategory">实务资料库</button>
   </view>
   <view wx:if="{{loading}}" class="muted">正在读取内容…</view>
   <view wx:if="{{ready}}">
     <button wx:for="{{filtered}}" wx:key="id" class="card article-item" data-id="{{item.id}}" bindtap="navigateArticle" hover-class="tap-feedback">
-      <view class="muted">{{item.category === 'news' ? '资讯' : '知识'}}</view><view class="section-title serif">{{item.title}}</view><view class="subtitle">{{item.summary}}</view><view class="read-link">{{item.document && !item.fullAccess ? '试看前10页' : '阅读全文'}} ›</view>
+      <view class="muted">{{item.document ? '报告' : '资讯'}}</view><view class="section-title serif">{{item.title}}</view><view class="subtitle">{{item.summary}}</view><view class="read-link">{{item.document && !item.fullAccess ? (item.document.previewPages > 0 ? '试看前'+item.document.previewPages+'页' : '查看阅读说明') : '阅读全文'}} ›</view>
     </button>
-    <view wx:if="{{!articles.length}}" class="card muted">暂无可阅读内容。你可以切换分类；会员登录后可查看对应资料。</view>
+    <view wx:if="{{(policyCategory || practiceCategory) && !query && !filtered.length}}" class="card muted">资料待补充，确认归类后将在此展示。</view>
+    <view wx:elif="{{!articles.length}}" class="card muted">暂无可阅读内容。你可以切换分类；会员登录后可查看对应资料。</view>
     <view wx:elif="{{!filtered.length}}" class="card"><view class="muted">没有找到匹配内容。</view><button class="text-action" bindtap="resetFilters">清空筛选</button></view>
     <view wx:if="{{hasMore}}" class="footnote">当前展示最近 100 篇可读内容，搜索范围为本次列表。</view>
   </view>
   </view>
   <button wx:if="{{detailId}}" class="secondary-action" bindtap="backToList">返回上一页</button>
 </view>
+
+</block>

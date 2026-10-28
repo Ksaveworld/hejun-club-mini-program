@@ -1,3 +1,4 @@
+import {readNativeTransfer,consumeNativeTransfer} from './native-transfer.mjs';
 import { randomBytes } from 'node:crypto';
 import { audit, transaction } from './db.mjs';
 import { BusinessError, digest, nowISO, publicUser, insertUser, hashPassword,
@@ -43,7 +44,7 @@ function captureLoginReferral(db, user, referral) {
     captureReferral(db, user.id, referral);
   return db.prepare('SELECT * FROM users WHERE id=?').get(user.id);
 }
-export async function trialLogin(db, body, register, dummyHash) {
+export async function trialLogin(db, body, register, dummyHash, onAuthenticated) {
   const username = validateCredentials(body);
   if (register) {
     if (body.consent !== true) throw authError('请同意内测资料保存说明', 400, 'INVALID_REQUEST');
@@ -54,6 +55,7 @@ export async function trialLogin(db, body, register, dummyHash) {
       const user = insertUser(db, username, passwordHash);
       captureReferral(db, user.id, body.referral ?? '');
       audit(db, user.id, 'account.registered', user.id);
+      if (onAuthenticated) onAuthenticated(user.id);
       return issueSession(db, db.prepare('SELECT * FROM users WHERE id=?').get(user.id), 'local-trial');
     });
   }
@@ -61,13 +63,29 @@ export async function trialLogin(db, body, register, dummyHash) {
   const valid = await checkPassword(body.password, user?.password_hash ?? await dummyHash);
   if (!user || !valid) throw authError('账号或密码不正确', 401, 'INVALID_CREDENTIALS');
   if (user.role !== 'member') throw authError('小程序登录仅供会员使用', 403, 'FORBIDDEN');
-  return transaction(db, () => issueSession(db, captureLoginReferral(db, user, body.referral), 'local-trial'));
+  return transaction(db, () => {
+    if (onAuthenticated) onAuthenticated(user.id);
+    return issueSession(db, captureLoginReferral(db, user, body.referral), 'local-trial');
+  });
 }
-export async function wechatLogin(db, body, adapter, allowsIdentity = () => true) {
+export async function wechatLogin(db, body, adapter, allowsIdentity = () => true, onAuthenticated, dummyHash, transferAppId) {
   if (!adapter?.configured) throw authError('微信登录尚未配置，请使用当前已开放的登录方式', 503, 'WECHAT_NOT_CONFIGURED');
   if (typeof body.code !== 'string' || !body.code.length || body.code.length > 512 || /\s/.test(body.code))
     throw authError('微信登录凭证不正确，请重试', 400, 'INVALID_REQUEST');
   if (body.consent !== true) throw authError('请先阅读并同意资料保存说明', 400, 'INVALID_REQUEST');
+  let legacyUser=null;
+  if(body.transferCode!==undefined){
+    if(transferAppId!==adapter.appId || body.existingAccount!==undefined)throw authError('会员接续暂不可用或提交方式冲突',400,'INVALID_REQUEST');
+    legacyUser=readNativeTransfer(db,body.transferCode,adapter.appId).user;
+  }
+  if(body.existingAccount !== undefined){
+    if(!body.existingAccount || typeof body.existingAccount!=='object' || Array.isArray(body.existingAccount))
+      throw authError('原账号资料格式不正确',400,'INVALID_REQUEST');
+    const username=validateCredentials(body.existingAccount);
+    legacyUser=db.prepare('SELECT * FROM users WHERE username=?').get(username);
+    const valid=await checkPassword(body.existingAccount.password,legacyUser?.password_hash ?? await (dummyHash ?? hashPassword(randomBytes(64).toString('hex'))));
+    if(!legacyUser || !valid || legacyUser.role!=='member')throw authError('原会员账号或密码不正确',401,'INVALID_CREDENTIALS');
+  }
   let identity;
   try { identity = await adapter.exchangeCode(body.code); }
   catch (error) {
@@ -80,12 +98,24 @@ export async function wechatLogin(db, body, adapter, allowsIdentity = () => true
   if (!allowsIdentity(identity)) throw authError('当前仅向受邀测试人员开放', 403, 'TRIAL_NOT_INVITED');
   // Hash outside the transaction, then recheck the identity inside it for concurrent first logins.
   const existing = db.prepare('SELECT user_id FROM wechat_identities WHERE app_id=? AND open_id=?').get(identity.appId, identity.openId);
-  const passwordHash = existing ? null : await hashPassword(randomBytes(64).toString('hex'));
+  const passwordHash = existing || legacyUser ? null : await hashPassword(randomBytes(64).toString('hex'));
   return transaction(db, () => {
     if (!allowsIdentity(identity)) throw authError('当前仅向受邀测试人员开放', 403, 'TRIAL_NOT_INVITED');
     const linked = db.prepare('SELECT user_id FROM wechat_identities WHERE app_id=? AND open_id=?').get(identity.appId, identity.openId);
     let user;
-    if (linked) {
+    if(body.transferCode!==undefined)legacyUser=consumeNativeTransfer(db,body.transferCode,adapter.appId);
+    if(legacyUser){
+      user=db.prepare('SELECT * FROM users WHERE id=?').get(legacyUser.id);
+      if(!user || user.role!=='member' || user.password_hash!==legacyUser.password_hash)
+        throw authError('原账号状态已变化，请重新验证',409,'ACCOUNT_CONFLICT');
+      const other=db.prepare('SELECT open_id FROM wechat_identities WHERE app_id=? AND user_id=?').get(identity.appId,user.id);
+      if(linked && linked.user_id!==user.id || other && other.open_id!==identity.openId)
+        throw authError('微信或原账号已有其他关联，请联系工作人员核对，不能自动合并',409,'ACCOUNT_CONFLICT');
+      if(!linked){
+        db.prepare('INSERT INTO wechat_identities(app_id,open_id,user_id,created_at) VALUES (?,?,?,?)').run(identity.appId,identity.openId,user.id,nowISO());
+        audit(db,user.id,'account.native_wechat_linked',user.id,{appId:identity.appId});
+      }
+    } else if (linked) {
       user = db.prepare('SELECT * FROM users WHERE id=?').get(linked.user_id);
       if (user.role !== 'member') throw authError('小程序登录仅供会员使用', 403, 'FORBIDDEN');
       user = captureLoginReferral(db, user, body.referral);
@@ -98,6 +128,7 @@ export async function wechatLogin(db, body, adapter, allowsIdentity = () => true
       audit(db, user.id, 'account.wechat_registered', user.id);
       user = db.prepare('SELECT * FROM users WHERE id=?').get(user.id);
     }
+    if (onAuthenticated) onAuthenticated(user.id);
     return issueSession(db, user, 'wechat');
   });
 }

@@ -1,0 +1,57 @@
+<view class="page intro-page">
+  <image class="intro-logo" src="/assets/cabc-official-logo.png" mode="widthFix" />
+  <view class="intro-hero">
+    <image class="intro-art" src="/assets/ui/club-hero-embossed-v1.jpg" mode="aspectFill" aria-hidden="true" />
+    <view class="intro-hero-copy">
+      <view class="intro-eyebrow">中国—东盟经贸中心 × 和君国际</view>
+      <view class="page-title serif"><view>中国—东盟跨境</view><view>企业家俱乐部</view></view>
+      <view class="intro-hero-note">连接中国与东盟，探索双向跨境合作。</view>
+    </view>
+  </view>
+  <view class="intro-lead serif">你离东盟市场，只差一个“对”的圈子</view>
+  <view class="intro-paragraph">由中国—东盟经贸中心与和君国际联合发起，汇聚中国与东盟企业家，围绕“找人、找钱、找业务”，搭建交流与合作的平台。</view>
+  <view class="intro-paragraph muted">出海不只需要产品，也需要了解当地市场、找到合作伙伴和专业支持。我们希望通过知识、交流与服务，帮助企业理清方向，连接资源。</view>
+
+  <view class="intro-section-heading">
+    <view class="intro-eyebrow">四个板块</view>
+    <view class="section-title serif">从认识市场，到寻找支持</view>
+  </view>
+  <view class="card intro-service" wx:for="{{sections}}" wx:key="number">
+    <view class="intro-service-top"><text class="intro-number">{{item.number}}</text><view class="section-title serif">{{item.title}}</view></view>
+    <view class="intro-tagline">{{item.tagline}}</view>
+    <view class="intro-paragraph muted">{{item.text}}</view>
+  </view>
+  <button class="secondary-action" bindtap="openServices">查看服务与资料</button>
+
+  <view class="intro-section-heading">
+    <view class="intro-eyebrow">如何参与</view>
+    <view class="section-title serif">先了解，再选择适合自己的方式</view>
+  </view>
+  <view class="card intro-steps">
+    <view class="intro-step"><view class="intro-step-title">先阅读与交流</view><view class="muted">游客可以浏览公开资讯与资料、查看活动，也可以先填写需求问卷，无需先购买会员。</view></view>
+    <view class="intro-step"><view class="intro-step-title">让我们了解你的需求</view><view class="muted">工作人员根据问卷和企业情况进行人工跟进，沟通可提供的服务。提交问卷不代表付费，也不自动开通会员。</view></view>
+    <view class="intro-step"><view class="intro-step-title">按需选择会员服务</view><view class="muted">了解具体权益后，再选择会员类型。已有会员如有进一步服务需求，请联系工作人员沟通。</view></view>
+    <button class="secondary-action" bindtap="openSurveys">查看需求问卷</button>
+  </view>
+
+  <view class="intro-section-heading">
+    <view class="intro-eyebrow">会员体系</view>
+    <view class="section-title serif">按需加入，共同探索</view>
+  </view>
+  <view class="card intro-memberships">
+    <view class="intro-plan"><view class="intro-plan-head"><text class="intro-step-title">基础会员</text><text class="intro-price">365 元 / 年</text></view><view class="muted">使用已开放的会员资料与线上权益；企业展示由运营审核资料及授权后安排。</view></view>
+    <view class="intro-plan"><view class="intro-plan-head"><text class="intro-step-title">星级会员</text><text class="intro-price">3,650 元 / 年</text></view><view class="muted">进一步参与线下交流与专业服务对接。活动安排、可用权益及服务优惠以相应说明为准。</view></view>
+    <view class="intro-plan"><view class="intro-plan-head"><text class="intro-step-title">机构会员</text><text class="intro-price">36,500 元 / 年</text></view><view class="intro-status">本期仅接受预报名，暂不收费或开通</view><view class="muted">先提交机构资料，与工作人员沟通审核及合作安排。</view></view>
+    <view class="footnote">基础、星级会员以核验付款成功后开通为准。各项阅读与服务范围请先查看会员权益；本页介绍不替代具体权益说明及会员服务协议。</view>
+  </view>
+  <button class="primary-action" bindtap="openMembers">查看会员权益</button>
+
+  <view class="card intro-contact">
+    <view class="section-title serif">一起开启东盟探索之旅</view>
+    <view class="intro-paragraph">咨询联系：白金玲</view>
+    <button class="intro-phone" bindtap="callContact">15502170129 · 点击拨打</button>
+    <view class="footnote"><view>上海市国家会展中心三楼</view><view>中国东盟经贸中心</view></view>
+  </view>
+  <button class="secondary-action" open-type="share">分享俱乐部介绍</button>
+</view>
+

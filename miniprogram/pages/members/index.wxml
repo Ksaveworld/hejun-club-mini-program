@@ -7,14 +7,31 @@
     <view wx:for="{{plans}}" wx:key="id" class="plan plan-{{item.id}}">
       <view class="plan-english">{{item.english}}</view>
       <view class="plan-title serif">{{item.name}}</view>
-      <view class="plan-price"><text class="currency">¥</text><text class="serif">{{item.priceLabel}}</text><text class="period"> / 年</text></view>
-      <view class="plan-summary">{{item.audience}}</view><view class="plan-summary">{{item.rule}}</view>
+      <view wx:if="{{item.isOrganization}}" class="plan-price-caption">参考年费 · 预申请不收费</view>
+      <view wx:if="{{item.priceReady}}" class="plan-price"><text class="currency">¥</text><text class="serif">{{item.priceLabel}}</text><text class="period"> / 年</text></view>
+      <view wx:else class="plan-summary">{{plansLoading ? '正在读取当前年费…' : '当前年费待确认'}}</view>
+      <view class="plan-summary">适合：{{item.audience}}</view><view class="plan-summary">{{item.rule}}</view>
       <view class="benefits">
+        <view class="benefits-title">核心权益</view>
         <view wx:for="{{item.benefits}}" wx:for-item="benefit" wx:key="*this" class="benefit"><text class="benefit-dot">·</text>{{benefit}}</view>
       </view>
-      <button class="plan-action" hover-class="tap-feedback" data-plan-id="{{item.id}}" bindtap="openPlan"><text>{{item.id === 'organization' ? '选择此会籍，申请资质审核' : '选择此会籍'}}</text><text class="arrow">›</text></button>
+      <view class="plan-closing">{{item.closing}}</view>
+      <view wx:if="{{item.serviceNote}}" class="plan-service-note">{{item.serviceNote}}</view>
+      <button class="plan-action" disabled="{{!item.priceReady}}" hover-class="tap-feedback" data-plan-id="{{item.id}}" bindtap="openPlan"><text>{{item.id === 'organization' ? '预申请，暂不收费' : '选择此会籍'}}</text><text class="arrow">›</text></button>
     </view>
   </view>
-  <view class="footnote">当前可提交申请；支付接通前不收款，提交申请或审核通过不会开通会籍。</view>
+  <view wx:if="{{membership}}" class="card">
+    <view class="section-title">同档会籍续费</view>
+    <view>当前有效期至 {{membership.expiryLabel}}</view>
+    <view wx:if="{{renewals.enabled && renewals.canRenew}}">按当前同档年费续费，付款核实后延长{{renewals.termLabel}}；尚未到期的时间保留。</view>
+    <button wx:if="{{renewals.enabled && renewals.canRenew}}" class="secondary-action" bindtap="openRenewal">续费当前会籍</button>
+    <view wx:else>{{renewals.reason || '当前会籍暂不支持在线续费'}}</view>
+  </view>
+  <view wx:if="{{renewalError}}" class="footnote">{{renewalError}}</view>
+  <button wx:if="{{plansError}}" class="secondary-action" disabled="{{plansLoading}}" bindtap="loadPlans">{{plansError}} 点击重试</button>
+  <view class="footnote">活动、匹配与名录机会由运营按具体条件安排。</view>
+  <view class="footnote">付款方式以订单页面当前开放状态为准。提交申请或付款说明不会直接开通会籍，须核实到账。</view>
+  <button class="secondary-action" bindtap="openGuide">如何选择适合自己的会员 ›</button>
+  <button class="secondary-action" bindtap="openHelp">入会常见问题 ›</button>
   <button class="primary-action services-action" hover-class="tap-feedback" bindtap="openServices">查看跨境服务</button>
 </view>

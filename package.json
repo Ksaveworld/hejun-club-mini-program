@@ -4,22 +4,29 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/dev.mjs",
-    "dev:api": "node server/index.mjs",
-    "backup": "node scripts/backup.mjs",
-    "referral:default": "node scripts/default-referral.mjs",
-    "test:server": "node --test tests/server/*.test.mjs",
-    "test:miniprogram": "node --test tests/miniprogram/*.test.mjs",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --host 127.0.0.1 --port 5186 --strictPort",
-    "test:e2e": "playwright test"
+    "dev": "node scripts/dev-local.mjs",
+    "build": "tsc --noEmit && vite build --config vite.admin.config.ts --mode cloud-ops",
+    "check:baseline": "node scripts/check-baseline.mjs",
+    "test:baseline": "node --test tests/server/activities.test.mjs tests/server/postgres-core.test.mjs tests/server/postgres-forms.test.mjs tests/server/postgres-operations-session.test.mjs",
+    "native:data": "node scripts/sync-native-data.mjs",
+    "native:check": "node scripts/sync-native-data.mjs --check"
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
     "lucide-react": "^1.41.0",
+    "pdf-lib": "^1.17.1",
+    "pg": "8.23.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "sharp": "^0.34.5"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "11.1.1"
+    }
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@playwright/test": "^1.63.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",

@@ -1,9 +1,14 @@
+import {legalRelease} from './legal-release.mjs';
 import {mkdirSync,existsSync,writeFileSync,lstatSync,readFileSync,realpathSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {randomBytes} from 'node:crypto';
 import {openDatabase,transaction} from './db.mjs';
 import {insertUser,hashPassword} from './domain.mjs';
 import {createApplication} from './app.mjs';
+import {createWebPolicy} from './web-policy.mjs';
+const origin=process.env.CLUB_WEB_ORIGIN;
+createWebPolicy({mode:'web-trial',origin});
+if(new URL(origin).hostname==='example.com')throw new Error('请配置实际部署域名，不能使用示例域名');
 if(process.env.NODE_ENV==='production')throw new Error('业务体验尚未完成正式上线验收');
 const directory='/var/lib/hejun-club-web';
 mkdirSync(directory,{recursive:true,mode:0o700});
@@ -18,7 +23,8 @@ if(!db.prepare("SELECT 1 FROM users WHERE role='admin'").get()){
  const password=randomBytes(24).toString('base64url'),hash=await hashPassword(password);
  transaction(db,()=>{insertUser(db,'web_admin',hash,'admin');writeFileSync(file,'业务体验管理员\n账号：web_admin\n密码：'+password+'\n',{flag:'wx',mode:0o600});});
 }
-const server=createApplication(db,{documentsDirectory:join(directory,'report-files'),webTrial:{mode:'web-trial',origin:'https://example.com'}});
+const webWechat=process.env.CLUB_WEB_WECHAT==='1'?JSON.parse(readFileSync(join(directory,'wechat-official-account.local.json'),'utf8')):null;
+const server=createApplication(db,{enterpriseIntake:process.env.CLUB_ENTERPRISE_INTAKE==='hybrid',legalRelease,webWechat,documentsDirectory:join(directory,'report-files'),manualPayment:process.env.CLUB_MANUAL_PAYMENT==='1',webTrial:{mode:'web-trial',origin}});
 server.requestTimeout=30000;server.headersTimeout=10000;
-server.listen(5211,'127.0.0.1',()=>console.log('网页业务体验已启动，数据独立保存，支付关闭。'));
+server.listen(5211,'127.0.0.1',()=>console.log('网页业务体验已启动，数据独立保存；自动支付关闭，人工收款按环境开关启用。'));
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>server.close(()=>{db.close();process.exit(0);}));

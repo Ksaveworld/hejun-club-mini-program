@@ -1,0 +1,7 @@
+<template name="legal-fields">
+  <view wx:if="{{legal}}" class="card legal-fields">
+    <button wx:for="{{legal.documents}}" wx:key="id" data-id="{{item.id}}" bindtap="openLegal">阅读《{{item.title}}》</button>
+    <checkbox-group data-id="policy" bindchange="agreeLegal"><label><checkbox value="agree" checked="{{policy}}" disabled="{{busy}}" color="#164c3d" />我已阅读并同意上述会员服务协议和隐私政策</label></checkbox-group>
+    <checkbox-group wx:if="{{legal.requireHongKongConsent !== false}}" data-id="hongKong" bindchange="agreeLegal"><label><checkbox value="agree" checked="{{hongKong}}" disabled="{{busy}}" color="#164c3d" />我单独同意隐私政策说明的香港服务器存储和处理安排</label></checkbox-group>
+  </view>
+</template>

@@ -7,17 +7,21 @@ export interface User {
   referralLockedAt: string | null; phoneVerified: boolean;
 }
 export interface Membership { planId: PlanId; orderId: string; startsAt: string; expiresAt: string; active: boolean }
-export interface Session { user: User | null; membership: Membership | null; paymentReady: boolean; defaultReferralConfigured: boolean }
+export interface Session { user: User | null; membership: Membership | null; paymentReady: boolean; manualPaymentReady?: boolean; defaultReferralConfigured: boolean }
 export interface Order {
   id: string; userId: string; planId: PlanId; amountCents: number; actualPaidCents: number | null;
   currency: string; status: 'review' | 'pending' | 'paid' | 'cancelled' | 'rejected';
   form: JoinForm; createdAt: string; paidAt: string | null; expiresAt: string | null;
   reviewNote: string | null; reviewedAt: string | null; sourceCode: string | null;
   referralSource: string | null;
+  manualAftercareAvailable?: boolean;
+  paymentAttempted?: boolean;
+  cancellation?: {localOnly:boolean;paymentReconciliationRequired:boolean} | null;
+  aftercare?: {status:'completed';refundAmountCents:number;refundCompletedAt:string;membershipDisposition:'terminate'|'retain';recordedAt:string} | null;
 }
 export interface Post { id: string; userId: string; title: string; body: string; status: 'pending' | 'published' | 'rejected'; reason: string | null; createdAt: string }
 export const statusLabels = { review:'待资质审核', pending:'待付款', paid:'已付款', cancelled:'已取消', rejected:'审核未通过' };
-export const postLabels = { pending:'待审核', published:'已通过', rejected:'已驳回' };
+export const postLabels = { pending:'待审核', published:'已发布', rejected:'未公开' };
 let webActor: string | null = null;
 export function setWebActor(id: string | null) { webActor=id; }
 export async function api<T>(path: string, body?: unknown, key?: string): Promise<T> {
@@ -25,11 +29,11 @@ export async function api<T>(path: string, body?: unknown, key?: string): Promis
   let response: Response;
   try {
     response = await fetch(`${isWebTrial ? '/hejun-club/api' : '/api'}${path}`, { method: body === undefined ? 'GET' : 'POST',
-      credentials:'same-origin', headers:{ 'Content-Type':'application/json','X-Club-Request':'1', ...(key ? { 'Idempotency-Key':key } : {}), ...(isWebTrial && webActor ? {'X-Club-Actor':webActor} : {}) },
+      credentials:'same-origin', headers:{ 'Content-Type':'application/json','X-Club-Request':'1', ...(key ? { 'Idempotency-Key':key } : {}), ...(webActor ? {'X-Club-Actor':webActor} : {}) },
       body:body === undefined ? undefined : JSON.stringify(body) });
-  } catch { throw new Error('暂时连接不上数据服务，请确认本地服务已启动后重试。'); }
+  } catch { throw new Error(isWebTrial || import.meta.env.MODE === 'cloud-ops' ? '暂时连接不上服务，请检查网络后重试，已保存的记录不会因此丢失。' : '暂时连接不上数据服务，请确认本地服务已启动后重试。'); }
   let data;
-  try { data = await response.json(); } catch { throw new Error('数据服务未启动或返回异常，请稍后重试。'); }
+  try { data = await response.json(); } catch { throw new Error('服务返回了无法识别的内容，本次操作结果尚未确认。请刷新页面；若刚才正在保存或上传，请先核对已有记录和原件，不要重复提交。'); }
   if (!response.ok) throw Object.assign(new Error(data.error || '操作未完成，请稍后重试。'), { status: response.status });
   return data;
 }

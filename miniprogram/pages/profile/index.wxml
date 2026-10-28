@@ -1,0 +1,23 @@
+<view class="page profile-page">
+ <view class="page-title">完善头像与昵称</view>
+ <view class="profile-note">首次确认并保存一次，之后进入“我的”会自动显示已保存的头像和昵称。</view>
+ <view wx:if="{{error}}" class="profile-error">{{error}}</view>
+ <view wx:if="{{loading}}">正在读取资料…</view>
+ <form wx:else bindsubmit="save">
+  <view class="profile-panel">
+  <view class="profile-step">1 · 点选头像</view>
+  <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="chooseAvatar" disabled="{{busy || loading || !ready}}" aria-label="选择或更换头像">
+   <image wx:if="{{avatarPath}}" src="{{avatarPath}}" mode="aspectFill" class="profile-avatar" />
+   <view wx:else class="profile-empty">选择头像</view>
+  </button>
+  <view class="profile-hint">点击圆形头像，通过微信提供的选择面板确认。头像可留空。</view>
+  <button wx:if="{{avatarPath}}" class="profile-remove" size="mini" bindtap="removeAvatar" disabled="{{busy || loading || !ready}}">移除头像</button>
+  <view class="profile-step profile-label">2 · 选择昵称</view>
+  <input class="profile-input" name="nickname" type="nickname" value="{{nickname}}" maxlength="24" bindinput="nicknameInput" bindblur="nicknameInput" placeholder="点这里，选择微信昵称或填写昵称" disabled="{{busy || loading || !ready}}" />
+  <view class="profile-hint profile-nickname-hint">点输入框后，可选择微信提供的昵称建议；若未出现建议，直接填写即可。</view>
+  <button class="profile-save" form-type="submit" loading="{{busy}}" disabled="{{busy || loading || !ready}}">保存并在“我的”显示</button>
+  </view>
+ </form>
+ <view class="profile-note">资料仅用于你自己的账户页面，可随时修改。不影响入会、付款和阅读，也不代表真实姓名或手机号已验证。</view>
+ <button class="profile-back" bindtap="back" disabled="{{busy}}">返回我的</button>
+</view>

@@ -4,6 +4,7 @@
     "pages/members/index",
     "pages/services/index",
     "pages/account/index",
+    "pages/profile/index",
     "pages/login/index",
     "pages/join/index",
     "pages/orders/index",
@@ -12,7 +13,19 @@
     "pages/activities/index",
     "pages/invite/index",
     "pages/feedback/index",
-    "pages/service-detail/index"
+    "pages/service-detail/index",
+    "pages/surveys/index",
+    "pages/directory/index",
+    "pages/ambassador/index",
+    "pages/enterprise-intake/index",
+    "pages/payment/index",
+    "pages/help/index",
+    "pages/guide/index",
+    "pages/rewards/index",
+    "pages/club-intro/index",
+    "pages/enterprises/index",
+    "pages/applications/index",
+    "pages/exclusive-contacts/index"
   ],
   "window": {
     "navigationBarTitleText": "俱乐部",
@@ -28,17 +41,25 @@
     "list": [
       {
         "pagePath": "pages/home/index",
-        "text": "首页"
+        "text": "首页",
+        "iconPath": "assets/ui/Home-outline.png",
+        "selectedIconPath": "assets/ui/Home-selected.png"
       },
       {
         "pagePath": "pages/services/index",
-        "text": "服务"
+        "text": "服务",
+        "iconPath": "assets/ui/AllApplication-outline.png",
+        "selectedIconPath": "assets/ui/AllApplication-selected.png"
       },
       {
         "pagePath": "pages/account/index",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "assets/ui/People-outline.png",
+        "selectedIconPath": "assets/ui/People-selected.png"
       }
     ]
   },
-  "sitemapLocation": "sitemap.json"
+  "debug": false,
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
 }

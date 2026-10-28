@@ -6,12 +6,14 @@ function fields(input){
  requireRule(input&&typeof input==='object','活动格式不正确');
  const value={title:textField(input.title,'活动名称',80,true),summary:textField(input.summary||'','活动简介',180),
    body:textField(input.body||'','活动详情',4000),mode:input.mode,
-   startAt:input.startAt||'',endAt:input.endAt||'',location:textField(input.location||'','活动地点或线上参与说明',300),organizer:textField(input.organizer||'','主办方',100)};
+   startAt:input.startAt||'',endAt:input.endAt||'',location:textField(input.location||'','活动地点或线上参与说明',300),organizer:textField(input.organizer||'','主办方',100),posterUrl:input.posterUrl||''};
+ requireRule(typeof value.posterUrl==='string'&&(!value.posterUrl||/^images\/[a-z0-9-]+\.(jpg|png|webp)$/.test(value.posterUrl)),'活动海报路径不正确');
  requireRule(['offline','online'].includes(value.mode),'请选择线上或线下活动');
  for(const key of ['startAt','endAt'])if(value[key]){requireRule(typeof value[key]==='string'&&/^\d{4}-\d\d-\d\dT.*(?:Z|[+-]\d\d:\d\d)$/.test(value[key])&&Number.isFinite(Date.parse(value[key])),'活动时间格式不正确');value[key]=new Date(value[key]).toISOString();}
  if(value.startAt&&value.endAt)requireRule(Date.parse(value.endAt)>Date.parse(value.startAt),'结束时间必须晚于开始时间');
  return value;
 }
+export { fields as prepareActivity };
 function editor(actor){requireRule(actor?.role==='admin','需要活动管理权限',403);}
 function view(row){return {id:row.id,...JSON.parse(row.content_json),status:row.status,revision:row.revision,publishedAt:row.published_at};}
 export function listActivities(db,actor,managed=false){

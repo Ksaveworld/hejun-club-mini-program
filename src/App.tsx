@@ -1,17 +1,22 @@
+import { WebActivities } from './Activities';
+import { WebContent } from './WebContent';
+import { Surveys } from './Surveys';
+import { EnterpriseIntake } from './EnterpriseIntake';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { X, CircleHelp, PanelTop } from 'lucide-react';
 import { plans, services } from './data';
-import { api, errorText, rememberReferral } from './api';
+import { api, errorText, rememberReferral, setWebActor } from './api';
 import type { Session } from './api';
 import { JoinMember, OrderPage, AccountPage, AdminPage, ContentPage } from './MemberPages';
 import { ClubIcon } from './ClubIcon';
 import { ClubHome, ClubServices, ClubMembers, ClubAccount, ClubSettings, ClubRewards, ClubDirectory, ClubServicePage, ClubGuide, ClubHelp } from './ClubPages';
 import './admin.css';
 import { isPresentation } from './presentation';
+import { isWebTrial } from './web-env';
 import { ClubPresentationPage } from './ClubPresentationPage';
 
-function PreviewDialog({ open, close }: { open: boolean; close: () => void }) {
+function PreviewDialog({ open, close, manualPaymentReady }: { open: boolean; close: () => void; manualPaymentReady: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   const closer = useRef(close);
   closer.current = close;
@@ -27,7 +32,7 @@ function PreviewDialog({ open, close }: { open: boolean; close: () => void }) {
     return () => { dialog.close(); dialog.removeEventListener('cancel', cancel); document.body.style.overflow = originalOverflow; previousFocus?.focus(); };
   }, [open]);
   return <dialog ref={ref} className="dialog" aria-labelledby="dialog-title" onClick={event => { if (event.target === event.currentTarget) close(); }}>
-    {open && <div className="dialog-inner"><button className="icon-button dialog-close" aria-label="关闭弹窗" onClick={close}><X size={22} /></button><h2 id="dialog-title">{isPresentation ? '演示说明' : '本机内测说明'}</h2>{isPresentation ? <><p>当前版本用于浏览俱乐部页面、会员权益和服务介绍，可以使用搜索、筛选与页面导航。</p><p>登录、注册、资料提交、订单保存和支付暂未开放。正式资讯、课程、知识资料及企业名录待运营提供。</p></> : <><p>可以注册登录、保存入会申请与订单、审核机构资质、查看推荐来源和已审核的交流文字。</p><p>微信登录、短信验证、微信支付尚未接通，当前不会收款或开通会员。请使用虚构联系资料与独立的内测密码。</p><p>资讯、课程、知识资料和企业名录尚待运营提供。真实奖励账本、提现及对外部署尚未完成。</p></>}<a className="button secondary" href="#/help" onClick={close}>查看常见问题</a></div>}
+    {open && <div className="dialog-inner"><button className="icon-button dialog-close" aria-label="关闭弹窗" onClick={close}><X size={22} /></button><h2 id="dialog-title">{isPresentation ? '演示说明' : isWebTrial ? '活动网页版说明' : '本机内测说明'}</h2>{isPresentation ? <><p>当前版本用于浏览俱乐部页面、会员权益和服务介绍，可以使用搜索、筛选与页面导航。</p><p>登录、注册、资料提交、订单保存和支付暂未开放。正式资讯、课程、知识资料及企业名录待运营提供。</p></> : isWebTrial ? <><p>欢迎试用活动网页。可以浏览服务介绍、填写活动问卷，注册账号后保存入会申请与订单、阅读会员交流内容。</p><p>{manualPaymentReady ? '收款码付款后需提交付款说明，由运营人员核对实际到账后开通会员，不会自动开通。' : '当前收费未开放。可以保存申请和订单，请勿付款。'}</p><p>请在注册、下单及付款前阅读会员服务协议和隐私政策，填写真实联系资料。部分权益内容、短信验证与奖励提现尚未开放；微信登录请在微信内使用页面提供的入口。</p></> : <><p>可以注册登录、保存入会申请与订单、审核机构资质、查看推荐来源和已发布的交流文字。</p><p>微信登录、短信验证、自动微信支付尚未接通。收款码流程仅用于本机联调，请勿真实付款。请使用虚构联系资料与独立的内测密码。</p><p>资讯、课程、知识资料和企业名录尚待运营提供。真实奖励账本、提现及对外部署尚未完成。</p></>}<a className="button secondary" href="#/help" onClick={close}>查看常见问题</a></div>}
   </dialog>;
 }
 
@@ -43,7 +48,7 @@ export default function App() {
   async function refresh() {
     if (isPresentation) return;
     setError('');
-    try { setSession(await api<Session>('/me')); } catch (err) { setError(errorText(err)); throw err; }
+    try { const next=await api<Session>('/me');setWebActor(next.user?.id||null);setSession(next); } catch (err) { setError(errorText(err)); throw err; }
   }
   useEffect(() => {
     if (!isPresentation) rememberReferral();
@@ -73,8 +78,8 @@ export default function App() {
   const service = services.find(item => item.id === path.split('/')[2]);
   const admin = path === '/admin' && !isPresentation;
   const showNavigation = path === '/' || path === '/services' || (path === '/account' && !accountTab);
-  const pageTitle = path === '/' ? '首页' : path === '/services' ? '服务大厅' : path === '/account' ? (accountTab ? tabTitles[accountTab] || '申请与订单' : '我的') : path === '/members' ? '会员权益' : path === '/directory' ? '企业名录' : path.startsWith('/join/') ? '申请入会' : path.startsWith('/checkout/') || path.startsWith('/result/') ? '订单详情' : path.startsWith('/guides/') ? '会员指南' : path === '/help' ? '帮助与反馈' : path === '/content' ? '会员交流' : service?.title || '会员服务';
-  const back = path === '/account' ? ['#/account', '返回我的'] : path.startsWith('/join/') ? ['#/members', '返回会员权益'] : path.startsWith('/checkout/') || path.startsWith('/result/') ? ['#/account?tab=orders', '返回我的订单'] : path.startsWith('/services/') || path === '/directory' || path === '/content' ? ['#/services', '返回服务大厅'] : ['#/', '返回首页'];
+  const pageTitle = path === '/' ? '首页' : path === '/services' ? '服务大厅' : path === '/account' ? (accountTab ? tabTitles[accountTab] || '申请与订单' : '我的') : path === '/members' ? '会员权益' : path.startsWith('/directory') ? '企业与服务名录' : path.startsWith('/join/') ? '申请入会' : path.startsWith('/checkout/') || path.startsWith('/result/') ? '订单详情' : path.startsWith('/guides/') ? '会员指南' : path === '/help' ? '帮助与反馈' : path === '/content' ? '会员交流' : service?.title || '会员服务';
+  const back = path.startsWith('/directory/') ? ['#/directory', '返回服务名录'] : path === '/account' ? ['#/account', '返回我的'] : path.startsWith('/join/') ? ['#/members', '返回会员权益'] : path.startsWith('/checkout/') || path.startsWith('/result/') ? ['#/account?tab=orders', '返回我的订单'] : path.startsWith('/services/') || path === '/directory' || path === '/content' ? ['#/services', '返回服务大厅'] : ['#/', '返回首页'];
   const returnRoute = returnRoutes.current.get(path);
   if (returnRoute) {
     back[0] = `#${returnRoute}`;
@@ -87,6 +92,7 @@ export default function App() {
   else if (isPresentation && (path.startsWith('/join/') || path.startsWith('/checkout/') || path.startsWith('/result/') || (path === '/account' && accountTab) || path === '/admin' || path === '/content')) page = <ClubPresentationPage title={path === '/admin' ? '运营工作台' : pageTitle} plan={path.startsWith('/join/') ? plan : undefined} content={path === '/content'} />;
   else if (path === '/') page = <ClubHome />;
   else if (path === '/members') page = <ClubMembers />;
+  else if (!isPresentation && (path === '/feedback' || path.startsWith('/feedback/'))) page = <div className="narrow-page feedback-page"><WebContent key={path + (session.user?.id || 'guest')} kind="feedback" id={path.split('/')[2] || ''} session={session} refreshSession={refresh} /></div>;
   else if (path.startsWith('/join/') && plan) page = <JoinMember key={route + (session.user?.id || 'guest')} plan={plan} session={session} refresh={refresh} />;
   else if (path.startsWith('/checkout/') || path.startsWith('/result/')) page = <OrderPage key={path} id={path.split('/')[2]} refresh={refresh} />;
   else if (path === '/account' && !accountTab) page = <ClubAccount session={session} />;
@@ -95,20 +101,24 @@ export default function App() {
   else if (path === '/account') page = <AccountPage key={route + (session.user?.id || 'guest')} session={session} refresh={refresh} />;
   else if (admin) page = <AdminPage key={session.user?.id || 'guest'} session={session} refresh={refresh} />;
   else if (path === '/services') page = <ClubServices query={serviceQuery} setQuery={setServiceQuery} />;
-  else if (path === '/directory' || path === '/services/directory') page = <ClubDirectory />;
+  else if (path === '/activities' || path.startsWith('/activities/')) page = <WebActivities key={path} id={path.split('/')[2] || ''}/>;
+  else if (path === '/directory' || path.startsWith('/directory/') || path === '/services/directory') page = <ClubDirectory key={path} id={path.startsWith('/directory/') ? path.split('/')[2] : undefined} />;
+  else if (!isPresentation && (path === '/services/knowledge' || path === '/articles' || path.startsWith('/articles/'))) page = <div className="narrow-page"><WebContent key={path + (session.user?.id || 'guest')} kind="articles" id={path.startsWith('/articles/')?path.split('/')[2]:''} session={session} refreshSession={refresh} /></div>;
   else if (path.startsWith('/services/') && service) page = <ClubServicePage key={path} service={service} />;
   else if (path.startsWith('/guides/')) page = <ClubGuide id={path.split('/')[2]} />;
-  else if (path === '/help') page = <ClubHelp />;
-  else if (path === '/content') page = <ContentPage />;
+  else if (path === '/help') page = <ClubHelp session={session} />;
+  else if (path === '/enterprise-intake') page = <EnterpriseIntake />;
+  else if (path.startsWith('/surveys')) page = <Surveys key={path} side={path.split('/')[2]} />;
+  else if (path === '/content') page = <ContentPage key={session.user?.id || 'guest'} refresh={refresh} />;
   else page = <div className="empty-state"><h1 id="page-title">暂时找不到这个页面</h1><a className="button primary" href="#/">返回首页</a></div>;
   return <div className={admin ? 'admin-shell' : `member-shell club-shell ${showNavigation ? 'club-has-nav' : 'club-subpage'} ${path === '/directory' ? 'club-directory-page' : ''}`}>
-    <div className="preview-bar"><span>{isPresentation ? '界面演示 · 申请与支付未开放' : '本机内测 · 支付尚未开放'}</span><button onClick={() => setGuideOpen(true)}>{isPresentation ? '演示说明' : '内测说明'}<CircleHelp size={13} /></button></div>
+    <div className="preview-bar"><span>{isPresentation ? '界面演示 · 申请与支付未开放' : isWebTrial ? session?.manualPaymentReady ? '活动网页版 · 人工核对到账后开通' : '活动网页版 · 收费未开放' : session?.manualPaymentReady ? '本机联调 · 收款码流程请勿真实付款' : '本机内测 · 支付尚未开放'}</span><button onClick={() => setGuideOpen(true)}>{isPresentation ? '演示说明' : isWebTrial ? '使用说明' : '内测说明'}<CircleHelp size={13} /></button></div>
     {admin ? <header className="site-header"><a href="#/" className="brand brand-cabc" aria-label="中国东盟跨境企业家俱乐部首页"><img src="/images/cabc-official-logo.png" alt="中国—东盟经贸中心" width="316" height="86" /><span>跨境企业家俱乐部</span></a><nav className="desktop-nav" aria-label="主导航"><a href="#/">首页</a><a href="#/members">会员权益</a><a href="#/services">服务大厅</a><a href="#/account">我的</a></nav><a href="#/admin" className="admin-entry active"><PanelTop size={16} />运营工作台</a></header>
       : <header className="club-topbar">{!showNavigation && <a href={back[0]} aria-label={back[1]}><ClubIcon name="Left" size={21} /></a>}<span>{pageTitle}</span></header>}
     <main className={`main-content ${admin ? 'admin-main' : ''} ${path === '/' ? 'home-main' : ''}`} key={admin ? 'admin' : 'public'}>{page}</main>
     {showNavigation && <nav className="mobile-nav" aria-label="手机导航">{([
       ['/', '首页', 'Home'], ['/services', '服务', 'AllApplication'], ['/account', '我的', 'People'],
     ] as const).map(([href, label, icon]) => <a key={href} href={`#${href}`} className={path === href ? 'active' : ''} aria-current={path === href ? 'page' : undefined}><ClubIcon name={icon} variant={path === href ? '选中' : '轮廓'} size={24} /><span>{label}</span></a>)}</nav>}
-    <PreviewDialog open={guideOpen} close={() => setGuideOpen(false)} />
+    <PreviewDialog open={guideOpen} close={() => setGuideOpen(false)} manualPaymentReady={!!session?.manualPaymentReady} />
   </div>;
 }

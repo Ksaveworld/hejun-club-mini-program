@@ -1,0 +1,48 @@
+<view class="page">
+  <view class="page-title serif">{{survey ? survey.title : (generalMenu ? '供需信息登记' : '调研与供需问卷')}}</view>
+  <view wx:if="{{side === 'supply' || side === 'demand'}}" class="subtitle">供需征集长期开放。往期活动：9月17日 14:30—16:30 · 南宁国际会展中心 B103、B105</view>
+  <view wx:if="{{survey.description}}" class="subtitle">{{survey.description}}</view>
+  <view wx:if="{{!survey && !busy}}" class="survey-list"><view class="subtitle">选择与您相关的问卷，填写后提交给工作人员。</view>
+    <block wx:if="{{generalMenu}}"><view class="subtitle">请选择本次填写方向。需求与供给分开提交，便于工作人员跟进。</view><button class="survey-entry" data-side="general-demand" bindtap="choose"><view class="survey-entry-label">采购与合作需求</view><view class="survey-entry-title">我有采购/需求</view><view class="survey-entry-description">填写需求、合作要求与实施计划 ›</view></button><button class="survey-entry" data-side="general-supply" bindtap="choose"><view class="survey-entry-label">产品与服务供给</view><view class="survey-entry-title">我有产品/服务</view><view class="survey-entry-description">介绍产品、合作市场与交付能力 ›</view></button><button bindtap="backList">返回全部问卷</button></block><block wx:else><button class="survey-entry" bindtap="openGeneral"><view class="survey-entry-label">通用供需 · 不限AI</view><view class="survey-entry-title">供需信息登记</view><view class="survey-entry-description">我有采购/需求 · 我有产品/服务 ›</view></button>
+    <button class="survey-entry" data-side="supply" bindtap="choose"><view class="survey-entry-label">AI 供给</view><view class="survey-entry-title">我提供AI产品或解决方案</view><view class="survey-entry-description">介绍产品与方案，提交供给信息 ›</view></button>
+    <button class="survey-entry" data-side="demand" bindtap="choose"><view class="survey-entry-label">AI 需求</view><view class="survey-entry-title">我有AI应用场景需求</view><view class="survey-entry-description">梳理业务场景与应用需求 ›</view></button>
+    <button class="survey-entry" data-side="singapore" bindtap="choose"><view class="survey-entry-label">路演意向</view><view class="survey-entry-title">11月新加坡AI分论坛</view><view class="survey-entry-description">填写路演意向，供工作人员联系 ›</view></button>
+    <button class="survey-entry" data-side="salon" bindtap="choose"><view class="survey-entry-label">沙龙调研</view><view class="survey-entry-title">AI大咖沙龙</view><view class="survey-entry-description">分享参会反馈与合作需求 ›</view></button>
+  </block></view>
+  <view wx:if="{{busy}}">正在处理…</view>
+  <view wx:if="{{error}}" class="survey-error">{{error}}</view>
+  <button wx:if="{{side && !survey && !busy}}" bindtap="retry">重新读取</button>
+  <view wx:if="{{receipt}}" class="card"><view>提交成功</view><view>{{survey.successMessage || '内容已保存，用于对接撮合与活动安排。'}}</view><text selectable>回执编号：{{receipt}}</text></view>
+  <view wx:elif="{{survey}}">
+    <view wx:if="{{survey.requireAnswer}}" class="subtitle">各题可选填，请至少填写一项反馈。看到提交成功和回执编号才表示已保存。</view>
+    <view wx:if="{{survey.general}}" class="subtitle">分4部分填写；提交前请勿关闭页面。收到回执后才表示保存成功。</view>
+    <view class="subtitle">第{{section}} / {{survey.sections.length}}部分 · {{survey.sections[section - 1]}}</view>
+    <view wx:for="{{fields}}" wx:key="id" class="survey-field">
+      <view>{{item.number}}. {{item.label}}（{{item.required ? '必填' : '选填'}}）</view>
+      <input wx:if="{{item.type === 'input' || item.type === 'tel'}}" type="text" value="{{item.value}}" data-id="{{item.id}}" bindinput="change" maxlength="200" disabled="{{busy}}" />
+      <textarea wx:elif="{{item.type === 'text'}}" value="{{item.value}}" data-id="{{item.id}}" bindinput="change" maxlength="3000" disabled="{{busy}}" auto-height />
+      <checkbox-group wx:elif="{{item.type === 'multi'}}" data-id="{{item.id}}" bindchange="change">
+        <label wx:for="{{item.choices}}" wx:for-item="option" wx:key="value"><checkbox value="{{option.value}}" checked="{{option.checked}}" disabled="{{busy}}" />{{option.label}}</label>
+      </checkbox-group>
+      <radio-group wx:else data-id="{{item.id}}" bindchange="change">
+        <label wx:for="{{item.choices}}" wx:for-item="option" wx:key="value"><radio value="{{option.value}}" checked="{{option.checked}}" disabled="{{busy}}" />{{option.label}}</label>
+      </radio-group>
+      <textarea wx:if="{{item.showNote}}" placeholder="{{item.noteLabel || '国别、其他内容或补充说明（选填）'}}" value="{{item.note}}" data-id="{{item.id + 'Note'}}" bindinput="change" maxlength="1000" disabled="{{busy}}" auto-height />
+    </view>
+    <view class="survey-pagination">
+      <button wx:if="{{section > 1}}" class="survey-prev" data-step="-1" bindtap="move" disabled="{{busy}}">上一部分</button>
+      <button wx:if="{{section < survey.sections.length}}" class="survey-next" data-step="1" bindtap="move" disabled="{{busy}}">下一部分</button>
+    </view>
+    <view wx:if="{{section === survey.sections.length}}">
+      <view wx:if="{{survey.general}}" class="subtitle">提交后，工作人员将在15个工作日内完成供需初步匹配并与您联系。</view>
+      <view wx:if="{{survey.attachment}}" class="survey-field"><view>企业与产品服务资料（选填）</view><view class="subtitle">企业简介、宣传册、资质证书及产品案例请合并成一份PDF，最大5MB。不上传也可提交问卷。</view><button bindtap="chooseFile" disabled="{{busy || showPrivacy}}">{{file ? '替换PDF' : '从微信聊天选择PDF'}}</button><view wx:if="{{file}}"><text>{{file.name}} · {{file.sizeLabel}}</text><button bindtap="removeFile" disabled="{{busy}}">移除附件</button></view><view wx:if="{{showPrivacy}}"><view>仅读取您主动选择的文件，用于本次供需对接。</view><button bindtap="openFilePrivacy">阅读{{privacyContractName}}</button><button id="survey-file-privacy" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreeFilePrivacy">同意并选择文件</button><button bindtap="cancelFilePrivacy">暂不授权</button></view><view wx:if="{{progress !== null}}">正在上传 {{progress}}%</view></view>
+      <view wx:if="{{legal}}" class="survey-field">
+        <button wx:for="{{legal.documents}}" wx:key="id" data-id="{{item.id}}" bindtap="openLegal">阅读《{{item.title}}》</button>
+        <checkbox-group bindchange="policyChange"><label><checkbox value="yes" checked="{{policy}}" disabled="{{busy}}" />我已阅读并同意会员服务协议和隐私政策</label></checkbox-group>
+        <checkbox-group wx:if="{{legal.requireHongKongConsent !== false}}" bindchange="hongKongChange"><label><checkbox value="yes" checked="{{hongKong}}" disabled="{{busy}}" />我单独同意上述隐私政策说明的香港服务器存储和处理安排，用于办理我选择的服务</label></checkbox-group>
+      </view>
+      <checkbox-group bindchange="consent"><label><checkbox value="yes" checked="{{consent}}" disabled="{{busy}}" />{{survey.consentText || '我同意将所填信息用于本次对接撮合与活动安排。联系信息不公开展示。'}}</label></checkbox-group>
+      <button class="primary-action" bindtap="submit" disabled="{{busy || showPrivacy || !legalReady}}" loading="{{busy}}">提交问卷</button>
+    </view>
+  </view>
+</view>

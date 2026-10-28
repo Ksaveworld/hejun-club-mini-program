@@ -16,3 +16,8 @@
 .plan-organization .plan-price, .plan-organization .plan-action, .plan-organization .benefit-dot { color: #edcf87; }
 .plan-organization .benefits { border-top-color: #52705a; }
 .services-action { margin-top: 28rpx; }
+.plan-price-caption { margin-top: 16rpx; font-size: 24rpx; }
+.benefits-title { margin-bottom: 12rpx; font-weight: 600; }
+.plan-closing { margin-top: 24rpx; font-size: 28rpx; font-weight: 500; }
+.plan-service-note { margin-top: 18rpx; color: #cfddce; font-size: 23rpx; line-height: 1.85; }
+.benefit { line-height: 1.85; overflow-wrap: break-word; }

@@ -1,29 +1,49 @@
-.account-error { margin-bottom: 24rpx; padding: 20rpx 24rpx; border-radius: 12rpx; background: #fff0e7; color: #9d4534; font-size: 26rpx; }
+.account-page { color: #203c32; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.65; }
+.account-page .page-title { font-size: 38rpx; font-weight: 600; }
+.account-page .subtitle { margin-top: 8rpx; font-size: 25rpx; }
+.account-page .heading { margin-bottom: 32rpx; }
+.account-error { margin-bottom: 24rpx; padding: 20rpx 24rpx; border-radius: 12rpx; background: #fff0e7; color: #9d4534; font-size: 26rpx; word-break: break-all; }
 .account-loading { margin-bottom: 22rpx; color: #697970; font-size: 26rpx; }
-.profile-card { display: flex; align-items: center; margin-bottom: 24rpx; }
-.profile-avatar { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 96rpx; height: 96rpx; margin-right: 24rpx; border: 1rpx solid #d7b96c; border-radius: 50%; background: #f8efce; color: #164c3d; font-size: 40rpx; }
-.profile-copy { min-width: 0; }
-.profile-name { font-size: 34rpx; font-weight: 600; word-break: break-all; }
-.profile-note { margin-top: 5rpx; color: #697970; font-size: 24rpx; }
-.membership-card { padding: 34rpx 32rpx; border: 1rpx solid #c9a956; border-radius: 18rpx; background: #164c3d; color: #f8efce; }
-.membership-title { font-size: 42rpx; }
-.membership-status { margin-top: 18rpx; font-size: 29rpx; }
-.membership-expiry { margin-top: 10rpx; color: #cfddce; font-size: 23rpx; }
-.account-menu { margin-top: 28rpx; padding: 0 28rpx; border-radius: 16rpx; background: #fff; }
-.account-menu-item { display: flex; align-items: center; justify-content: space-between; min-height: 110rpx; font-size: 29rpx; }
+.profile-card { display: flex; align-items: center; margin-bottom: 30rpx; min-height: 108rpx; }
+.profile-avatar { position: relative; flex-shrink: 0; width: 100rpx; height: 100rpx; margin-right: 26rpx; border: 2rpx solid #d8b77e; border-radius: 50%; background: #f3e9d5; }
+.avatar-head { position: absolute; top: 22rpx; left: 35rpx; width: 27rpx; height: 27rpx; border: 3rpx solid #526c5c; border-radius: 50%; }
+.avatar-shoulders { position: absolute; bottom: 20rpx; left: 23rpx; width: 51rpx; height: 27rpx; border: 3rpx solid #526c5c; border-radius: 30rpx 30rpx 10rpx 10rpx; }
+.profile-copy { flex: 1; min-width: 0; }
+.profile-name { font-size: 36rpx; font-weight: 600; line-height: 1.45; word-break: break-all; }
+.profile-note { margin-top: 8rpx; color: #697970; font-size: 24rpx; }
+.membership-card { position: relative; display: block; width: 100%; min-height: 280rpx; padding: 36rpx; overflow: hidden; border: 1rpx solid #b8904d; border-radius: 20rpx; background: #164c3d; color: #f0e6cc; text-align: left; }
+.membership-art { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+.membership-content { position: relative; z-index: 1; }
+.membership-title { font-size: 42rpx; font-weight: 500; line-height: 1.45; }
+.membership-status { margin-top: 28rpx; font-size: 28rpx; color: #e7eadb; }
+.membership-expiry { display: flex; align-items: center; margin-top: 10rpx; font-size: 23rpx; color: #cfddce; }
+.pass-arrow { flex-shrink: 0; margin-left: 12rpx; font-size: 30rpx; }
+.account-page .card { padding: 28rpx; border-radius: 16rpx; background: #fff; }
+.journey-card { margin-top: 24rpx; border: 1rpx solid #dfe6e0; }
+.journey-title { font-size: 24rpx; color: #697970; }
+.journey-status { margin-top: 10rpx; font-size: 30rpx; font-weight: 600; }
+.journey-note { margin-top: 12rpx; color: #52685b; font-size: 26rpx; line-height: 1.8; }
+.journey-action { margin-top: 22rpx; min-height: 84rpx; padding: 18rpx 22rpx; background: #edf3ed; color: #164c3d; border-radius: 10rpx; font-size: 27rpx; text-align: center; }
+.menu-group { margin-top: 28rpx; }
+.menu-heading { margin-bottom: 12rpx; padding-left: 4rpx; color: #697970; font-size: 24rpx; }
+.account-menu { padding: 0 28rpx; border-radius: 16rpx; background: #fff; }
+.account-menu-item { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 108rpx; padding: 24rpx 0; font-size: 28rpx; line-height: 1.55; }
 .account-menu-item + .account-menu-item { border-top: 1rpx solid #edf1eb; }
+.menu-label { flex: 1; min-width: 0; word-break: break-all; }
+.account-menu-item .arrow { display: flex; align-items: center; justify-content: center; flex: 0 0 28rpx; width: 28rpx; height: 40rpx; margin-left: 20rpx; padding-left: 0; color: #7b8d80; font-size: 34rpx; line-height: 1; }
 .source-card { margin-top: 28rpx; }
-.source-title { font-size: 26rpx; color: #697970; }
-.source-code { margin-top: 10rpx; font-size: 29rpx; }
-.source-card .footnote { margin-top: 14rpx; }
-.invite-card { margin-top: 24rpx; }
-.invite-card .footnote { margin-top: 14rpx; }
-.share-invite { margin-top: 22rpx; }
-.refresh-account { margin-top: 28rpx; }
-.logout-action { min-height: 96rpx; margin-top: 8rpx; padding: 24rpx; color: #697970; text-align: center; font-size: 26rpx; }
-.guest-title { font-size: 38rpx; }
-.guest-copy { margin: 20rpx 0 30rpx; color: #697970; font-size: 27rpx; line-height: 1.9; }
-.guest-members { margin-top: 12rpx; padding: 22rpx 0; color: #287963; text-align: center; font-size: 27rpx; }
+.account-page .section-title { margin-bottom: 18rpx; font-size: 29rpx; font-weight: 600; }
+.source-title { margin-top: 20rpx; font-size: 24rpx; color: #697970; }
+.source-code { margin-top: 6rpx; font-size: 27rpx; word-break: break-all; }
+.account-page .footnote { margin-top: 14rpx; color: #697970; font-size: 24rpx; line-height: 1.85; word-break: break-all; }
+.reminder-card .secondary-action { margin-top: 20rpx; font-size: 26rpx; }
+.reminder-card .account-error { margin-top: 18rpx; }
+.logout-action { min-height: 96rpx; margin-top: 28rpx; padding: 24rpx; color: #697970; text-align: center; font-size: 26rpx; }
+.guest-pass { min-height: 280rpx; }
+.guest-benefits { display: flex; align-items: center; min-height: 80rpx; margin-top: 8rpx; padding: 16rpx 0 0; background: transparent; color: #f0e6cc; font-size: 26rpx; font-weight: 400; line-height: 1.65; text-align: left; }
+.guest-copy { margin: 20rpx 0 30rpx; color: #697970; font-size: 27rpx; line-height: 1.85; }
+.account-page button[disabled] { opacity: .6; }
+.account-page .membership-card[disabled] { background: #164c3d; color: #f0e6cc; }
 
-.journey-note { margin-top: 20rpx; font-size: 27rpx; line-height: 1.8; }
-.journey-action { margin-top: 28rpx; padding: 22rpx; background: #fff; color: #164c3d; border-radius: 10rpx; font-size: 28rpx; text-align: center; }
+.profile-edit { margin: -10rpx 0 24rpx; padding: 8rpx 0; color: #164c3d; font-size: 25rpx; text-align: left; }
+.profile-photo { display: block; width: 100rpx; height: 100rpx; border-radius: 50%; }

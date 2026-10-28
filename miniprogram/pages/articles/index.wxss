@@ -8,3 +8,6 @@
 .article-body { display: block; white-space: pre-wrap; word-break: break-all; margin-top: 24rpx; line-height: 1.9; }
 .read-link { margin-top: 18rpx; color: #287963; }
 .error { padding: 24rpx; margin-bottom: 20rpx; background: #fff1e8; color: #8d4129; border-radius: 12rpx; }
+
+.support-card{display:block;width:100%;box-sizing:border-box;text-align:left;white-space:normal;line-height:1.6;}
+.support-card::after{border:0;}

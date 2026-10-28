@@ -1,16 +1,20 @@
-.brand-row { display: flex; align-items: center; margin: 0 0 26rpx; }
+.brand-row { display: flex; align-items: center; margin: 0 0 28rpx; }
 .brand-logo { display: block; width: 324rpx; }
 .brand-label { padding-left: 22rpx; color: #697970; font-size: 24rpx; }
-.hero { position: relative; overflow: hidden; padding: 44rpx 34rpx 42rpx; border-radius: 18rpx; background: #164c3d; color: #f8efce; }
-.hero-title { position: relative; z-index: 1; font-size: 47rpx; line-height: 1.65; letter-spacing: 2rpx; }
-.hero-subtitle { position: relative; z-index: 1; margin-top: 22rpx; color: #d5dec7; font-size: 22rpx; }
-.hero-line { position: absolute; width: 400rpx; height: 400rpx; border: 1rpx solid #638568; border-radius: 50%; opacity: 0.35; }
-.hero-line-one { right: -270rpx; top: -160rpx; }
-.hero-line-two { right: -210rpx; top: -100rpx; }
-.shortcuts { display: flex; margin-top: 24rpx; padding: 22rpx 6rpx; border-radius: 16rpx; background: #ffffff; }
-.shortcut { width: 25%; font-size: 23rpx; text-align: center; }
-.shortcut-mark { display: flex; align-items: center; justify-content: center; width: 84rpx; height: 84rpx; margin: 0 auto 14rpx; border: 1rpx solid #d9bb72; border-radius: 50%; background: #fffae9; color: #164c3d; font-size: 35rpx; }
-.editorial { display: block; padding: 26rpx 28rpx 20rpx; border: 1rpx solid #d7b96c; border-left: 5rpx solid #c9a956; border-radius: 12rpx; background: #ffffff; }
+.home-page { padding-top: 24rpx; }
+.hero { display: block; width: 100%; position: relative; overflow: hidden; min-height: 332rpx; padding: 54rpx 40rpx 36rpx; border-radius: 20rpx; background: #063d31; color: #f6f1e3; }
+/* Fill the card as on the web reference; the original asset remains uncropped. */
+.hero-art { position: absolute; right: 0; bottom: 0; width: 100%; height: 100%; pointer-events: none; }
+.hero-title { position: relative; font-size: 50rpx; font-weight: 500; line-height: 1.55; }
+.hero-subtitle { position: relative; display: flex; flex-wrap: wrap; gap: 10rpx 24rpx; margin-top: 22rpx; color: #d5dec7; font-size: 26rpx; line-height: 1.7; }
+.hero-subtitle text { white-space: nowrap; }
+.hero-action { position: relative; margin-top: 28rpx; color: #f0d79f; font-size: 25rpx; }
+.shortcuts { display: flex; margin-top: 24rpx; padding: 16rpx 4rpx; border-radius: 18rpx; background: #ffffff; }
+.shortcut { width: 25%; min-width: 0; padding: 0 4rpx; font-size: 24rpx; line-height: 1.5; text-align: center; }
+.shortcut-mark { display: flex; align-items: center; justify-content: center; width: 88rpx; height: 88rpx; margin: 0 auto 10rpx; border: 1rpx solid #dac49c; border-radius: 50%; background: #fffdf8; }
+.shortcut-icon { display: block; width: 64rpx; height: 64rpx; }
+.shortcut-label { min-height: 72rpx; line-height: 1.5; white-space: normal; word-break: break-all; }
+.editorial { display: block; padding: 26rpx 28rpx 20rpx; border: 1rpx solid #dfe6e0; border-left: 4rpx solid #b8904d; border-radius: 12rpx; background: #ffffff; }
 .editorial-kicker { color: #758479; font-size: 22rpx; }
 .editorial-title { margin-top: 10rpx; font-size: 32rpx; }
 .editorial-copy { margin-top: 10rpx; color: #697970; font-size: 25rpx; line-height: 1.9; }
@@ -18,8 +22,34 @@
 .guide { display: flex; align-items: center; justify-content: space-between; padding: 28rpx 0; }
 .guide-title { font-size: 30rpx; }
 .guide-copy { margin-top: 8rpx; color: #697970; font-size: 25rpx; }
-.membership-banner { display: flex; align-items: center; justify-content: space-between; padding: 22rpx 28rpx; border: 1rpx solid #e4c979; border-radius: 12rpx; background: #f8edc9; }
+.membership-banner { display: flex; align-items: center; justify-content: space-between; padding: 22rpx 28rpx; border-radius: 12rpx; background: #f3e9d5; }
 .all-services { padding: 28rpx 0 12rpx; color: #287963; text-align: center; font-size: 26rpx; }
 
 .journey-summary { display:flex; align-items:center; justify-content:space-between; gap:20rpx; margin-top:24rpx; padding:28rpx; }
 .editorial + .editorial { margin-top:18rpx; }
+
+.activity-track { height: 424rpx; margin-top: 20rpx; }
+.activity-card { position: relative; overflow: hidden; display: flex; flex-direction: column; height: 400rpx; margin-right: 16rpx; padding: 32rpx; box-sizing: border-box; border: 1rpx solid #dce5dc; border-radius: 20rpx; background: #edf3ec; color: #254637; text-align: left; }
+.activity-card-expo { background: #eaf0f6; border-color: #d8e2ed; color: #274963; }
+.activity-card-singapore { background: #f7f0df; border-color: #e9dfc5; color: #66512f; }
+.activity-art { position: absolute; right: -12rpx; bottom: 12rpx; width: 190rpx; height: 190rpx; opacity: 0.12; transform: rotate(-12deg); pointer-events: none; }
+.activity-meta, .activity-title, .activity-copy, .activity-action { position: relative; }
+.activity-meta { display: flex; align-items: center; justify-content: space-between; gap: 12rpx; font-size: 22rpx; }
+.activity-label { min-width: 0; }
+.activity-tag { flex-shrink: 0; padding: 2rpx 12rpx; border: 1rpx solid currentColor; border-radius: 24rpx; font-size: 20rpx; }
+.activity-title { font-size: 36rpx; margin-top: 20rpx; line-height: 1.4; }
+.activity-copy { font-size: 25rpx; margin-top: 14rpx; line-height: 1.7; }
+.activity-action { margin-top: auto; padding-top: 16rpx; font-size: 25rpx; }
+.activity-controls { display: flex; align-items: center; justify-content: space-between; font-size: 24rpx; }
+.activity-controls button { font-size: 24rpx; padding: 8rpx 22rpx; }
+
+.content-loading { padding: 20rpx 0; color: #697970; font-size: 25rpx; }
+.activity-title, .activity-copy { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.activity-controls button { min-height: 80rpx; display: flex; align-items: center; }
+@media (max-width: 380px) {
+  .hero-title { font-size: 46rpx; }
+  .hero { padding-left: 32rpx; padding-right: 32rpx; }
+  .shortcut { font-size: 23rpx; }
+  .activity-card { padding: 28rpx; }
+  .activity-title { font-size: 34rpx; }
+}

@@ -1,0 +1,71 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {resolve,join} from 'node:path';
+import {createHash} from 'node:crypto';
+import {createServer} from 'node:net';
+import {chromium,expect,request} from '@playwright/test';
+import {PDFDocument} from 'pdf-lib';
+import {createOpsUatRuntime,uatId} from '../../scripts/uat-ops-runtime.mjs';
+
+test('real content and PDF publishing closed loop with real parser, SQL storage, cookies and recovery',async t=>{
+  const root=process.cwd(),out=resolve('work/uat-ops-01/evidence');await mkdir(out,{recursive:true});
+  const runtime=await createOpsUatRuntime({root});t.after(async()=>{await runtime.close();await runtime.close();});
+  const browser=await chromium.launch({channel:'msedge',headless:true});t.after(()=>browser.close());
+  const context=await browser.newContext({ignoreHTTPSErrors:true,viewport:{width:1440,height:1100}}),page=await context.newPage();
+  const anonymous=await request.newContext({ignoreHTTPSErrors:true});t.after(()=>anonymous.dispose());
+  page.setDefaultTimeout(20000);const trace=[],checks=[],errors=[],uploadRequests=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  page.on('request',request=>{const url=new URL(request.url());if(url.pathname.includes('/pdf/')&&request.method()==='POST')uploadRequests.push({method:'POST',path:url.pathname});});
+  page.on('response',response=>{const url=new URL(response.url());if(url.pathname.startsWith('/api/'))trace.push({method:response.request().method(),path:url.pathname,status:response.status()});});
+  await context.route('**/*',route=>new URL(route.request().url()).origin===runtime.origin?route.continue():route.abort());
+  const record=(name,detail)=>checks.push({name,detail});
+  const list=async()=>{const r=await context.request.get(runtime.origin+'/api/admin/articles');assert.equal(r.status(),200);return(await r.json()).articles;};
+  const meta=async id=>{const r=await context.request.get(runtime.origin+'/api/admin/content-meta/'+id);assert.equal(r.status(),200);return(await r.json()).metadata;};
+  const createDraft=async(title,body)=>{
+    await page.getByRole('button',{name:'新建内容',exact:true}).click();
+    await page.getByLabel('内容标题',{exact:true}).fill(title);await page.getByLabel('内容正文 / 报告说明（发布前必填）',{exact:true}).fill(body);
+    await page.getByRole('combobox',{name:'阅读范围',exact:true}).selectOption('public');
+    await page.getByRole('combobox',{name:'资讯展示栏目（与小程序对应）',exact:true}).selectOption('practice');
+    await page.getByRole('combobox',{name:'实务分类',exact:true}).selectOption('cases');
+    await page.getByRole('button',{name:'保存内容与栏目',exact:true}).click();await expect(page.getByText('内容与栏目已保存并重新核对，尚未发布。',{exact:true})).toBeVisible();
+    const item=(await list()).find(item=>item.title===title);assert.ok(item);assert.equal(item.body,body);const placement=await meta(item.id);assert.equal(placement.revision,item.revision);assert.equal(placement.practiceCategory,'cases');return item;
+  };
+  const confirm=async action=>{await page.getByRole('button',{name:action+'内容',exact:true}).click();await page.getByRole('button',{name:'确认'+action,exact:true}).click();};
+  await page.goto(runtime.origin+'/ops/');await page.getByRole('textbox',{name:'管理员账号',exact:true}).fill(runtime.username);await page.getByLabel('密码',{exact:true}).fill(runtime.password);await page.getByRole('button',{name:'登录',exact:true}).click();
+  await expect(page.getByRole('button',{name:'退出登录',exact:true})).toBeVisible();await page.getByRole('button',{name:'资讯报告与活动资料',exact:true}).click();await expect(page.getByText(/共 0 条内容/)).toBeVisible();record('real login','Generated fictional operator, real HTTPS cookie, empty memory database');
+  const main=await createDraft('UAT-R1 图文资料12页','虚构验收资料A；正文、经营实务案例栏目与12页PDF对应。');
+  const originalPath=resolve('work/uat-ops-01/fixtures/uat-content-12pages.pdf'),original=await readFile(originalPath);
+  await page.getByLabel('选择 PDF 文件',{exact:true}).setInputFiles(originalPath);await expect(page.getByText(/已选择，尚未上传/)).toBeVisible();await page.getByRole('button',{name:'上传并生成试看',exact:true}).click();await expect(page.getByText(/^PDF 已完整上传并生成试看/)).toBeVisible();
+  let item=(await list()).find(item=>item.id===main.id);assert.equal(item.document.pages,12);assert.equal(item.document.previewPages,10);assert.equal(item.document.filename,'uat-content-12pages.pdf');assert.equal((await meta(main.id)).revision,item.revision);
+  assert.deepEqual(item.access,{visibility:'plans',planIds:['organization','star'],previewPages:10});
+  const full=await context.request.get(runtime.origin+'/api/admin/articles/'+main.id+'/document');assert.equal(full.status(),200);const fullBytes=await full.body();assert.deepEqual(fullBytes,original);await writeFile(join(out,'main-original.pdf'),fullBytes);
+  const beforePreview=await anonymous.get(runtime.origin+'/api/articles/'+main.id+'/preview');assert.equal(beforePreview.status(),404);record('save/upload/original','Real pdf-lib parsed 12 pages, SQL chunks persisted original and generated preview; draft preview denied');
+  await page.screenshot({path:join(out,'01-uploaded.png'),fullPage:true});
+  await confirm('发布');await expect(page.getByText('已发布，符合阅读范围的用户刷新后可见。',{exact:true})).toBeVisible();
+  const preview=await anonymous.get(runtime.origin+'/api/articles/'+main.id+'/preview');assert.equal(preview.status(),200);const previewBytes=await preview.body();assert.equal((await PDFDocument.load(previewBytes)).getPageCount(),10);assert.notDeepEqual(previewBytes,original);await writeFile(join(out,'main-preview.pdf'),previewBytes);
+  const deniedFull=await anonymous.get(runtime.origin+'/api/articles/'+main.id+'/document');assert.equal(deniedFull.status(),404);
+  const range=await context.request.get(runtime.origin+'/api/admin/articles/'+main.id+'/document',{headers:{Range:'bytes=0-4'}});assert.equal(range.status(),206);assert.equal((await range.body()).toString(),'%PDF-');
+  await page.reload();await page.getByRole('button',{name:'资讯报告与活动资料',exact:true}).click();await page.locator('.article-choice').filter({hasText:'UAT-R1 图文资料12页'}).click();await expect(page.getByRole('button',{name:'撤下内容',exact:true})).toBeEnabled();await expect(page.getByRole('combobox',{name:'资讯展示栏目（与小程序对应）',exact:true})).toHaveValue('practice');await expect(page.getByLabel('内容正文 / 报告说明（发布前必填）',{exact:true})).toHaveValue(main.body);
+  await page.screenshot({path:join(out,'02-reopened-published.png'),fullPage:true});record('publish/reopen/preview','Published record reopened, original byte equality, 10-page visitor preview, visitor full denied, HTTP range verified');
+  await confirm('撤下');await expect(page.getByText('已撤下，用户再次读取时将无法访问。',{exact:true})).toBeVisible();assert.equal((await anonymous.get(runtime.origin+'/api/articles/'+main.id+'/preview')).status(),404);record('withdraw','Real transition to draft; visitor preview denied after withdrawal');
+  const disposable=await createDraft('UAT-R1 待作废虚构草稿','只用于核对作废保留原始记录，不含客户资料。');await page.getByRole('button',{name:'删除草稿',exact:true}).click();await page.getByRole('button',{name:'确认删除草稿',exact:true}).click();await expect(page.getByText('草稿已删除，已从列表移除；原始记录及文件保留备查。',{exact:true})).toBeVisible();assert.ok(!(await list()).some(item=>item.id===disposable.id));
+  const retained=await runtime.db.query(`SELECT a.id,a.body,s.key FROM ${runtime.schema}.articles a JOIN ${runtime.schema}.settings s ON s.key='_club_deleted:articles:'||a.id WHERE a.id=$1`,[disposable.id]);assert.equal(retained.rows[0].body,disposable.body);record('soft delete','Only fictional disposable draft hidden; original SQL record retained');
+  const recovery=await createDraft('UAT-R1 响应丢失恢复3页','虚构验收资料B；完成已提交但回包丢失时只读核对。');
+  let completed=0;await page.route('**/api/admin/articles/'+recovery.id+'/pdf/*/complete',async route=>{completed++;const response=await route.fetch();assert.equal(response.status(),200);await route.abort();},{times:1});
+  const recoveryPath=resolve('work/uat-ops-01/fixtures/uat-recovery-3pages.pdf');await page.getByLabel('选择 PDF 文件',{exact:true}).setInputFiles(recoveryPath);await page.getByRole('button',{name:'上传并生成试看',exact:true}).click();await expect(page.getByRole('button',{name:'核对当前PDF',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'新建内容',exact:true})).toBeDisabled();await page.screenshot({path:join(out,'03-unknown-recovery.png'),fullPage:true});
+  const mutationsBeforeRead=uploadRequests.length;
+  await page.getByRole('button',{name:'核对当前PDF',exact:true}).click();await expect(page.getByText(/^当前记录已关联 PDF/)).toBeVisible();assert.equal(completed,1);assert.equal(uploadRequests.length,mutationsBeforeRead);
+  const recoveryMutations=uploadRequests.filter(r=>r.path.includes('/'+recovery.id+'/pdf/'));assert.equal(recoveryMutations.filter(r=>r.path.endsWith('/start')).length,1);assert.equal(recoveryMutations.filter(r=>r.path.endsWith('/complete')).length,1);assert.equal(recoveryMutations.filter(r=>r.path.endsWith('/abort')).length,0);assert.equal((await list()).filter(item=>item.id===recovery.id).length,1);
+  const recoveryFull=await context.request.get(runtime.origin+'/api/admin/articles/'+recovery.id+'/document');assert.equal(recoveryFull.status(),200);assert.deepEqual(await recoveryFull.body(),await readFile(recoveryPath));await writeFile(join(out,'recovery-original.pdf'),await recoveryFull.body());await confirm('发布');await expect(page.getByText('已发布，符合阅读范围的用户刷新后可见。',{exact:true})).toBeVisible();
+  const recoveryPreview=await anonymous.get(runtime.origin+'/api/articles/'+recovery.id+'/preview');assert.equal(recoveryPreview.status(),200);const recoveryPreviewBytes=await recoveryPreview.body();assert.equal((await PDFDocument.load(recoveryPreviewBytes)).getPageCount(),3);await writeFile(join(out,'recovery-preview.pdf'),recoveryPreviewBytes);await confirm('撤下');await expect(page.getByText('已撤下，用户再次读取时将无法访问。',{exact:true})).toBeVisible();record('real response-loss recovery','Actual complete committed; only response was aborted. One complete, GET reconciliation, no duplicate/overwrite, 3-page preview verified');
+  const orders=await runtime.db.query(`SELECT count(*) AS n FROM ${runtime.schema}.orders`);assert.equal(Number(orders.rows[0].n),0);const memberships=await runtime.db.query(`SELECT count(*) AS n FROM ${runtime.schema}.memberships`);assert.equal(Number(memberships.rows[0].n),0);assert.deepEqual(errors,[]);
+  await page.getByRole('button',{name:'退出登录',exact:true}).click();await expect(page.getByRole('heading',{name:'管理员登录',exact:true})).toBeVisible();record('logout/guardrails','Real cookie logout; zero orders and memberships; no page errors or external requests');
+  const files=[];for(const name of ['main-original.pdf','main-preview.pdf','recovery-original.pdf','recovery-preview.pdf']){const bytes=await readFile(join(out,name));files.push({name,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex'),pages:(await PDFDocument.load(bytes)).getPageCount()});}
+  await writeFile(join(out,'evidence.json'),JSON.stringify({uatId,localOnly:true,database:'PGlite in-memory PostgreSQL engine; actual application SQL, not remote PG concurrency',mockedSave:false,checks,files,records:[main.id,disposable.id,recovery.id],trace,uploadRequests},null,2),'utf8');
+});
+
+test('local candidate startup failure releases database and private upstream listener',async t=>{
+  const occupied=createServer();await new Promise(ok=>occupied.listen(51889,'127.0.0.1',ok));t.after(()=>new Promise(ok=>occupied.close(ok)));
+  await assert.rejects(createOpsUatRuntime({port:51889}),error=>error.code==='EADDRINUSE');
+});

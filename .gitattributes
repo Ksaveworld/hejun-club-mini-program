@@ -1,0 +1,7 @@
+# Preserve source bytes for release-candidate hash verification across Windows checkouts.
+* -text
+*.xlsx binary
+*.docx binary
+*.pdf binary
+*.png binary
+*.jpg binary

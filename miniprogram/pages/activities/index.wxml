@@ -1,5 +1,5 @@
-<view class="page">
-  <view class="heading"><view class="page-title serif">{{selected ? selected.title : '俱乐部活动'}}</view><view class="subtitle">活动安排与参与说明</view></view>
+<view class="page"><button wx:if="{{campaign}}" class="primary-action" bindtap="openCampaign">{{campaign.timeLabel}} · AI供需问卷 ↗</button>
+  <view class="heading"><view class="page-title serif">{{selected ? selected.title : groupTitle || '俱乐部活动'}}</view><view class="subtitle">活动安排与参与说明</view></view>
   <view wx:if="{{error}}" class="card"><view class="error">{{error}}</view><button class="secondary-action" bindtap="refresh">重新读取</button></view>
   <view wx:if="{{loading}}" class="muted">正在读取活动…</view>
   <view wx:if="{{selected}}" class="card">
@@ -9,10 +9,27 @@
     <view class="section-title">{{selected.mode === 'online' ? '参与说明' : '活动地点'}}</view><text selectable>{{selected.location}}</text>
     <view class="section-title">主办方</view><text selectable>{{selected.organizer}}</text>
     <view class="section-title">活动详情</view><text class="activity-body" selectable>{{selected.body}}</text>
+    <view wx:if="{{posterLoading}}" class="muted">正在读取活动安排原图…</view>
+    <view wx:if="{{posterError}}" class="error">{{posterError}}<button class="secondary-action" bindtap="retryPoster" disabled="{{posterLoading}}">重新读取原图</button></view>
+    <view wx:if="{{selected.posterSource}}"><image style="width:100%;display:block;margin-top:24rpx" src="{{selected.posterSource}}" mode="widthFix" bindtap="previewPoster" binderror="posterError" /><view class="muted">点击查看原图并放大。具体安排以主办方最新通知为准。</view></view>
+    <button class="secondary-action" open-type="share">分享活动安排</button>
   </view>
   <view wx:if="{{!id}}"><input class="search-input" value="{{query}}" bindinput="search" placeholder="搜索活动名称、地点" maxlength="80"/>
-    <button wx:for="{{filtered}}" wx:key="id" class="card activity-card" data-id="{{item.id}}" bindtap="open"><view class="muted">{{item.mode === 'online' ? '线上活动' : '线下活动'}} · {{item.phase}}</view><view class="section-title serif">{{item.title}}</view><view class="subtitle">{{item.summary}}</view><view class="muted">{{item.time}}（北京时间）</view><view>{{item.location}}</view><view class="read-link">查看详情 ›</view></button>
-    <view wx:if="{{ready && !items.length}}" class="card muted">暂无已发布活动。</view><view wx:elif="{{ready && !filtered.length}}" class="card muted">没有匹配的活动，请更换关键词。</view>
+    <block wx:if="{{!group && !query}}">
+      <button wx:for="{{groups}}" wx:key="id" class="activity-card" data-group="{{item.id}}" bindtap="openGroup"><view class="activity-label">俱乐部活动</view><view class="activity-title">{{item.title}}</view><view class="activity-description">{{item.description}}</view></button>
+      <button wx:for="{{unclassified}}" wx:key="id" class="activity-card" data-id="{{item.id}}" bindtap="open"><view class="activity-label">{{item.mode === 'online' ? '线上活动' : '线下活动'}} · {{item.phase}}</view><view class="activity-title">{{item.title}}</view><view class="activity-description">{{item.summary}}</view></button>
+    </block>
+    <block wx:else>
+      <view wx:for="{{officialFiltered}}" wx:key="id">
+        <button class="activity-card" data-id="{{item.id}}" bindtap="openOfficial"><view class="activity-label">{{item.isRecap ? '活动回顾 · ' : ''}}公众号原文</view><view class="activity-title">{{item.title}}</view><view class="activity-description">{{item.summary}}</view></button>
+        <view wx:if="{{officialErrorId === item.id}}" class="card"><view class="muted">公众号原文暂时无法打开，可重试，或复制链接后在微信中打开。</view><button class="secondary-action" data-id="{{item.id}}" bindtap="copyOfficial">复制原文链接</button></view>
+      </view>
+      <view wx:if="{{recapsLoading}}" class="muted">正在读取活动资料…</view>
+      <view wx:if="{{recapsError}}" class="card error">{{recapsError}}<button class="secondary-action" bindtap="refresh">重新读取</button></view>
+      <button wx:for="{{filteredRecaps}}" wx:key="id" class="activity-card" data-id="{{item.id}}" bindtap="openRecap"><view class="activity-label">{{item.isRecap ? '活动回顾' : item.document ? '活动资料 · PDF' : '活动资料'}}</view><view class="activity-title">{{item.title}}</view><view class="activity-description">{{item.summary || (item.isRecap ? '查看已举办活动的报道与交流成果。' : '查看活动资料与说明。')}}</view></button>
+      <button wx:for="{{filtered}}" wx:key="id" class="activity-card" data-id="{{item.id}}" bindtap="open"><view class="activity-label">{{item.mode === 'online' ? '线上活动' : '线下活动'}} · {{item.phase}}</view><view class="activity-title">{{item.title}}</view><view class="activity-description">{{item.summary}}</view></button>
+      <view wx:if="{{ready && recapsReady && !filtered.length && !filteredRecaps.length && !officialFiltered.length}}" class="card muted">{{query ? '没有匹配的活动，请更换关键词。' : '暂无已发布活动，内容正在整理。'}}</view>
+    </block>
   </view>
-  <button wx:if="{{id}}" class="secondary-action" bindtap="back">返回活动列表</button>
+  <button wx:if="{{id || group}}" class="secondary-action" bindtap="back">返回活动列表</button>
 </view>

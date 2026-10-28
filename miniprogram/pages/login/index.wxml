@@ -1,20 +1,47 @@
+<import src="../../templates/legal.wxml" />
 <view class="page login-page">
-  <view class="test-note"><text class="test-label">开发内测</text>仅用于测试账号、申请与订单保存。请填写虚构联系资料，不要使用常用密码。</view>
+  <view wx:if="{{localAvailable}}" class="test-note"><text class="test-label">开发预览</text>当前可使用隔离测试账号，请勿输入真实付款或敏感资料。</view>
   <button wx:if="{{returnReady}}" class="primary-action" disabled="{{navigationBusy}}" loading="{{navigationBusy}}" bindtap="finishLogin">继续办理</button>
   <view class="heading"><view class="page-title serif">登录会员账号</view><view class="subtitle">登录后继续申请，或查看已保存的记录。</view></view>
   <view class="login-capabilities card">
     <view class="login-section-title serif">微信身份接入</view>
     <view wx:if="{{healthLoading}}" class="capability-copy">正在检查登录服务…</view>
     <view wx:elif="{{healthError}}" class="login-error">{{healthError}}</view>
-    <view wx:elif="{{wechatAvailable}}" class="capability-copy">微信登录已由当前测试服务开放。登录不代表手机号已核验，也不会直接开通会员。</view>
-    <view wx:elif="{{healthReady}}" class="capability-copy">当前测试服务尚未开放微信身份登录。{{localAvailable ? '可使用下方本机内测账号继续测试。' : '账号入口尚未开放，请等待服务配置完成。'}}</view>
+    <view wx:elif="{{wechatAvailable}}" class="capability-copy">使用微信身份登录，查看自己的申请、订单和会员服务。<text wx:if="{{legacyAvailable}}">已有网页会员账号，请先选择下方“关联原会籍”。</text></view>
+    <view wx:elif="{{healthReady}}" class="capability-copy">微信登录服务尚未开放。{{localAvailable ? '可使用下方隔离测试账号预览。' : '请稍后重试。'}}</view>
     <button wx:if="{{wechatAvailable}}" class="primary-action wechat-action" loading="{{busyMode === 'wechat'}}" disabled="{{busy || healthLoading}}" bindtap="useWechat">{{busyMode === 'wechat' ? '正在连接微信…' : '使用微信登录'}}</button>
     <button wx:if="{{healthError || (!healthLoading && !wechatAvailable)}}" class="capability-retry" disabled="{{busy}}" bindtap="loadCapabilities">重新检查登录服务</button>
   </view>
-  <view class="consent-card">
+  <template is="legal-fields" data="{{legal,policy,hongKong,busy}}" />
+  <view wx:if="{{legalReady && !legal}}" class="consent-card">
     <checkbox-group bindchange="changeConsent"><label class="login-consent"><checkbox value="agree" checked="{{consent}}" disabled="{{busy}}" color="#164c3d" /><text>我已阅读并同意将本次内测账号、虚构联系资料、申请和订单保存在当前测试服务，仅用于开发验证。正式协议与隐私政策待提供，本说明不代表正式入会协议。</text></label></checkbox-group>
   </view>
   <view wx:if="{{error}}" class="login-error auth-error">{{error}}</view>
+  <view wx:if="{{reviewAvailable}}" class="local-login card">
+    <button class="local-toggle" bindtap="toggleReview" disabled="{{busy}}"><view><view class="login-section-title serif">审核只读体验</view><view class="local-subtitle">仅限已提供的基础或星级审核账号</view></view><text class="arrow">{{reviewExpanded ? '−' : '+'}}</text></button>
+    <view wx:if="{{reviewExpanded}}" class="local-form">
+      <view class="capability-copy">{{reviewNotice}}</view>
+      <label class="login-field"><text>审核账号</text><input class="login-input" data-field="reviewUsername" value="{{reviewUsername}}" bindinput="changeField" maxlength="32" disabled="{{busy}}" /></label>
+      <label class="login-field"><text>审核密码</text><input class="login-input" data-field="reviewPassword" value="{{reviewPassword}}" bindinput="changeField" password maxlength="128" disabled="{{busy}}" /></label>
+      <view class="local-boundary">使用负责人提供的独立测试密码。此入口不会创建正式会员、核验微信身份或产生付款、奖励及提现余额。</view>
+      <button class="primary-action" bindtap="submitReview" disabled="{{busy || healthLoading}}" loading="{{busyMode === 'review'}}">{{busyMode === 'review' ? '正在核验…' : '登录审核只读体验'}}</button>
+    </view>
+  </view>
+  <view wx:if="{{wechatAvailable && legacyAvailable}}" class="local-login card">
+    <button class="local-toggle" bindtap="toggleLegacy" disabled="{{busy}}">已有网页会员账号，关联原会籍 {{legacyExpanded ? '−' : '+'}}</button>
+    <view wx:if="{{legacyExpanded}}" class="local-form">
+      <view class="capability-copy">核验原账号密码后，将当前微信关联到原账号，保留已有订单和会员期限。请在首次微信登录前办理。</view>
+      <label class="login-field"><text>原会员账号</text><input class="login-input" data-field="username" value="{{username}}" bindinput="changeField" maxlength="32" disabled="{{busy}}" /></label>
+      <label class="login-field"><text>原账号密码</text><input class="login-input" data-field="password" value="{{password}}" bindinput="changeField" password maxlength="128" disabled="{{busy}}" /></label>
+      <button class="primary-action" bindtap="bindExisting" disabled="{{busy}}" loading="{{busyMode === 'legacy'}}">验证原账号并关联微信</button>
+      <view wx:if="{{transferAvailable}}">
+        <view class="capability-copy">原来使用公众号微信登录、没有密码？先在原网页“个人设置”获取接续码，再粘贴到下方。接续码10分钟内有效，仅限本人使用。</view>
+        <input class="login-input" data-field="transferCode" value="{{transferCode}}" bindinput="changeField" maxlength="69" disabled="{{busy}}" placeholder="粘贴原网页接续码" />
+        <button class="primary-action" bindtap="bindTransfer" disabled="{{busy}}" loading="{{busyMode === 'transfer'}}">关联原账号与会籍</button>
+      </view>
+      <view class="capability-copy">若已有重复账号，请联系工作人员核对。不会根据姓名、手机号自动合并。</view>
+    </view>
+  </view>
   <view wx:if="{{localAvailable}}" class="local-login card">
     <button class="local-toggle" disabled="{{busy}}" bindtap="toggleLocal"><view><view class="login-section-title serif">本机内测账号</view><view class="local-subtitle">服务器已允许此测试入口</view></view><text class="arrow">{{localExpanded ? '−' : '+'}}</text></button>
     <view wx:if="{{localExpanded}}" class="local-form">
@@ -22,6 +49,7 @@
       <label class="login-field"><text class="login-label">账号</text><input class="login-input" data-field="username" value="{{username}}" bindinput="changeField" maxlength="32" disabled="{{busy}}" placeholder="4–32 位字母、数字或下划线" /></label>
       <label class="login-field"><text class="login-label">密码</text><input class="login-input" data-field="password" value="{{password}}" bindinput="changeField" password maxlength="128" disabled="{{busy}}" placeholder="10–128 位，请勿使用常用密码" /></label>
       <view class="local-boundary">内测账号不代表已核验真实微信身份或手机号。</view>
+      <label wx:if="{{register}}" class="login-field"><text class="login-label">推荐码（选填）</text><input class="login-input" data-field="referral" value="{{referral}}" bindinput="changeField" maxlength="6" disabled="{{busy}}" placeholder="可留空，已有有效来源不会被覆盖" /></label>
       <button class="primary-action" loading="{{busyMode === 'local'}}" disabled="{{busy}}" bindtap="submitLocal">{{busyMode === 'local' ? '正在处理…' : register ? '注册并登录内测账号' : '登录内测账号'}}</button>
       <button class="register-toggle" disabled="{{busy}}" bindtap="toggleRegister">{{register ? '已有内测账号，去登录' : '没有内测账号，去注册'}}</button>
     </view>

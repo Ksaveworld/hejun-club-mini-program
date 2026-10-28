@@ -1,0 +1,31 @@
+<view class="page application-page">
+ <block wx:if="{{info}}">
+  <view class="page-title serif">{{info.title}}</view><view class="subtitle">{{info.intro}}</view>
+  <view class="card steps"><view class="section-title">准备与提交</view><view wx:for="{{info.steps}}" wx:key="*this" class="step"><text class="number">{{index+1}}</text><text>{{item}}</text></view></view>
+  <view class="notice">{{info.note}}</view>
+  <button class="primary-action" disabled="{{templateBusy || busy}}" bindtap="openTemplate">{{templateBusy?'正在打开…':'打开空白 Word 申请表'}}</button>
+  <view class="footnote">打开后可通过文件菜单保存或转发，在电脑填写、打印并盖章。盖章照片请整理成一份 PDF；不支持在此编辑 Word。</view>
+  <view class="card upload-card"><view class="section-title">提交填写好的材料</view>
+   <block wx:if="{{!loggedIn}}"><view class="muted">登录后提交材料，并查看本人的提交记录。</view><button class="primary-action" bindtap="login">微信登录</button></block>
+   <block wx:elif="{{receipt}}"><view class="success">材料已提交</view><view class="muted">回执编号：{{receipt}}</view><view class="muted">材料将由工作人员查看并联系您。提交不代表审核通过或会籍开通。</view><button class="secondary-action" bindtap="newSubmission">补交另一份材料</button></block>
+   <block wx:else>
+    <view class="field">机构名称<input value="{{company}}" data-id="company" bindinput="change" maxlength="160" disabled="{{busy}}" placeholder="填写机构全称" /></view>
+    <view class="field">联系人<input value="{{contact}}" data-id="contact" bindinput="change" maxlength="80" disabled="{{busy}}" placeholder="填写联系人的姓名" /></view>
+    <view class="field">联系电话<input value="{{phone}}" data-id="phone" bindinput="change" maxlength="30" disabled="{{busy}}" placeholder="填写有效联系电话" /></view>
+    <view class="field">补充说明（选填）<textarea value="{{note}}" data-id="note" bindinput="change" maxlength="1000" disabled="{{busy}}" placeholder="补交时可注明之前的回执编号和修改内容" auto-height /></view>
+    <button class="secondary-action" disabled="{{busy || showPrivacy}}" bindtap="chooseFile">{{file?'替换所选文件':'从微信聊天选择材料'}}</button><view class="muted">每次一份 DOCX 或 PDF，最大 5MB。选择后点击提交才会上传。</view>
+    <view wx:if="{{file}}" class="selected-file"><view>{{file.name}}</view><view>{{file.sizeLabel}}</view><button disabled="{{busy}}" bindtap="removeFile">移除文件</button></view>
+    <view wx:if="{{showPrivacy}}" class="notice"><view>仅读取您主动选择的文件，用于本次申请材料接收与联系。</view><button bindtap="openFilePrivacy">阅读{{privacyContractName}}</button><button id="application-file-privacy" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreeFilePrivacy">同意并选择文件</button><button bindtap="cancelFilePrivacy">暂不授权</button></view>
+    <block wx:if="{{legal}}"><button class="legal-link" wx:for="{{legal.documents}}" wx:key="id" data-id="{{item.id}}" bindtap="openLegal">阅读《{{item.title}}》</button><checkbox-group data-id="policy" bindchange="agree"><label><checkbox value="yes" checked="{{policy}}" disabled="{{busy}}" />我已阅读并同意会员服务协议和隐私政策</label></checkbox-group><checkbox-group wx:if="{{legal.requireHongKongConsent !== false}}" data-id="hongKong" bindchange="agree"><label><checkbox value="yes" checked="{{hongKong}}" disabled="{{busy}}" />我单独同意隐私政策说明的香港服务器存储和处理安排，用于办理本次申请</label></checkbox-group></block>
+    <checkbox-group data-id="consent" bindchange="agree"><label><checkbox value="yes" checked="{{consent}}" disabled="{{busy}}" />我确认有权提交该机构及联系人资料，同意用于本次申请内部查看与后续联系，不公开展示。</label></checkbox-group>
+    <view class="muted">上传时请保持页面打开。收到回执才表示提交完成；离开页面不会保存未提交的材料。</view><view wx:if="{{progress !== null}}" class="muted">正在上传 {{progress}}%</view>
+    <button class="primary-action" bindtap="submit" loading="{{busy}}" disabled="{{busy || loading || showPrivacy || !legalReady}}">提交申请材料</button>
+   </block>
+  </view>
+  <view wx:if="{{loggedIn}}" class="card upload-card"><view class="section-title">我的近期提交记录</view><view wx:for="{{submissions}}" wx:key="id" class="submission"><view>{{item.filename}}</view><view class="muted">{{item.timeLabel}} · 已提交</view><view class="muted">回执：{{item.id}}</view></view><view wx:if="{{!submissions.length}}" class="muted">{{loading?'正在读取…':'暂无提交记录'}}</view><button class="secondary-action" bindtap="load" disabled="{{loading || busy}}">刷新记录与协议</button></view>
+  <button class="secondary-action" bindtap="contact">需要帮助时联系白金玲</button>
+  <button wx:if="{{kind==='organization'}}" class="secondary-action" disabled="{{busy}}" bindtap="openPreRegistration">填写机构预报名信息</button>
+ </block><view wx:if="{{error}}" class="notice" role="alert">{{error}}</view>
+</view>
+
+

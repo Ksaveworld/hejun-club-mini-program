@@ -1,0 +1,17 @@
+{
+  "version": "enterprise-hybrid-20260923-v1",
+  "fields": [
+    {"id":"industry","label":"所属行业","type":"single","required":true,"options":["农林牧渔业","采矿业","制造业","电力/热力/燃气及水供应业","建筑业","批发和零售业","交通运输/仓储/邮政业","住宿和餐饮业","信息传输/软件/信息技术服务业","金融业","房地产业","租赁和商务服务业","科学研究和技术服务业","水利/环境/公共设施管理业","居民服务/修理/其他服务业","教育","卫生和社会工作","文化/体育/娱乐业","其他"]},
+    {"id":"region","label":"企业总部所在省市或地区","type":"input","required":true,"maxLength":100},
+    {"id":"products","label":"核心产品或服务","type":"text","required":true,"maxLength":500},
+    {"id":"overseas","label":"目前是否有海外业务","type":"single","required":true,"options":["无","有"]},
+    {"id":"countries","label":"最希望进入的东盟国家","type":"multi","required":true,"maxChoices":3,"exclusive":"不确定，需专业建议","options":["印度尼西亚","马来西亚","泰国","越南","菲律宾","新加坡","柬埔寨","老挝","缅甸","文莱","不确定，需专业建议"]},
+    {"id":"otherMarkets","label":"其他目标市场（非东盟）","type":"input","required":false,"maxLength":200},
+    {"id":"goal","label":"出海最核心目标","type":"single","required":true,"options":["把产品卖出去（贸易出口）","在当地建工厂/设公司（投资设厂）","找代理商/合作伙伴（渠道建设）","品牌推广和市场测试","利用关税优惠降低成本","供应链转移或多元化布局","获取当地资源/技术","其他"]},
+    {"id":"timeline","label":"计划出海时间","type":"single","required":true,"options":["3个月内","6个月内","1年内","1-2年","2年以上","暂无明确时间表"]},
+    {"id":"services","label":"希望获得的服务类别","type":"multi","required":true,"maxChoices":6,"exclusive":"暂不确定，需沟通","options":["战略咨询与市场研究","法律合规与风险管控","财税筹划与金融资本","投资促进与落地服务","供应链与跨境物流","培训教育与知识赋能","暂不确定，需沟通"]},
+    {"id":"serviceBudget","label":"愿意投入的服务预算（人民币/年）","type":"single","required":true,"options":["5万以下","5-10万","10-30万","30-50万","50-100万","100万以上","愿意投入，需了解方案后确定","暂不考虑付费服务"]},
+    {"id":"response","label":"期望的服务响应时间","type":"single","required":true,"options":["1周内","2周内","1个月内","无特别要求"]},
+    {"id":"needSummary","label":"最希望优先解决的问题及其他说明","type":"text","required":false,"maxLength":1000}
+  ]
+}

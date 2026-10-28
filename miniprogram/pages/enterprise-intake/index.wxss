@@ -1,0 +1,32 @@
+.field { margin: 28rpx 0; line-height: 1.7; }
+.field label { display: block; margin: 16rpx 0; }
+.field input, .field textarea { width: 100%; box-sizing: border-box; background: #f6f7f3; padding: 16rpx; margin-top: 14rpx; min-height: 80rpx; }
+.field textarea { min-height: 120rpx; }
+.receipt { overflow-wrap: anywhere; }
+.instruction { margin: 20rpx 0; line-height: 1.8; }
+.template-action { background: #243831; color: #fff; font-weight: 600; }
+.attachment-action { background: #ede5d4; color: #243831; border: 2rpx solid #b79b65; font-weight: 600; }
+.draft-panel { margin: 24rpx 0; padding: 20rpx; background: #f1f3ee; border-radius: 12rpx; line-height: 1.7; font-size: 26rpx; }
+.draft-panel button { margin-top: 16rpx; font-size: 26rpx; }
+.attachment-panel { margin: 30rpx 0; padding: 22rpx; background: #faf8f2; border: 2rpx solid #d9cfba; border-radius: 12rpx; }
+.selected-file { margin: 20rpx 0; line-height: 1.8; overflow-wrap: anywhere; word-break: break-all; }
+.selected-file button { font-size: 26rpx; }
+.field-error { margin-top: 12rpx; color: #b42318; font-size: 26rpx; line-height: 1.6; }
+button[disabled] { opacity: .55; }
+
+/* Material selection: purpose, file, then the existing final submission. */
+.upload-steps { display: flex; flex-wrap: wrap; gap: 12rpx; margin: 20rpx 0; font-size: 24rpx; color: #205447; }
+.upload-steps text { padding: 10rpx 14rpx; border-radius: 8rpx; background: #e9f1ec; }
+.upload-help { margin: 16rpx 0; font-size: 28rpx; line-height: 1.8; }
+.file-confirmation { margin-top: 24rpx; padding: 24rpx; background: #fff; border: 2rpx solid #d4dfd8; border-radius: 16rpx; }
+.confirmation-title { font-weight: 600; font-size: 30rpx; color: #243831; }
+.purpose-check { display: flex; align-items: flex-start; padding: 20rpx 16rpx; background: #f0f5f1; border-radius: 12rpx; font-size: 28rpx; line-height: 1.7; }
+.purpose-check checkbox { flex-shrink: 0; margin-right: 12rpx; }
+.confirmation-hint { color: #69552c; font-size: 25rpx; margin: 12rpx 0; }
+.attachment-panel .attachment-action { display: block; width: 100%; margin-top: 20rpx; min-height: 88rpx; padding: 20rpx 16rpx; line-height: 1.5; font-size: 30rpx; border-radius: 12rpx; background: #205447; color: #fff; border: 0; }
+.attachment-panel .attachment-action[disabled] { background: #e6eae7; color: #68766e; opacity: 1; }
+.attachment-panel .privacy-link { margin-top: 16rpx; padding: 12rpx 0; line-height: 1.6; white-space: normal; font-size: 26rpx; color: #205447; background: transparent; }
+.privacy-link::after { border: none; }
+.attachment-panel .selected-file { padding: 20rpx; border: 2rpx solid #c5d9cc; background: #eef5f0; border-radius: 12rpx; }
+.file-status { font-weight: 600; color: #205447; margin-bottom: 12rpx; }
+.attachment-panel .attachment-action { text-align: center; }

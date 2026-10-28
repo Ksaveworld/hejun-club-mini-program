@@ -1,0 +1,1 @@
+.card{padding:30rpx;margin:30rpx 0;line-height:1.9}.card input,.card textarea{background:#f5f7f0;width:100%;box-sizing:border-box;padding:18rpx;margin:20rpx 0;border-radius:14rpx}.error{color:#a13232;margin:20rpx 0}checkbox-group{margin:25rpx 0;font-size:25rpx}
