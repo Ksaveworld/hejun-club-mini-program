@@ -9,7 +9,7 @@ import {fail} from './common.mjs';
 // The host keeps the existing money-writer lock protocol. Acquire the users table
 // BEFORE session/identity/approval rows, including on retry and revocation.
 // Do not replace this with a user-row lock unless ALL money writers migrate too.
-export async function prepareGrantHost(pool,{schema,adminOrigin,clock,...serviceOptions}={}) {
+export async function prepareGrantHost(pool,{schema,adminOrigin,clock,evidenceFactory,...serviceOptions}={}) {
   const installed=await postgresTransaction(pool,async c=>{
     fail(/^club_migration_[a-z0-9_]{1,40}$/.test(schema||''),'Invalid schema');
     await c.query(`SET LOCAL search_path TO "${schema}"`);
@@ -21,7 +21,13 @@ export async function prepareGrantHost(pool,{schema,adminOrigin,clock,...service
     await c.query('LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE');
     return fn(c);
   })};
-  const grants=createSingleGrants(coordinated,{...serviceOptions,...(clock?{clock}:{}),writeCoordinationReady:true});
+  // Evidence callbacks must share the host's authenticated actor proof registry.
+  // This server-only factory does not enable writes, choose a policy or supply secrets.
+  fail(evidenceFactory===undefined||typeof evidenceFactory==='function','Invalid evidence factory');
+  const evidence=evidenceFactory?await evidenceFactory(coordinated):{};
+  fail(evidence&&typeof evidence==='object'&&!Array.isArray(evidence)&&
+    Object.keys(evidence).every(key=>['identityVerifier','approvalResolver','phoneResolver'].includes(key)&&typeof evidence[key]==='function'),'Invalid evidence resolvers');
+  const grants=createSingleGrants(coordinated,{...serviceOptions,...evidence,...(clock?{clock}:{}),writeCoordinationReady:true});
   const http=adminOrigin?createGrantHttpHandler({access:coordinated,grants,adminOrigin}):undefined;
   return Object.freeze({grants,http,entitlementResolver:effectiveEntitlements,grantPaymentConflict,
     // Installed does not mean writes/evidence are enabled. Shipped startup supplies
