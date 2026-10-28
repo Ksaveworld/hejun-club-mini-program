@@ -11,6 +11,8 @@ import {createPostgresPaymentRuntime} from '../../server/postgres-runtime.mjs';
 import {createPostgresVirtualPayment,initializeVirtualPaymentSchema,verifyVirtualPaymentSchema,virtualPaymentTable} from '../../server/postgres-virtual-payment.mjs';
 import {createWechatVirtualPay} from '../../server/wechat-virtual-pay.mjs';
 import {createWechatAdapter} from '../../server/wechat.mjs';
+import {initializeGrantDatabase} from '../../server/collaboration/grant-migration.mjs';
+import {grantPaymentConflict} from '../../server/collaboration/grant-host.mjs';
 
 const appId='wx47d5e3e20fd77f65',schema='club_migration_virtual_test';
 const legal={id:'virtual-approved-fixture',status:'approved',requireHongKongConsent:false,
@@ -18,16 +20,27 @@ const legal={id:'virtual-approved-fixture',status:'approved',requireHongKongCons
 const consent={accepted:true,releaseId:legal.id};
 const response=(data,status=200)=>new Response(JSON.stringify(data),{status});
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
+async function bounded(promise,label,timeoutMs=5000){
+  let timer;
+  try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Timed out: '+label)),timeoutMs);})]);}
+  finally{clearTimeout(timer);}
+}
 const config=()=>({enabled:true,status:'approved',appId,offerId:'isolated-offer',env:1,
   appKeys:{0:'isolated-live-key',1:'isolated-sandbox-key'},
   products:{basic:{productId:'isolated-basic',goodsPriceCents:36500},star:{productId:'isolated-star',goodsPriceCents:365000}}});
 
-async function fixture(t,{migrate=true}={}){
-  const pg=new PGlite({parsers:{20:v=>BigInt(v)}});await pg.waitReady;t.after(()=>pg.close());
+async function fixture(t,{migrate=true,grantConflicts=false}={}){
+  const pg=new PGlite({parsers:{20:v=>BigInt(v)}});let server;
+  t.after(async()=>{
+    if(server){server.stopMaintenance?.();server.closeAllConnections();await bounded(new Promise(resolve=>server.close(resolve)),'HTTP cleanup');}
+    await pg.close();
+  });
+  await pg.waitReady;
   let tail=Promise.resolve();
   const pool={connect:async()=>{const previous=tail;let release;tail=new Promise(resolve=>{release=resolve;});await previous;
     return {query:async(sql,args)=>!args&&sql.includes(';')?(await pg.exec(sql)).at(-1):pg.query(sql,args),release};}};
   await initializeFreshDatabase(pool,{schema});if(migrate)await initializeVirtualPaymentSchema(pool,{schema});
+  if(grantConflicts)await initializeGrantDatabase(pool,{schema});
   await pg.exec(`SET search_path TO ${schema}`);
   let offset=0,responder,codeGate,tokenResponder;const clock=()=>Date.now()+offset,upstream=[],trades=new Map(),rewards={};
   const virtualConfig=config();
@@ -52,6 +65,7 @@ async function fixture(t,{migrate=true}={}){
       return response({errcode:0,order:{...remote}});
     }
     assert.equal(parsed.pathname,'/xpay/notify_provide_goods');assert.equal(parsed.searchParams.has('pay_sig'),false);
+    assert.deepEqual([...parsed.searchParams.keys()],['access_token']);assert.equal(parsed.searchParams.get('access_token'),'isolated_access_token');
     assert.deepEqual(Object.keys(body).sort(),['env','order_id']);assert.equal(body.env,1);
     if(responder)return responder(parsed,body);
     const remote=trades.get(body.order_id);remote.status=4;return new Response('',{status:200});
@@ -59,16 +73,16 @@ async function fixture(t,{migrate=true}={}){
   const wechat=createWechatAdapter({appId,appSecret:'ISOLATED_APP_SECRET',fetchImpl,clock});
   const provider=createWechatVirtualPay(virtualConfig,{fetchImpl,getAccessToken:input=>wechat.getAccessToken(input),clock});
   const core=createPostgresCore(pool,{schema,appId,legal,rewards});
-  const make=()=>createPostgresVirtualPayment(pool,{schema,appId,legal,provider,wechat,core,rewards,clock});
+  const make=()=>createPostgresVirtualPayment(pool,{schema,appId,legal,provider,wechat,core,rewards,clock,...(grantConflicts?{grantPaymentConflict}:{})});
   let service=make();
-  const server=createPostgresApplication({core,wechat,virtualPayment:service,paymentChannel:'virtual',autoRecover:false,hosts:['127.0.0.1'],mode:'fresh'});
+  server=createPostgresApplication({core,wechat,virtualPayment:service,paymentChannel:'virtual',autoRecover:false,hosts:['127.0.0.1'],mode:'fresh'});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-  t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
   const call=(path,body,token,target=server)=>new Promise((resolve,reject)=>{
     const req=request({hostname:'127.0.0.1',port:target.address().port,path:'/api'+path,method:body===undefined?'GET':'POST',
       headers:{Host:'127.0.0.1','Content-Type':'application/json','X-Club-Request':'1',...(token?{Authorization:'Bearer '+token}:{})}},res=>{
-      const chunks=[];res.on('data',value=>chunks.push(value));res.on('end',()=>resolve({status:res.statusCode,data:JSON.parse(Buffer.concat(chunks).toString())}));
-    });req.on('error',reject);req.end(body===undefined?undefined:JSON.stringify(body));
+      const chunks=[];res.on('data',value=>chunks.push(value));res.on('error',reject);
+      res.on('end',()=>{try{resolve({status:res.statusCode,data:JSON.parse(Buffer.concat(chunks).toString())});}catch(error){reject(error);}});
+    });req.setTimeout(10000,()=>req.destroy(Error('HTTP test request timed out')));req.on('error',reject);req.end(body===undefined?undefined:JSON.stringify(body));
   });
   const account=async(name,{accept=true}={})=>{
     const session=await core.login({code:name,consent:true,legalConsent:consent},wechat),user=await core.authenticate(session.accessToken);
@@ -153,15 +167,14 @@ test('HTTP prepare requires owner, current payment consent, fresh matching OpenI
   await assert.rejects(f.core.preparePayment(a.user,a.order.id),/虚拟支付尝试/);
 });
 
-test('issued virtual parameters cannot be locally cancelled, including while payment channel is disabled; authoritative close permits cancellation',async t=>{
+test('disabled payment channel preserves issued pending orders; authoritative close permits cancellation after recovery',async t=>{
   const f=await fixture(t),a=await f.account('cancel');
   assert.equal((await f.call('/orders/'+a.order.id+'/payment',{code:'pay-cancel'},a.token)).status,200);
-  const refused=await f.call('/orders/'+a.order.id+'/cancel',{},a.token);assert.equal(refused.status,409);assert.match(refused.data.error,/保留待付款/);
   assert.equal((await f.core.order(a.user,a.order.id)).status,'pending');
   await assert.rejects(f.core.cancelOrder(a.user,a.order.id),/保留订单/);
   const disabled=createPostgresApplication({core:f.core,wechat:f.wechat,paymentChannel:'virtual',payment:{configured:false},hosts:['127.0.0.1']});
   await new Promise(resolve=>disabled.listen(0,'127.0.0.1',resolve));
-  t.after(()=>new Promise(resolve=>{disabled.closeAllConnections();disabled.close(resolve);}));
+  t.after(()=>{disabled.stopMaintenance?.();disabled.closeAllConnections();return bounded(new Promise(resolve=>disabled.close(resolve)),'disabled HTTP cleanup');});
   for(const path of ['/health','/plans','/me']){
     const result=await f.call(path,undefined,a.token,disabled);
     assert.equal(result.status,200);assert.equal(result.data.paymentReady,false);assert.equal(result.data.paymentChannel,'virtual');
@@ -175,6 +188,43 @@ test('issued virtual parameters cannot be locally cancelled, including while pay
   a.remote.status=6;
   assert.equal((await f.call('/orders/'+a.order.id+'/cancel',{},a.token)).data.order.status,'cancelled');
   assert.equal(await f.count('memberships'),0);
+  assert.equal((await f.pg.query('SELECT value FROM settings WHERE key=$1',['virtual_application_cancelled:'+a.order.id])).rows.length,0);
+  assert.equal((await f.pg.query(`SELECT state FROM ${virtualPaymentTable}`)).rows[0].state,'closed');
+});
+
+test('authoritative unpaid cancellation retains the attempt; late real payment is reconciled once without membership or rewards',async t=>{
+  const f=await fixture(t);let rewards=0;f.rewards.recordPaidOrderInTransaction=async()=>{rewards++;};
+  for(const status of [0,1]){
+    const name='cancel_unpaid_'+status,a=await f.account(name);await f.service.prepare(a.user,a.order.id,{code:'pay-'+name});
+    a.remote.status=status;
+    for(let retry=0;retry<2;retry++)assert.equal((await f.call('/orders/'+a.order.id+'/cancel',{},a.token)).data.order.status,'cancelled');
+    assert.equal((await f.pg.query('SELECT value FROM settings WHERE key=$1',['virtual_application_cancelled:'+a.order.id])).rows[0].value,'local');
+    assert.equal((await f.pg.query(`SELECT state FROM ${virtualPaymentTable} WHERE order_id=$1`,[a.order.id])).rows[0].state,'issued');
+    const audits=(await f.pg.query("SELECT detail FROM audit_log WHERE action='order.cancelled' AND target_id=$1",[a.order.id])).rows;
+    assert.equal(audits.length,1);assert.equal(JSON.parse(audits[0].detail).localOnly,true);
+    f.paid(a);
+    for(let retry=0;retry<2;retry++)assert.equal((await f.call('/orders/'+a.order.id+'/payment-status',undefined,a.token)).data.order.status,'cancelled');
+    const receipts=(await f.pg.query('SELECT outcome FROM payment_receipts WHERE order_id=$1',[a.order.id])).rows;
+    assert.deepEqual(receipts,[{outcome:'needs_reconciliation'}]);
+    const attempt=(await f.pg.query(`SELECT state,delivery_state FROM ${virtualPaymentTable} WHERE order_id=$1`,[a.order.id])).rows[0];
+    assert.deepEqual(attempt,{state:'reconciliation',delivery_state:'blocked'});
+  }
+  assert.equal(await f.count('memberships'),0);assert.equal(rewards,0);
+  assert.equal(f.upstream.filter(row=>row.url.pathname==='/xpay/notify_provide_goods').length,0);
+});
+
+test('unknown or failed authoritative queries cannot cancel an issued order or erase its recovery marker',async t=>{
+  const f=await fixture(t),a=await f.account('cancel_unknown');await f.service.prepare(a.user,a.order.id,{code:'pay-cancel_unknown'});
+  for(const [status,httpStatus] of [[11,502],[9,409]]){
+    a.remote.status=status;assert.equal((await f.call('/orders/'+a.order.id+'/cancel',{},a.token)).status,httpStatus);
+    assert.equal((await f.core.order(a.user,a.order.id)).status,'pending');
+  }
+  f.respond(()=>response({errcode:-1,errmsg:'isolated_access_token'}));
+  const failed=await f.call('/orders/'+a.order.id+'/cancel',{},a.token);assert.equal(failed.status,502);assert.equal(JSON.stringify(failed).includes('isolated_access_token'),false);
+  assert.equal((await f.core.order(a.user,a.order.id)).status,'pending');
+  assert.equal((await f.pg.query('SELECT value FROM settings WHERE key=$1',['virtual_payment_attempt:'+a.order.id])).rows[0].value,'issued');
+  assert.equal((await f.pg.query('SELECT value FROM settings WHERE key=$1',['virtual_application_cancelled:'+a.order.id])).rows.length,0);
+  assert.equal(await f.count('memberships'),0);assert.equal(await f.count('payment_receipts'),0);
 });
 
 test('authority query activates once and persistent delivery survives provider failure, process recreation and duplicate status polling',async t=>{
@@ -190,6 +240,43 @@ test('authority query activates once and persistent delivery survives provider f
   await restored.sync(a.user,a.order.id);assert.equal(await f.count('payment_receipts'),1);
   assert.equal(Number((await f.pg.query("SELECT count(*) n FROM audit_log WHERE action='payment.activated'")).rows[0].n),1);
   assert.equal(Number((await f.pg.query("SELECT count(*) n FROM audit_log WHERE action='payment.virtual_delivered'")).rows[0].n),1);
+});
+
+test('a committed basic or star grant sends late virtual payment to durable reconciliation even after grant revocation',async t=>{
+  const f=await fixture(t,{grantConflicts:true});let rewardCalls=0;
+  f.rewards.recordPaidOrderInTransaction=async()=>{rewardCalls++;};
+  const actorId=randomUUID(),now=new Date().toISOString();
+  await f.pg.query("INSERT INTO users(id,username,password_hash,role,created_at,referral_code,consent_version) VALUES($1,'synthetic-grant-admin','synthetic','admin',$2,'SYNTHGRANT','fixture')",[actorId,now]);
+  for(const level of ['basic','star']){
+    const name='grant_first_'+level,a=await f.account(name);await f.service.prepare(a.user,a.order.id,{code:'pay-'+name});
+    const grantId=randomUUID(),start=new Date(Date.parse(a.order.createdAt)-1000).toISOString(),end=new Date(Date.parse(a.order.createdAt)+86400000).toISOString();
+    // A committed grant is deliberately inserted after cashier issuance and
+    // before the authoritative paid result; no fake paid membership is seeded.
+    await f.pg.query(`INSERT INTO collab_grants(id,user_id,level,starts_at,expires_at,reason,approval_reference,actor_id,status,idempotency_key,request_hash,created_at)
+      VALUES($1,$2,$3,$4,$5,'synthetic conflict','SYNTHETIC-APPROVED',$6,'active',$7,'synthetic',$8)`,
+      [grantId,a.user.id,level,start,end,actorId,randomUUID(),now]);
+    f.paid(a);
+    const first=await f.call('/orders/'+a.order.id+'/payment-status',undefined,a.token);
+    assert.equal(first.status,200);assert.equal(first.data.order.status,'pending');
+    const receipt=(await f.pg.query('SELECT * FROM payment_receipts WHERE order_id=$1',[a.order.id])).rows;
+    assert.equal(receipt.length,1);assert.equal(receipt[0].outcome,'needs_reconciliation');
+    assert.equal(receipt[0].transaction_id,`virtual:${appId}:1:${a.remote.wx_order_id}`);
+    const saved=(await f.pg.query(`SELECT state,delivery_state,receipt_hash,receipt_json FROM ${virtualPaymentTable} WHERE order_id=$1`,[a.order.id])).rows[0];
+    assert.equal(saved.state,'reconciliation');assert.equal(saved.delivery_state,'blocked');
+    assert.equal(saved.receipt_hash,receipt[0].payload_hash);
+    assert.equal(JSON.parse(saved.receipt_json).wxOrderId,a.remote.wx_order_id);
+    assert.equal(JSON.parse(saved.receipt_json).amountCents,36500);
+    await f.service.sync(a.user,a.order.id);await f.make().sync(a.user,a.order.id);
+    assert.deepEqual((await f.pg.query('SELECT * FROM payment_receipts WHERE order_id=$1',[a.order.id])).rows,receipt);
+    await f.pg.query("UPDATE collab_grants SET status='revoked',revoked_at=$1,revoked_by=$2,revoke_reason='synthetic revoke' WHERE id=$3",[new Date().toISOString(),actorId,grantId]);
+    await f.make().sync(a.user,a.order.id);await f.service.sync(a.user,a.order.id);
+    assert.deepEqual((await f.pg.query('SELECT * FROM payment_receipts WHERE order_id=$1',[a.order.id])).rows,receipt);
+    assert.equal((await f.core.order(a.user,a.order.id)).status,'pending');
+    assert.equal((await f.pg.query(`SELECT state,delivery_state FROM ${virtualPaymentTable} WHERE order_id=$1`,[a.order.id])).rows[0].state,'reconciliation');
+    assert.equal(Number((await f.pg.query("SELECT count(*) n FROM audit_log WHERE action='payment.needs_reconciliation' AND target_id=$1",[a.order.id])).rows[0].n),1);
+  }
+  assert.equal(await f.count('memberships'),0);assert.equal(await f.count('payment_receipts'),2);assert.equal(rewardCalls,0);
+  assert.equal(f.upstream.filter(row=>row.url.pathname==='/xpay/notify_provide_goods').length,0);
 });
 
 test('wrong authoritative amount/env/status and corrupted persisted attempts never open membership',async t=>{
@@ -209,12 +296,30 @@ test('wrong authoritative amount/env/status and corrupted persisted attempts nev
   assert.equal(await f.count('memberships'),0);assert.equal(await f.count('payment_receipts'),0);
 });
 
+test('empty delivery acknowledgement is not confirmation; a lost response is recovered only by an authoritative delivered state',async t=>{
+  const f=await fixture(t),a=await f.account('delivery_ack');await f.service.prepare(a.user,a.order.id,{code:'pay-delivery_ack'});f.paid(a);
+  f.respond(url=>url.pathname==='/xpay/query_order'?response({errcode:0,order:{...a.remote}}):new Response('',{status:200}));
+  await f.service.sync(a.user,a.order.id);
+  assert.equal((await f.pg.query(`SELECT delivery_state FROM ${virtualPaymentTable}`)).rows[0].delivery_state,'pending');
+  assert.equal(await f.count('memberships'),1);assert.equal(await f.count('payment_receipts'),1);
+  f.respond(url=>{
+    if(url.pathname==='/xpay/query_order')return response({errcode:0,order:{...a.remote}});
+    a.remote.status=4;throw Error('Response lost after upstream delivery: isolated_access_token');
+  });
+  f.advance(31000);await f.make().recover();
+  assert.equal((await f.pg.query(`SELECT delivery_state FROM ${virtualPaymentTable}`)).rows[0].delivery_state,'confirmed');
+  assert.equal(await f.count('memberships'),1);assert.equal(await f.count('payment_receipts'),1);
+});
+
 test('cancel committing during code exchange wins before any parameters issue; paid query during later cancel preserves the payment',async t=>{
   const f=await fixture(t),a=await f.account('race');let entered,release;
   const started=new Promise(resolve=>{entered=resolve;}),hold=new Promise(resolve=>{release=resolve;});
   f.gate(async()=>{entered();await hold;});
-  const pending=f.call('/orders/'+a.order.id+'/payment',{code:'pay-race'},a.token);await started;
-  assert.equal((await f.call('/orders/'+a.order.id+'/cancel',{},a.token)).data.order.status,'cancelled');
+  const pending=f.call('/orders/'+a.order.id+'/payment',{code:'pay-race'},a.token);
+  try{
+    await bounded(Promise.race([started,pending.then(()=>{throw Error('Payment request ended before code exchange');})]),'payment code exchange entered');
+    assert.equal((await f.call('/orders/'+a.order.id+'/cancel',{},a.token)).data.order.status,'cancelled');
+  }finally{release();await bounded(pending,'payment code exchange cleanup');}
   release();const result=await pending;assert.equal(result.status,409);assert.equal(result.data.payment,undefined);
   assert.equal(await f.count(virtualPaymentTable),0);assert.equal(await f.count('memberships'),0);
   f.gate(undefined);const b=await f.account('late');await f.service.prepare(b.user,b.order.id,{code:'pay-late'});f.paid(b);
@@ -244,9 +349,12 @@ test('expired delivery lease can be recovered by a new process and a delayed old
     if(++notifications===1){entered();await hold;return response({errcode:-1});}
     a.remote.status=4;return response({});
   });
-  const old=f.service.sync(a.user,a.order.id);await started;
-  assert.equal((await f.pg.query(`SELECT delivery_state FROM ${virtualPaymentTable}`)).rows[0].delivery_state,'processing');
-  f.advance(31000);await f.make().recover();release();await old;
+  const old=f.service.sync(a.user,a.order.id);
+  try{
+    await bounded(Promise.race([started,old.then(()=>{throw Error('Sync ended before delivery lease');})]),'delivery lease entered');
+    assert.equal((await f.pg.query(`SELECT delivery_state FROM ${virtualPaymentTable}`)).rows[0].delivery_state,'processing');
+    f.advance(31000);await bounded(f.make().recover(),'new process delivery recovery');
+  }finally{release();await bounded(old,'old delivery cleanup');}
   assert.equal((await f.pg.query(`SELECT delivery_state FROM ${virtualPaymentTable}`)).rows[0].delivery_state,'confirmed');
   assert.equal(await f.count('memberships'),1);assert.equal(await f.count('payment_receipts'),1);
 });

@@ -1,7 +1,7 @@
 import {createHmac, timingSafeEqual} from 'node:crypto';
 
-// References: saved official requestVirtualPayment/query_order/notify_provide_goods
-// documents and the 2026-10-06 business guide. This module has no DB or HTTP routes.
+// References: official requestVirtualPayment/query_order/notify_provide_goods
+// documents, checked 2026-10-28. This module has no DB or HTTP routes.
 const QUERY = '/xpay/query_order', DELIVER = '/xpay/notify_provide_goods';
 const BINDING_DOMAIN = 'club-virtual-order-v1&';
 const BINDING_FIELDS = ['version','appId','offerId','env','orderId','outTradeNo','userId','openId',
@@ -187,7 +187,10 @@ export function createWechatVirtualPay(config,{fetchImpl,getAccessToken,clock=Da
       need(before.fulfillable,'虚拟支付尚未核实或已涉及退款，不能确认发货',409,'VIRTUAL_NOT_FULFILLABLE');
       if(before.delivered)return Object.freeze({confirmed:true,alreadyDelivered:true,recovered:false,order:before});
       let notificationError;
-      try {await call(DELIVER,{order_id:binding.outTradeNo,env},{signed:true,noPayload:true});}
+      // The endpoint-specific official contract lists access_token only (unlike
+      // query_order); do not apply the guide's generic pay_sig rule to this API.
+      // https://developers.weixin.qq.com/miniprogram/dev/server/API/VirtualPayment/api_notify_provide_goods.html
+      try {await call(DELIVER,{order_id:binding.outTradeNo,env},{noPayload:true});}
       catch(error){notificationError=error;}
       let after;
       try {after=await queryBinding(binding);}catch(error){throw notificationError??error;}
